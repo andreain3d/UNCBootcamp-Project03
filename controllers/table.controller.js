@@ -1,0 +1,38 @@
+const db = require("../models");
+import Deck from "../classes/deck";
+/**
+ * The table model contains the following keys and value types
+ * buyIn: Number,  =>The minimum of player cash required to join the table
+ * bigBlind: Number, =>The big blind value (defaults to 20 and is not required)
+ * smallBlind: Number, =>The small blind value (defaults to 10 and is not required)
+ * autoIncrementBlinds: Boolean, =>Affects weather the blinds will automatially increase. Currently defaults to false. More logic required to fully implement
+ * limit: Boolean, =>Determines limits on betting (defaults to true and is not required)
+ * players: [Object], =>USE THE addPlayer() OR addMultiplePlayers() METHODS TO ADD PLAYERS TO THE TABLE
+ * kitty: Number, =>Not required and will be updated through the bet() method.
+ * dealerIndex: Number, =>Not required, defaults to 0
+ * round: Number, =>Not required, defaults to 0
+ * currentBet: Number, =>Not required, is set to the value of bigBlind at the start of gameplay
+ * betsIn: Boolean, =>Defaults to false, DO NOT MODIFY MANUALLY. This value is used to track betting logic
+ */
+
+module.exports = {
+  //These are the methods that used to exist on the Table class,
+  //now broken out into routines acting on the db model through api calls
+  init: async (req, res) => {
+    //this modified routine constructs the table document. For now, this will only be called once
+    //but can be called for every new table that is constructed. See table.routes.js for the sturcture
+    //of req.body
+    db.Table.create(req.body)
+      .then(table => res.json(table))
+      .catch(err => res.status(422).json(err));
+  },
+
+  serveUpDeck: (req, res) => {
+    console.log("inside");
+    let deck = new Deck();
+    if (req.params.shuffle) {
+      deck.shuffle(10);
+    }
+    res.json(deck);
+  }
+};
