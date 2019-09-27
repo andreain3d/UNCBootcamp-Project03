@@ -14,7 +14,7 @@ import Deck from "../classes/deck";
  * currentBet: Number, =>Not required, is set to the value of bigBlind at the start of gameplay
  * betsIn: Boolean, =>Defaults to false, DO NOT MODIFY MANUALLY. This value is used to track betting logic
  */
-
+var serverDeck = new Deck();
 module.exports = {
   //These are the methods that used to exist on the Table class,
   //now broken out into routines acting on the db model through api calls
@@ -28,11 +28,21 @@ module.exports = {
   },
 
   serveUpDeck: (req, res) => {
-    console.log("inside");
     let deck = new Deck();
-    if (req.params.shuffle) {
-      deck.shuffle(10);
-    }
     res.json(deck);
+  },
+
+  serveUpShuffledDeck: (req, res) => {
+    let deck = new Deck();
+    deck.shuffle(10);
+    res.json(deck);
+  },
+
+  serveUpRandomCard: (req, res) => {
+    serverDeck.shuffle(1);
+    res.json({
+      card: serverDeck.draw(),
+      left: serverCards.cards.length()
+    });
   }
 };
