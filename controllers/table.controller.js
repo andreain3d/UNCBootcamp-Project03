@@ -15,6 +15,7 @@ import Deck from "../classes/deck";
  * betsIn: Boolean, =>Defaults to false, DO NOT MODIFY MANUALLY. This value is used to track betting logic
  */
 var serverDeck = new Deck();
+serverDeck.shuffle(10);
 module.exports = {
   //These are the methods that used to exist on the Table class,
   //now broken out into routines acting on the db model through api calls
@@ -42,7 +43,22 @@ module.exports = {
     serverDeck.shuffle(1);
     res.json({
       card: serverDeck.draw(),
-      left: serverCards.cards.length()
+      left: serverDeck.cards.length
     });
+  },
+
+  serveUpMultipleCards: (req, res) => {
+    var cards = [];
+    var n = parseInt(req.params.n);
+    for (var i = 0; i < n; i++) {
+      cards.push(serverDeck.draw());
+    }
+    res.json({ cards, left: serverDeck.length });
+  },
+
+  newServerDeck: (req, res) => {
+    serverDeck = new Deck();
+    serverDeck.shuffle();
+    res.status(200).send("new deck made and shuffled");
   }
 };
