@@ -29,5 +29,5 @@ const server = app.listen(PORT, () => {
 const io = socket(server);
 
 io.on("connection", socket => {
-  console.log("socket: " + socket + " connection made");
+  console.log("socket connection made");
 });
