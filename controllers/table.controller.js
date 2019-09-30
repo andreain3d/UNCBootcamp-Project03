@@ -1,64 +1,148 @@
 const db = require("../models");
-import Deck from "../classes/deck";
-/**
- * The table model contains the following keys and value types
- * buyIn: Number,  =>The minimum of player cash required to join the table
- * bigBlind: Number, =>The big blind value (defaults to 20 and is not required)
- * smallBlind: Number, =>The small blind value (defaults to 10 and is not required)
- * autoIncrementBlinds: Boolean, =>Affects weather the blinds will automatially increase. Currently defaults to false. More logic required to fully implement
- * limit: Boolean, =>Determines limits on betting (defaults to true and is not required)
- * players: [Object], =>USE THE addPlayer() OR addMultiplePlayers() METHODS TO ADD PLAYERS TO THE TABLE
- * kitty: Number, =>Not required and will be updated through the bet() method.
- * dealerIndex: Number, =>Not required, defaults to 0
- * round: Number, =>Not required, defaults to 0
- * currentBet: Number, =>Not required, is set to the value of bigBlind at the start of gameplay
- * betsIn: Boolean, =>Defaults to false, DO NOT MODIFY MANUALLY. This value is used to track betting logic
- */
-var serverDeck = new Deck();
-serverDeck.shuffle(10);
+import Table from "../classes/table";
+import Player from "../classes/player";
+
+var serverTable;
+
 module.exports = {
-  //These are the methods that used to exist on the Table class,
-  //now broken out into routines acting on the db model through api calls
-  init: async (req, res) => {
-    //this modified routine constructs the table document. For now, this will only be called once
-    //but can be called for every new table that is constructed. See table.routes.js for the sturcture
-    //of req.body
-    db.Table.create(req.body)
-      .then(table => res.json(table))
-      .catch(err => res.status(422).json(err));
+  // These routes will operate on a virtual table that lives on the server.
+
+  //flash is a route that returns the entire table object, or null if init has not been performed
+  flash: (req, res) => {
+    res.json(serverTable || null);
+  },
+  // init is a route that will initiate or reset the virtual table. This route is accessed via get or post
+  // get will init with defualt values. post will allow for custom values.
+  init: (req, res) => {
+    if (req.body) {
+      const { buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit } = req.body;
+      serverTable = new Table(buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit);
+    } else {
+      serverTable = new Table();
+    }
+
+    res.json({ message: "Table is set up and ready for players", next: "POST '/api/table/join'", expecting: { name: "player name", chips: 200 } });
   },
 
-  serveUpDeck: (req, res) => {
-    let deck = new Deck();
-    res.json(deck);
-  },
-
-  serveUpShuffledDeck: (req, res) => {
-    let deck = new Deck();
-    deck.shuffle(10);
-    res.json(deck);
-  },
-
-  serveUpRandomCard: (req, res) => {
-    serverDeck.shuffle(1);
+  //addPlayer is a route that will create a new player and add them to the virtual table. This route is
+  //accessed via post with req.body containing name and cash keys.
+  addPlayer: (req, res) => {
+    const { name, cash } = req.body;
+    var player = new Player(name, cash);
+    var position = serverTable.addPlayer(player);
     res.json({
-      card: serverDeck.draw(),
-      left: serverDeck.cards.length
+      message: `${player.name}, welcome to api casino! You've been added to the virtual table at position ${position} with ${player.chips} chips.`,
+      position: position,
+      next: "GET '/api/table/deal'"
     });
   },
 
-  serveUpMultipleCards: (req, res) => {
-    var cards = [];
-    var n = parseInt(req.params.n);
-    for (var i = 0; i < n; i++) {
-      cards.push(serverDeck.draw());
-    }
-    res.json({ cards, left: serverDeck.length });
+  //placeBet adds player money to the pool and updates the player object stored in the players array.
+  //this route expects the player.position value on req.params.position and the player bet amount on req.params.amount
+  // amounts can be -1 (or any value less than 0 -> this is a fold), 0 (this is a check), amount (any number greater than 0 -> this is a bet or raise)
+  placeBet: (req, res) => {
+    const { position, amount } = req.params;
+    var bet = serverTable.players[parseInt(position)].bet(amount);
+    serverTable.collect(amount);
+    res.json(serverTable);
   },
 
-  newServerDeck: (req, res) => {
-    serverDeck = new Deck();
-    serverDeck.shuffle();
-    res.status(200).send("new deck made and shuffled");
+  //dealCards will update the player object for each player stored in the players array. Because player cards are private,
+  //this route will not return any data.
+  dealCards: (req, res) => {
+    if (serverTable.players.length === 0) {
+      return res.json({
+        message: "You need to add at least one player to the table before you deal!",
+        next: "GET '/api/table/join'",
+        expecting: { name: "player name", chips: 200 }
+      });
+    }
+    if (serverTable.deck.cards.length < 52) {
+      return res.json({
+        err: "Cards have already been dealt!",
+        next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
+      });
+    }
+
+    serverTable.deal();
+    res.json({
+      message: "Cards have been dealt!",
+      next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
+    });
+  },
+
+  //To get a players card, do a get request to "/player/:position/cards". This route expects the player position on req.params.position
+  getPlayerCards: (req, res) => {
+    var playerCards = serverTable.players[parseInt(req.params.position)].cards;
+    res.json({ playerCards });
+  },
+
+  //doFlop will burn a card from the deck and then return the next three cards. These cards are store in the flop key of the table object
+  doFlop: (req, res) => {
+    if (serverTable.flop.length === 3) {
+      return res.json({
+        err: "The flop has already been dealt",
+        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+      });
+    }
+    var flop = serverTable.doFlop();
+    res.json({ flop });
+  },
+
+  //doTurn will burn a card from the deck and return a single card. This card is stored in the turn key of the table object.
+  doTurn: (req, res) => {
+    if (serverTable.flop.length < 3) {
+      return res.json({
+        err: "The flop has not been dealt",
+        next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
+      });
+    }
+    if (serverTable.turn) {
+      return res.json({
+        err: "The turn has already been dealt",
+        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
+      });
+    }
+    var turn = serverTable.doTurn();
+    res.json({ turn });
+  },
+
+  //doRiver will burn a card from the deck and return a single card. This card is stored in the river key of the table object.
+  doRiver: (req, res) => {
+    if (!serverTable.turn) {
+      return res.json({
+        err: "The turn has not been dealt",
+        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+      });
+    }
+    if (serverTable.river) {
+      return res.json({
+        err: "The river has already been dealt",
+        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
+      });
+    }
+    var river = serverTable.doRiver();
+    res.json({ river });
+  },
+
+  //getTableCards will return all cards from the flop, turn, and river keys of the table object
+  getTableCards: (req, res) => {
+    var tableCards = [];
+    serverTable.flop.forEach(card => {
+      tableCards.push(card);
+    });
+    if (serverTable.turn) {
+      tableCards.push(serverTable.turn);
+    }
+    if (serverTable.river) {
+      tableCards.push(serverTable.river);
+    }
+    res.json({ tableCards });
+  },
+
+  //calculateHands uses the findBestHands method on the table object to determine the hand rankings. The entire hands array is returned.
+  calculateHands: (req, res) => {
+    var hands = serverTable.findBestHand();
+    res.json({ hands });
   }
 };
