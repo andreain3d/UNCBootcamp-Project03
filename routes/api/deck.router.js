@@ -1,9 +1,9 @@
 const router = require("express").Router();
-const tableController = require("../../controllers/table.controller");
+const deckController = require("../../controllers/deck.controller");
 
-router.route("/").get(tableController.serveUpDeck);
-router.route("/shuffle").get(tableController.serveUpShuffledDeck);
-router.route("/card").get(tableController.serveUpRandomCard);
-router.route("/card/:n").get(tableController.serveUpMultipleCards);
-router.route("/new").get(tableController.newServerDeck);
+router.route("/").get(deckController.serveUpDeck);
+router.route("/shuffle").get(deckController.serveUpShuffledDeck);
+router.route("/card").get(deckController.serveUpRandomCard);
+router.route("/card/:n").get(deckController.serveUpMultipleCards);
+router.route("/new").get(deckController.newServerDeck);
 module.exports = router;
