@@ -6,7 +6,7 @@
   "scripts": {
     "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
     "start:prod": "babel-node server.js",
-    "start:dev": "concurrently \"babel-node --ignore 'client/*'\" \"npm run client\"",
+    "start:dev": "concurrently \"babel-node server.js --ignore 'client/*'\" \"npm run client\"",
     "start:babel": "babel-node server.js",
     "client": "cd client && npm run start",
     "install": "cd client && npm install",
