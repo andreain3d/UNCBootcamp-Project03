@@ -1,6 +1,3 @@
-import crypto from "crypto";
-import moment from "moment";
-
 export default class Player {
   constructor(name, cash, bot = false) {
     this.name = name;
@@ -13,8 +10,6 @@ export default class Player {
     this.isAllIn = false;
     this.position = 0;
     this.bot = bot;
-    this.bestPossibleHand = 0;
-    this.id = crypto.pbkdf2Sync(name, moment().toString(), 100000, 16, "sha512").toString("hex");
   }
 
   bet(chipValue, index) {
