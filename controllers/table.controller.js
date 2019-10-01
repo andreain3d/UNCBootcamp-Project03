@@ -21,14 +21,14 @@ module.exports = {
       serverTable = new Table();
     }
 
-    res.json({ message: "Table is set up and ready for players", next: "POST '/api/table/join'", expecting: { name: "player name", chips: 200 } });
+    res.json({ message: "Table is set up and ready for players", next: "POST '/api/table/join'", expecting: { name: "player name", cash: 200 } });
   },
 
   //addPlayer is a route that will create a new player and add them to the virtual table. This route is
   //accessed via post with req.body containing name and cash keys.
   addPlayer: (req, res) => {
     const { name, cash } = req.body;
-    var player = new Player(name, cash);
+    var player = new Player(name, parseInt(cash));
     var position = serverTable.addPlayer(player);
     res.json({
       message: `${player.name}, welcome to api casino! You've been added to the virtual table at position ${position} with ${player.chips} chips.`,
