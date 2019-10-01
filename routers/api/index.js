@@ -1,7 +1,11 @@
 const router = require("express").Router();
-const cardRoutes = require("./deck.router");
+const deckRoutes = require("./deck.router");
+const tableRoutes = require("./table.router");
+const playerRoutes = require("./player.router");
 
-// Book routes
-router.use("/deck", cardRoutes);
+// Deck routes
+router.use("/deck", deckRoutes);
+router.use("/table", tableRoutes);
+router.use("/player", playerRoutes);
 
 module.exports = router;
