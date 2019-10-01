@@ -27,8 +27,11 @@ const server = app.listen(PORT, () => {
 });
 
 //socket setup
-const io = socket(server);
+let io = socket(server);
 
 io.on("connection", socket => {
-  console.log("socket connection made");
+  console.log(`Connection made on socket ${socket.id}`);
+  socket.on("SEND_MESSAGE", data => {
+    io.emit("RECEIVE_MESSAGE", data);
+  });
 });

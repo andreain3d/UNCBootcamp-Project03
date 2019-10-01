@@ -1,49 +1,84 @@
 import React, { Component } from "react";
 import "./style.css";
+import io from "socket.io-client";
 
 class ChatWindow extends Component {
-  constructor() {
-    super();
-
-    this.displayData = [];
+  constructor(props) {
+    super(props);
 
     this.state = {
-      showdata: this.displayData,
-      postVal: ""
+      allMessages: [],
+      message: "",
+      username: ""
     };
 
-    this.handleChatSubmit = this.handleChatSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+
+    this.socket = io.connect();
+
+    this.socket.on("RECEIVE_MESSAGE", function(data) {
+      addMessage(data);
+    });
+
+    //NOT SURE BOUT THIS
+
+    const addMessage = data => {
+      console.log(data);
+      this.setState({ allMessages: [...this.state.allMessages, data] });
+    };
+
+    this.sendMessage = ev => {
+      ev.preventDefault();
+      this.socket.emit("SEND_MESSAGE", {
+        author: this.state.username,
+        message: this.state.message
+      });
+      this.setState({ message: "" });
+    };
   }
 
   handleInputChange = event => {
-    const inputValue = event.target.value;
-    this.setState({ postVal: inputValue });
-  };
-
-  handleChatSubmit = event => {
-    event.preventDefault();
-    this.displayData.push(
-      <div id="display-data">
-        <pre>{this.state.postVal}</pre>
-      </div>
-    );
-    this.setState({
-      showdata: this.displayData,
-      postVal: ""
-    });
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
   };
 
   render() {
     return (
       <div className="container">
-        <div id="chat-area">{this.displayData}</div>
+        <div id="chat-area">
+          {this.state.allMessages.map(message => {
+            return (
+              <div>
+                {message.author}: {message.message}
+              </div>
+            );
+          })}
+        </div>
         <br />
         <form id="messageInput">
-          <div id="messageDiv">
-            <input type="text" id="chat-message" value={this.state.postVal} onChange={this.handleInputChange} />
+          <div className="messageDiv">
+            <input
+              key="username"
+              type="text"
+              name="username"
+              id="chat-message"
+              placeholder="username"
+              value={this.state.username}
+              onChange={this.handleInputChange}
+            />
           </div>
-          <input type="submit" value="Send" id="chat-submit" onClick={this.handleChatSubmit} />
+          <div className="messageDiv">
+            <input
+              key="message"
+              type="text"
+              name="message"
+              id="chat-message"
+              placeholder="message"
+              value={this.state.message}
+              onChange={this.handleInputChange}
+            />
+          </div>
+          <input type="submit" value="Send" id="chat-submit" onClick={this.sendMessage} />
         </form>
       </div>
     );
