@@ -42,9 +42,15 @@ module.exports = {
   // amounts can be -1 (or any value less than 0 -> this is a fold), 0 (this is a check), amount (any number greater than 0 -> this is a bet or raise)
   placeBet: (req, res) => {
     const { position, amount } = req.params;
-    var bet = serverTable.players[parseInt(position)].bet(amount);
-    serverTable.collect(amount);
-    res.json(serverTable);
+    var betAmount = serverTable.limit && parseInt(amount) > serverTable.bigBlind ? serverTable.bigBlind : parseInt(amount);
+    var bet = serverTable.players[parseInt(position)].bet(betAmount);
+    serverTable.collect(bet);
+    res.json({
+      message: "You have placed a bet for " + betAmount + " .",
+      betAmount,
+      remainingChips: serverTable.players[parseInt(position)].chips,
+      potTotal: serverTable.pot[0]
+    });
   },
 
   //dealCards will update the player object for each player stored in the players array. Because player cards are private,
