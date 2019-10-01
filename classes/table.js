@@ -9,7 +9,7 @@ export default class Table {
     this.autoIncrementBlinds = autoIncrementBlinds;
     this.limit = limit;
     this.players = [];
-    this.pool = [0];
+    this.pot = [0];
     this.deck = new Deck();
     this.flop = [];
     this.turn;
