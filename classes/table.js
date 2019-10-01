@@ -2,7 +2,7 @@ import Deck from "./Deck";
 var _ = require("lodash");
 
 export default class Table {
-  constructor(buyIn = 200, bigBlind = 10, smallBlind = 12, autoIncrementBlinds = false, limit = true) {
+  constructor(buyIn = 200, bigBlind = 12, smallBlind = 6, autoIncrementBlinds = false, limit = true) {
     this.buyIn = buyIn;
     this.bigBlind = bigBlind;
     this.smallBlind = smallBlind;
@@ -22,13 +22,13 @@ export default class Table {
   }
 
   collect(bet) {
-    this.pool[0] += bet;
+    this.pot[0] += bet;
   }
 
   addPlayer(player) {
     if (player.cash < this.buyIn) {
       console.log("you don't have enough chips to join this table");
-      return;
+      return -1;
     }
     player.cash -= this.buyIn;
     player.chips = this.buyIn;

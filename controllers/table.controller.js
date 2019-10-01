@@ -30,6 +30,17 @@ module.exports = {
     const { name, cash } = req.body;
     var player = new Player(name, parseInt(cash));
     var position = serverTable.addPlayer(player);
+    if (position < 0) {
+      return res.json({
+        message: `${player.name}, welcome to api casino! You don't have enough chips to join this table. Your cash (${player.cash}) < the buy in (${serverTable.buyIn})`,
+        position: position,
+        next: "GET '/api/table/join'",
+        expecting: {
+          name: "player name",
+          cash: serverTable.buyIn
+        }
+      });
+    }
     res.json({
       message: `${player.name}, welcome to api casino! You've been added to the virtual table at position ${position} with ${player.chips} chips.`,
       position: position,
@@ -42,6 +53,7 @@ module.exports = {
   // amounts can be -1 (or any value less than 0 -> this is a fold), 0 (this is a check), amount (any number greater than 0 -> this is a bet or raise)
   placeBet: (req, res) => {
     const { position, amount } = req.params;
+    console.log(position, amount);
     var betAmount = serverTable.limit && parseInt(amount) > serverTable.bigBlind ? serverTable.bigBlind : parseInt(amount);
     var bet = serverTable.players[parseInt(position)].bet(betAmount);
     serverTable.collect(bet);
