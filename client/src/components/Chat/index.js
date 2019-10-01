@@ -1,20 +1,44 @@
 import React, { Component } from "react";
 import "./style.css";
+import io from "socket.io-client";
 
 class ChatWindow extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.displayData = [];
 
     this.state = {
-      showdata: this.displayData,
-      postVal: "",
+      allMessages: this.displayData,
+      message: "",
       username: ""
     };
 
     this.handleChatSubmit = this.handleChatSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+
+    this.socket = io.connect();
+
+    // this.socket.on("RECEIVE_MESSAGE", function(data) {
+    //   addMessage(data);
+    // });
+
+    //NOT SURE BOUT THIS
+
+    // const addMessage = data => {
+    //   console.log(data);
+    //   this.setState({ messages: [...this.state.messages, data] });
+    //   console.log(this.state.messages);
+    // };
+
+    // this.sendMessage = ev => {
+    //   ev.preventDefault();
+    //   this.socket.emit("SEND_MESSAGE", {
+    //     author: this.state.username,
+    //     message: this.state.message
+    //   });
+    //   this.setState({ message: "" });
+    // };
   }
 
   handleInputChange = event => {
@@ -27,13 +51,13 @@ class ChatWindow extends Component {
     this.displayData.push(
       <div id="display-data">
         <pre>
-          {this.state.username}: {this.state.postVal}
+          {this.state.username}: {this.state.message}
         </pre>
       </div>
     );
     this.setState({
-      showdata: this.displayData,
-      postVal: ""
+      allMessages: this.displayData,
+      message: ""
     });
   };
 
@@ -56,10 +80,10 @@ class ChatWindow extends Component {
           <div className="messageDiv">
             <input
               type="text"
-              name="postVal"
+              name="message"
               id="chat-message"
               placeholder="message"
-              value={this.state.postVal}
+              value={this.state.message}
               onChange={this.handleInputChange}
             />
           </div>

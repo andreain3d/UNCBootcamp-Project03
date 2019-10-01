@@ -3,7 +3,8 @@ const path = require("path");
 const routes = require("./routes");
 const PORT = process.env.PORT || 3001;
 const app = express();
-const socket = require("socket.io");
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 
 // Define middleware here
 app.use(express.urlencoded({ extended: true }));
@@ -21,14 +22,13 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
-//asigned listener to a variable
-const server = app.listen(PORT, () => {
-  console.log(`🌎 ==> API server now on port ${PORT}!`);
+io.on("connection", socket => {
+  console.log(`socket${socket.id} connection made`);
+  socket.on("SEND_MESSAGE", function(data) {
+    io.emit("RECEIVE_MESSAGE", data);
+  });
 });
 
-//socket setup
-const io = socket(server);
-
-io.on("connection", socket => {
-  console.log("socket connection made");
+http.listen(PORT, () => {
+  console.log(`🌎 ==> API server now on port ${PORT}!`);
 });
