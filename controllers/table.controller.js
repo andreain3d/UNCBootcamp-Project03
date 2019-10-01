@@ -21,7 +21,7 @@ module.exports = {
       serverTable = new Table();
     }
 
-    res.json({ message: "Table is set up and ready for players", next: "POST '/api/table/join'", expecting: { name: "player name", chips: 200 } });
+    res.json({ message: "Table is set up and ready for players", next: "POST '/api/table/join'", expecting: { name: "player name", cash: 200 } });
   },
 
   //addPlayer is a route that will create a new player and add them to the virtual table. This route is
