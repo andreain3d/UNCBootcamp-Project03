@@ -28,7 +28,7 @@ module.exports = {
   //accessed via post with req.body containing name and cash keys.
   addPlayer: (req, res) => {
     const { name, cash } = req.body;
-    var player = new Player(name, cash);
+    var player = new Player(name, parseInt(cash));
     var position = serverTable.addPlayer(player);
     res.json({
       message: `${player.name}, welcome to api casino! You've been added to the virtual table at position ${position} with ${player.chips} chips.`,
