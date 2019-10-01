@@ -6,39 +6,35 @@ class ChatWindow extends Component {
   constructor(props) {
     super(props);
 
-    this.displayData = [];
-
     this.state = {
-      allMessages: this.displayData,
+      allMessages: [],
       message: "",
       username: ""
     };
 
-    this.handleChatSubmit = this.handleChatSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
 
     this.socket = io.connect();
 
-    // this.socket.on("RECEIVE_MESSAGE", function(data) {
-    //   addMessage(data);
-    // });
+    this.socket.on("RECEIVE_MESSAGE", function(data) {
+      addMessage(data);
+    });
 
     //NOT SURE BOUT THIS
 
-    // const addMessage = data => {
-    //   console.log(data);
-    //   this.setState({ messages: [...this.state.messages, data] });
-    //   console.log(this.state.messages);
-    // };
+    const addMessage = data => {
+      console.log(data);
+      this.setState({ allMessages: [...this.state.allMessages, data] });
+    };
 
-    // this.sendMessage = ev => {
-    //   ev.preventDefault();
-    //   this.socket.emit("SEND_MESSAGE", {
-    //     author: this.state.username,
-    //     message: this.state.message
-    //   });
-    //   this.setState({ message: "" });
-    // };
+    this.sendMessage = ev => {
+      ev.preventDefault();
+      this.socket.emit("SEND_MESSAGE", {
+        author: this.state.username,
+        message: this.state.message
+      });
+      this.setState({ message: "" });
+    };
   }
 
   handleInputChange = event => {
@@ -46,29 +42,23 @@ class ChatWindow extends Component {
     this.setState({ [name]: value });
   };
 
-  handleChatSubmit = event => {
-    event.preventDefault();
-    this.displayData.push(
-      <div id="display-data">
-        <pre>
-          {this.state.username}: {this.state.message}
-        </pre>
-      </div>
-    );
-    this.setState({
-      allMessages: this.displayData,
-      message: ""
-    });
-  };
-
   render() {
     return (
       <div className="container">
-        <div id="chat-area">{this.displayData}</div>
+        <div id="chat-area">
+          {this.state.allMessages.map(message => {
+            return (
+              <div>
+                {message.author}: {message.message}
+              </div>
+            );
+          })}
+        </div>
         <br />
         <form id="messageInput">
           <div className="messageDiv">
             <input
+              key="username"
               type="text"
               name="username"
               id="chat-message"
@@ -79,6 +69,7 @@ class ChatWindow extends Component {
           </div>
           <div className="messageDiv">
             <input
+              key="message"
               type="text"
               name="message"
               id="chat-message"
@@ -87,7 +78,7 @@ class ChatWindow extends Component {
               onChange={this.handleInputChange}
             />
           </div>
-          <input type="submit" value="Send" id="chat-submit" onClick={this.handleChatSubmit} />
+          <input type="submit" value="Send" id="chat-submit" onClick={this.sendMessage} />
         </form>
       </div>
     );

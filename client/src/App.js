@@ -4,7 +4,11 @@ import ChatWindow from "./components/Chat";
 
 class App extends Component {
   render() {
-    return <ChatWindow />;
+    return (
+      <div>
+        <ChatWindow />
+      </div>
+    );
   }
 }
 
