@@ -12,8 +12,8 @@ export default class Table {
     this.pot = [0];
     this.deck = new Deck();
     this.flop = [];
-    this.turn;
-    this.river;
+    this.turn = {};
+    this.river = {};
     this.dealerIndex = 0;
     this.round = 0;
     this.currentBet = 0;
@@ -43,13 +43,12 @@ export default class Table {
       if (player.didFold) {
         return folds++;
       }
-      if (player.didBet && player.bets[this.round] === this.currentBet) {
+      if (player.didBet && (player.bets[this.round] === this.currentBet || player.isAllIn)) {
         return count++;
       }
       if (player.bets[this.round] < this.currentBet) {
         player.didBet = false;
       }
-      console.log("LOOP COUNT: ", count);
     });
     if (count + folds === this.players.length) {
       this.betsIn = true;
@@ -72,7 +71,7 @@ export default class Table {
     if (this.position === this.players.length) {
       this.position = 0;
     }
-    if (this.players[this.position].didFold) {
+    if (this.players[this.position].didFold || this.players[this.position].isAllIn) {
       this.shift();
     }
   }
@@ -141,7 +140,7 @@ export default class Table {
     var hands = [];
     //this method will throw an error if cards have not been dealt and the turn, flop, and river methods have not run.
     //loop over every player and make the best possible hand
-    this.players.forEach(player => {
+    this.players.forEach((player, index) => {
       if (player.didFold) {
         return;
       }
@@ -154,6 +153,7 @@ export default class Table {
       cards.sort((a, b) => a.value - b.value);
       var hand = bestHand(cards);
       hand.player = player.name;
+      hand.playerIndex = index;
       var otherValue = 0;
       hand.otherCards.forEach(card => {
         otherValue += card.value;
