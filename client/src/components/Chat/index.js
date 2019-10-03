@@ -88,8 +88,7 @@ class ChatWindow extends Component {
               value={this.state.username}
               onChange={this.handleInputChange}
             />
-          </div>
-          <div className="messageDiv">
+
             <input
               key="message"
               type="text"
@@ -99,8 +98,8 @@ class ChatWindow extends Component {
               value={this.state.message}
               onChange={this.handleInputChange}
             />
+            <input type="submit" value="Send" id="chat-submit" onClick={this.sendMessage} />
           </div>
-          <input type="submit" value="Send" id="chat-submit" onClick={this.sendMessage} />
         </form>
       </div>
     );
