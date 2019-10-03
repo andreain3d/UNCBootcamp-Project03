@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./style.css";
+import { isEmpty } from "lodash";
 import io from "socket.io-client";
 
 class ChatWindow extends Component {
@@ -17,29 +18,47 @@ class ChatWindow extends Component {
     this.socket = io.connect();
 
     this.socket.on("RECEIVE_MESSAGE", function(data) {
+      console.log("RECEIVING MESSAGE SOCKET");
       addMessage(data);
     });
-
-    //NOT SURE BOUT THIS
 
     const addMessage = data => {
       console.log(data);
       this.setState({ allMessages: [...this.state.allMessages, data] });
     };
 
-    this.sendMessage = ev => {
-      ev.preventDefault();
+    this.sendMessage = event => {
+      event.preventDefault();
+
       this.socket.emit("SEND_MESSAGE", {
         author: this.state.username,
         message: this.state.message
       });
-      this.setState({ message: "" });
+      this.setState({
+        message: "",
+        //`${this.state.username} is typing...` needs to be changed to find any message that includes " is typing..."
+        allMessages: this.state.allMessages.filter(value => value !== `${this.state.username} is typing...`)
+      });
     };
+
+    // this.typing method containing socket emitter goes here
+    this.sendTypingMessage = () => {
+      this.socket.emit("typing", this.state.username);
+    };
+
+    this.socket.on("isTyping", username => {
+      if (!this.state.allMessages.includes(`${username} is typing...`)) {
+        console.log("SOCKET IS TYPING");
+        addMessage(`${username} is typing...`);
+      }
+    });
   }
 
   handleInputChange = event => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
+    // "on typing" function call here
+    this.sendTypingMessage();
   };
 
   render() {
@@ -47,6 +66,9 @@ class ChatWindow extends Component {
       <div className="container">
         <div id="chat-area">
           {this.state.allMessages.map(message => {
+            if (isEmpty(message.author)) {
+              return <div>{message}</div>;
+            }
             return (
               <div>
                 {message.author}: {message.message}
