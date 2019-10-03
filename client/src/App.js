@@ -17,7 +17,6 @@ const App = () => {
           <NavBar />
         </header>
         {isAuthenticated && <ChatWindow />}
-
         <Switch>
           <Route path="/" exact />
           <PrivateRoute path="/profile" component={Profile} />

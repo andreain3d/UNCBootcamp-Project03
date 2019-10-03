@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import createAuth0Client from "@auth0/auth0-spa-js";
+import API from "./utils/API";
 
 const DEFAULT_REDIRECT_CALLBACK = () =>
   window.history.replaceState({}, document.title, window.location.pathname);
@@ -54,6 +55,14 @@ export const Auth0Provider = ({
     const user = await auth0Client.getUser();
     setUser(user);
     setIsAuthenticated(true);
+    console.log(user);
+    API.saveUser({
+      username: user.nickname,
+      email: user.email,
+      image: user.picture
+    })
+      .then(alert("Book has been added."))
+      .catch(err => console.log(err));
   };
 
   const handleRedirectCallback = async () => {
@@ -64,6 +73,7 @@ export const Auth0Provider = ({
     setIsAuthenticated(true);
     setUser(user);
   };
+
   return (
     <Auth0Context.Provider
       value={{
