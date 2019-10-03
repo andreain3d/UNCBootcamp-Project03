@@ -17,8 +17,64 @@ export default class Table {
     this.dealerIndex = 0;
     this.round = 0;
     this.currentBet = 0;
-    this.position = 3;
+    this.position = 0;
     this.betsIn = false;
+    this.foldedPlayers = 0;
+    this.next = ["deal", "flop", "turn", "river", "hands", "payout"];
+  }
+
+  rotate() {
+    this.players.push(this.players.shift());
+  }
+
+  restoreOrder() {
+    this.players.sort((a, b) => a.position - b.position);
+  }
+
+  checkBets() {
+    //loop through the players array and compare each players bet to the current bet value.
+    //If a player has folded, increment the folds variable and continue
+    //If all players have bets in or have folded and at least two players remain in the hand,
+    //update the betsIn and the round values and return.
+    //If all but one player has folded, update the betsIn and round values and return
+    var count = 0;
+    var folds = 0;
+    this.players.forEach(player => {
+      if (player.didFold) {
+        return folds++;
+      }
+      if (player.didBet && player.bets[this.round] === this.currentBet) {
+        return count++;
+      }
+      if (player.bets[this.round] < this.currentBet) {
+        player.didBet = false;
+      }
+      console.log("LOOP COUNT: ", count);
+    });
+    if (count + folds === this.players.length) {
+      this.betsIn = true;
+      //reset the betting position to the small blind
+      if (this.players.length === 2) {
+        console.log("SET POSITION TO SMALL BLIND");
+        this.position = 0;
+      } else {
+        console.log("SET POSITION TO SMALL BLIND");
+        this.position = this.dealerIndex + 1;
+      }
+    } else {
+      this.shift();
+    }
+  }
+
+  shift() {
+    console.log("shifting...");
+    this.position++;
+    if (this.position === this.players.length) {
+      this.position = 0;
+    }
+    if (this.players[this.position].didFold) {
+      this.shift();
+    }
   }
 
   collect(bet) {
