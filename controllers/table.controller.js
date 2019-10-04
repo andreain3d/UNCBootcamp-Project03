@@ -1,69 +1,87 @@
 const db = require("../models");
 import Table from "../classes/table";
 import Player from "../classes/player";
+import Deck from "../classes/Deck";
+import io from "../server";
 
 var serverTable;
 var que = [];
+var deque = [];
 
 module.exports = {
   // These routes will operate on a virtual table that lives on the server.
 
   //flash is a route that returns the entire table object, or null if init has not been performed
   flash: (req, res) => {
-    res.json(serverTable || null);
+    if (!serverTable) {
+      serverTable = new Table();
+    }
+    io.emit("FLASH", serverTable);
+    res.status(200).send();
   },
   // init is a route that will initiate or reset the virtual table. This route is accessed via get or post
   // get will init with defualt values. post will allow for custom values.
-  init: (req, res) => {
-    if (req.body) {
-      const { buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit } = req.body;
-      serverTable = new Table(buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit);
+  prime: (req, res) => {
+    if (!serverTable) {
+      if (req.body) {
+        const { buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit } = req.body;
+        serverTable = new Table(buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit);
+      } else {
+        serverTable = new Table();
+      }
     } else {
-      serverTable = new Table();
+      serverTable.round = 0;
+      serverTable.currentBet = 0;
+      serverTable.deck = new Deck();
+      serverTable.flop = [];
+      serverTable.turn = {};
+      serverTable.river = {};
+      serverTable.pot = [0];
+      serverTable.players.forEach((player, index) => {
+        player.position = index;
+        player.bets = [0];
+        player.didFold = false;
+        player.isAllIn = false;
+        player.cards = [];
+        player.didBet = false;
+      });
+    }
+    var tooPoor = [];
+    while (que.length > 0) {
+      if (serverTable.players.length === 8) {
+        break;
+      }
+      var player = que.shift();
+      if (player.cash < serverTable.buyIn) {
+        tooPoor.push(player);
+        continue;
+      }
+      serverTable.addPlayer(player);
     }
 
-    res.json({ message: "Table is set up and ready for players", next: "POST '/api/table/join'", expecting: { name: "player name", cash: 200 } });
+    res.json({
+      message: "Table is set up and primed for the next hand",
+      next: "POST '/api/table/deal'",
+      tooPoor
+    });
   },
 
   //addPlayer is a route that will create a new player and add them to the virtual table. This route is
   //accessed via post with req.body containing name and cash keys.
   addPlayer: (req, res) => {
-    if (!serverTable) {
-      return res.json({
-        err: "The table has not been set up.",
-        next: "/api/table/init"
-      });
-    }
-
     const { name, cash } = req.body;
     var player = new Player(name, parseInt(cash));
-    if (serverTable.deck.cards.length < 52) {
-      var quePosition = que.length;
-      que.push(player);
-      return res.json({
-        message: "There is a hand in progress. You will be added to the table after the current hand ends.",
-        quePosition
-      });
-    }
-    var position = serverTable.addPlayer(player);
-    if (position < 0) {
-      return res.json({
-        message: `${player.name}, welcome to api casino! You don't have enough chips to join this table. Your cash (${player.cash}) < the buy in (${serverTable.buyIn})`,
-        position: position,
-        next: "GET '/api/table/join'",
-        expecting: {
-          name: "player name",
-          cash: serverTable.buyIn
-        }
-      });
-    }
+    var quePos = que.length;
+    que.push(player);
     res.json({
-      message: `${player.name}, welcome to api casino! You've been added to the virtual table at position ${position} with ${player.chips} chips.`,
-      position: position,
-      next: "GET '/api/table/deal'"
+      message: `${player.name}, welcome to api casino! You've been added to the que for the table in position ${quePos}. Players are added to the table at the start of a hand in FIFO order as seats become available.`,
+      quePos,
+      next: "GET '/api/table/init'"
     });
   },
 
+  //leaveTable will automatically cause a player to fold their current hand and flag the player for removal at the end of the hand
+  leaveTable: (req, res) => {},
   //dealCards will update the player object for each player stored in the players array. Because player cards are private,
   //this route will not return any data.
   dealCards: (req, res) => {
@@ -268,7 +286,45 @@ module.exports = {
     var hands = serverTable.findBestHand();
     res.json({ hands });
   },
+  //payout is a method that pays out a player based on the hand ranking
+  payout: (req, res) => {
+    let hands = serverTable.findBestHand();
+    //determine the max payout for all players and add the payout key to the player object;
+    for (var i = 0; i < serverTable.players.length; i++) {
+      var currentPlayer = serverTable.players[i];
+      var payout = 0;
+      var count = currentPlayer.bets.length - 1;
+      var lastBet = currentPlayer.bets[count];
+      //sum up all but the last bet
+      for (var j = 0; j < count; j++) {
+        serverTable.players.forEach(player => {
+          payout += player.bets[j];
+        });
+      }
+      //a player's last bet could be an allIn bet
+      serverTable.players.forEach(player => {
+        var plb = player.bets[count];
+        if (plb > lastBet) {
+          payout += lastBet;
+        } else {
+          payout += plb;
+        }
+      });
+      currentPlayer.payout = payout;
+    }
 
+    //look at hand rankings and pay out players accordingly...
+    var topRank = hands.filter(hand => hand.rank === 1);
+    //sort Toprank by player payout smallest to largest
+    topRank.sort((a, b) => {
+      return serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout;
+    });
+    //topRank should now be mapped to a players array
+    var sortedPayoutArray = topRank.map(hand => ({
+      index: serverTable.players[hand.playerIndex].position,
+      payout: serverTable.players[hand.playerIndex].payout
+    }));
+  },
   //placeBet adds player money to the pool and updates the player object stored in the players array.
   //this route expects the player.position value on req.params.position and the player bet amount on req.params.amount
   // amounts can be -1 (or any value less than 0 -> this is a fold), 0 (this is a check), amount (any number greater than 0 -> this is a bet or raise)
@@ -280,7 +336,7 @@ module.exports = {
     if (betsIn) {
       return res.json({
         err: "All bets are in for the current round.",
-        next: `/api/table/${next[round]}`
+        next: `/api/table/${next[round + 1]}`
       });
     }
     if (position !== tablePos) {
@@ -304,7 +360,9 @@ module.exports = {
     var parAmount = currentBet - players[position].bets[round];
     console.log("PARAMOUNT", parAmount);
     var betObj;
-    if (amount < 0) {
+    if (amount === players[pos].chips) {
+      betObj = allIn(pos);
+    } else if (amount < 0) {
       betObj = fold(position);
     } else if (amount === 0 && parAmount === 0) {
       betObj = check(position);
@@ -480,6 +538,38 @@ let check = pos => {
     return {
       playerAction: "check",
       remainingChips,
+      next: `/api/table/bet/${position}/<amount>`,
+      nextPlayer: players[position].name,
+      nextBetPosition: position,
+      action: currentBet - players[position].bets[round],
+      currentBet: currentBet,
+      playerBet: players[position].bets[round],
+      position: position
+    };
+  }
+};
+
+let allIn = pos => {
+  var amount = serverTable.players[pos].bet(serverTable.players[pos].chips);
+
+  serverTable.collect(amount);
+  //check the amount against the current bet
+  if (amount > serverTable.currentBet) {
+    serverTable.currentBet = amount;
+  }
+  serverTable.checkBets();
+  const { next, position, players, currentBet, round, betsIn } = serverTable;
+  if (betsIn) {
+    return {
+      playerAction: "all in",
+      remainingChips: 0,
+      message: "all bets are in",
+      next: `/api/table/${next[round + 1]}`
+    };
+  } else {
+    return {
+      playerAction: "all in",
+      remainingChips: 0,
       next: `/api/table/bet/${position}/<amount>`,
       nextPlayer: players[position].name,
       nextBetPosition: position,

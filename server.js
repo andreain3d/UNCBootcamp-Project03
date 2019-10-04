@@ -61,3 +61,5 @@ io.on("connection", socket => {
     socket.broadcast.emit("isTyping", username);
   });
 });
+
+export default io;

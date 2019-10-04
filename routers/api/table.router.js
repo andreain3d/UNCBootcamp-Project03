@@ -3,9 +3,9 @@ const tableController = require("../../controllers/table.controller");
 
 router.route("/").get(tableController.flash);
 router
-  .route("/init")
-  .get(tableController.init)
-  .post(tableController.init);
+  .route("/prime")
+  .get(tableController.prime)
+  .post(tableController.prime);
 router.route("/join").post(tableController.addPlayer);
 router.route("/bet/:position/:amount").get(tableController.placeBet);
 router.route("/deal").get(tableController.dealCards);

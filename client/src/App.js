@@ -3,7 +3,7 @@ import { withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Table from "./components/table";
 import Navbar from "./components/navbar";
-import Chat from "./components/chat";
+import Chat from "./components/Chat/";
 import Options from "./components/options";
 
 const styles = {
