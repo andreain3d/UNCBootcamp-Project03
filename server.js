@@ -25,10 +25,38 @@ const server = app.listen(PORT, () => {
 
 //socket setup
 let io = socket(server);
+let numUsers = 0;
 
 io.on("connection", socket => {
   console.log(`Connection made on socket ${socket.id}`);
+
+  socket.on("disconnect", () => {
+    console.log(`user ${socket.id} disconnected`);
+  });
+
   socket.on("SEND_MESSAGE", data => {
     io.emit("RECEIVE_MESSAGE", data);
   });
+
+  // socket.on("add user", username => {
+  //   if (addedUser) return;
+
+  //   socket.username = username;
+  //   ++numUsers;
+  //   addedUser = true;
+  //   socket.emit("login", {
+  //     numUsers: numUsers
+  //   });
+
+  //   socket.broadcast.emit("user joined", {
+  //     username: socket.username,
+  //     numUsers: numUsers
+  //   });
+  // });
+
+  socket.on("typing", username => {
+    socket.broadcast.emit("isTyping", username);
+  });
 });
+
+export default io;

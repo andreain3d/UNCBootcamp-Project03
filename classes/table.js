@@ -2,7 +2,7 @@ import Deck from "./Deck";
 var _ = require("lodash");
 
 export default class Table {
-  constructor(buyIn = 200, bigBlind = 10, smallBlind = 12, autoIncrementBlinds = false, limit = true) {
+  constructor(buyIn = 200, bigBlind = 12, smallBlind = 6, autoIncrementBlinds = false, limit = true) {
     this.buyIn = buyIn;
     this.bigBlind = bigBlind;
     this.smallBlind = smallBlind;
@@ -17,18 +17,73 @@ export default class Table {
     this.dealerIndex = 0;
     this.round = 0;
     this.currentBet = 0;
-    this.position = 3;
+    this.position = 0;
     this.betsIn = false;
+    this.foldedPlayers = 0;
+    this.next = ["deal", "flop", "turn", "river", "hands", "payout"];
+  }
+
+  rotate() {
+    this.players.push(this.players.shift());
+  }
+
+  restoreOrder() {
+    this.players.sort((a, b) => a.position - b.position);
+  }
+
+  checkBets() {
+    //loop through the players array and compare each players bet to the current bet value.
+    //If a player has folded, increment the folds variable and continue
+    //If all players have bets in or have folded and at least two players remain in the hand,
+    //update the betsIn and the round values and return.
+    //If all but one player has folded, update the betsIn and round values and return
+    var count = 0;
+    var folds = 0;
+    this.players.forEach(player => {
+      if (player.didFold) {
+        return folds++;
+      }
+      if (player.didBet && (player.bets[this.round] === this.currentBet || player.isAllIn)) {
+        return count++;
+      }
+      if (player.bets[this.round] < this.currentBet) {
+        player.didBet = false;
+      }
+    });
+    if (count + folds === this.players.length) {
+      this.betsIn = true;
+      //reset the betting position to the small blind
+      if (this.players.length === 2) {
+        console.log("SET POSITION TO SMALL BLIND");
+        this.position = 0;
+      } else {
+        console.log("SET POSITION TO SMALL BLIND");
+        this.position = this.dealerIndex + 1;
+      }
+    } else {
+      this.shift();
+    }
+  }
+
+  shift() {
+    console.log("shifting...");
+    this.position++;
+    if (this.position === this.players.length) {
+      this.position = 0;
+    }
+    if (this.players[this.position].didFold || this.players[this.position].isAllIn) {
+      this.shift();
+    }
   }
 
   collect(bet) {
-    this.pool[0] += bet;
+    this.pot[0] += bet;
   }
 
   addPlayer(player) {
     if (player.cash < this.buyIn) {
       console.log("you don't have enough chips to join this table");
-      return;
+      return -1;
     }
     player.cash -= this.buyIn;
     player.chips = this.buyIn;
@@ -85,7 +140,7 @@ export default class Table {
     var hands = [];
     //this method will throw an error if cards have not been dealt and the turn, flop, and river methods have not run.
     //loop over every player and make the best possible hand
-    this.players.forEach(player => {
+    this.players.forEach((player, index) => {
       if (player.didFold) {
         return;
       }
@@ -98,6 +153,7 @@ export default class Table {
       cards.sort((a, b) => a.value - b.value);
       var hand = bestHand(cards);
       hand.player = player.name;
+      hand.playerIndex = index;
       var otherValue = 0;
       hand.otherCards.forEach(card => {
         otherValue += card.value;
