@@ -14,4 +14,5 @@ router.route("/turn").get(tableController.doTurn);
 router.route("/river").get(tableController.doRiver);
 router.route("/cards").get(tableController.getTableCards);
 router.route("/hands").get(tableController.calculateHands);
+router.route("/payout").get(tableController.payout);
 module.exports = router;

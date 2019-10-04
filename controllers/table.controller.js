@@ -34,8 +34,8 @@ module.exports = {
       serverTable.currentBet = 0;
       serverTable.deck = new Deck();
       serverTable.flop = [];
-      serverTable.turn = {};
-      serverTable.river = {};
+      serverTable.turn = undefined;
+      serverTable.river = undefined;
       serverTable.pot = [0];
       serverTable.players.forEach((player, index) => {
         player.position = index;
@@ -46,7 +46,7 @@ module.exports = {
         player.didBet = false;
       });
     }
-    var tooPoor = [];
+    var rejected = [];
     while (que.length > 0) {
       if (serverTable.players.length === 8) {
         break;
@@ -61,7 +61,7 @@ module.exports = {
     io.emit("PRIME", {
       message: "Table is set up and primed for the next hand",
       next: "POST '/api/table/deal'",
-      tooPoor
+      rejected
     });
     res.send();
   },
@@ -156,10 +156,11 @@ module.exports = {
   //doFlop will burn a card from the deck and then return the next three cards. These cards are store in the flop key of the table object
   doFlop: (req, res) => {
     if (serverTable.flop.length === 3) {
-      return res.json({
+      io.emit("ERROR", {
         err: "The flop has already been dealt",
         next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
+      return res.send();
     }
     var flop = serverTable.doFlop();
     //increment the round, toggle betsIn, reset the currentBet value, and reset the didBet value for each player
@@ -191,13 +192,14 @@ module.exports = {
   //doTurn will burn a card from the deck and return a single card. This card is stored in the turn key of the table object.
   doTurn: (req, res) => {
     if (serverTable.flop.length < 3) {
-      return res.json({
+      io.emit("ERROR", {
         err: "The flop has not been dealt",
         next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
       });
+      return res.send();
     }
     if (serverTable.turn) {
-      return res.json({
+      io.emit("ERROR", {
         err: "The turn has already been dealt",
         next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
       });
@@ -232,16 +234,18 @@ module.exports = {
   //doRiver will burn a card from the deck and return a single card. This card is stored in the river key of the table object.
   doRiver: (req, res) => {
     if (!serverTable.turn) {
-      return res.json({
+      io.emit("ERROR", {
         err: "The turn has not been dealt",
         next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
+      return res.send();
     }
     if (serverTable.river) {
-      return res.json({
+      io.emit("ERROR", {
         err: "The river has already been dealt",
         next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
       });
+      return res.send();
     }
     var river = serverTable.doRiver();
     //increment the round, toggle betsIn, reset the currentBet value, and reset the didBet value for each player
@@ -283,6 +287,7 @@ module.exports = {
       tableCards.push(serverTable.river);
     }
     io.emit("TABLECARDS", { tableCards });
+    res.send();
   },
 
   //calculateHands uses the findBestHands method on the table object to determine the hand rankings. The entire hands array is returned.
@@ -317,18 +322,44 @@ module.exports = {
       });
       currentPlayer.payout = payout;
     }
-
-    //look at hand rankings and pay out players accordingly...
-    var topRank = hands.filter(hand => hand.rank === 1);
-    //sort Toprank by player payout smallest to largest
-    topRank.sort((a, b) => {
-      return serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout;
+    var pot = serverTable.pot;
+    var payouts = [];
+    for(var i=0; i<serverTable.players.length; i++){
+      payouts.push(0);
+    }
+    var rank = 1;
+    while (pot > 0) {
+      //look at hand rankings and pay out players accordingly...
+      var topRank = hands.filter(hand => hand.rank === rank);
+      //sort Toprank by player payout smallest to largest
+      topRank.sort((a, b) => {
+        return serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout;
+      });
+      //topRank should now be mapped to a players array
+      var sortedPayoutArray = topRank.map(hand => ({
+        index: hand.playerIndex.position,
+        payout: serverTable.players[hand.playerIndex].payout
+      }));
+      var n = sortedPayoutArray.length;
+      for(var j=0; j<n; j++){
+        var sidePot = pot - sortedPayoutArray[j].payout;
+        pot -= sidePot;
+        var split = Math.round(sidePot/n)
+        payouts[sortedPayoutArray[j].index] += split;
+        for(var k=j+1; k<n; k++){
+          payouts[sortedPayoutArray[k].index] += split;
+          sortedPlayersArray[k].payout -= sidePot;
+        }
+      }
+    }
+    payouts.forEach((value,index) => {
+      serverTable.players[index].chips += value;
+    })
+    io.emit("PAYOUT", {
+      payouts,
+      hands
     });
-    //topRank should now be mapped to a players array
-    var sortedPayoutArray = topRank.map(hand => ({
-      index: serverTable.players[hand.playerIndex].position,
-      payout: serverTable.players[hand.playerIndex].payout
-    }));
+    res.send();
   },
   //placeBet adds player money to the pool and updates the player object stored in the players array.
   //this route expects the player.position value on req.params.position and the player bet amount on req.params.amount
@@ -339,13 +370,14 @@ module.exports = {
     let position = parseInt(pos);
     let amount = parseInt(amt);
     if (betsIn) {
-      return res.json({
+      io.emit("ERROR", {
         err: "All bets are in for the current round.",
         next: `/api/table/${next[round + 1]}`
       });
+      return res.send();
     }
     if (position !== tablePos) {
-      return res.json({
+      io.emit("ERROR", {
         err: `It's not your turn to bet. Betting is on the player at position ${tablePos} and the currentBet is ${currentBet}`,
         betObj: {
           betObj: {
@@ -359,6 +391,7 @@ module.exports = {
           }
         }
       });
+      return res.send();
     }
     //check the bet amount against the current bet.
     //the table expects a bet that will, at minimum, bring the player to par with the current total bet.
@@ -373,7 +406,7 @@ module.exports = {
       betObj = check(position);
     } else if (parAmount > amount) {
       //the player bet is too small. throw err
-      return res.json({
+      io.emit("ERROR", {
         err: `Your bet of ${amount} is too low. The action (the minimum to bet) is ${parAmount}`,
         betObj: {
           next: "/api/table/bet/<position>/<amount>",
@@ -385,6 +418,7 @@ module.exports = {
           position: tablePos
         }
       });
+      return res.send();
     } else if (amount === parAmount) {
       //the player calls
       betObj = call(amount, position);

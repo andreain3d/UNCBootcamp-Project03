@@ -12,8 +12,8 @@ export default class Table {
     this.pot = [0];
     this.deck = new Deck();
     this.flop = [];
-    this.turn = {};
-    this.river = {};
+    this.turn;
+    this.river;
     this.dealerIndex = 0;
     this.round = 0;
     this.currentBet = 0;
