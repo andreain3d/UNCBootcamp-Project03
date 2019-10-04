@@ -1,5 +1,46 @@
 # UNCBootcamp-Project03
 
+# Auth0 Configuration
+
+### Setting up the Database
+
+Run the following command in the main directory to setup the Mongo Database:
+
+**npm run seed**
+
+### Setting up Auth0 Configuration
+
+Create a file called **auth_config.json** in the **/client/src** directory with the following content:
+
+{
+'domain': '<YOUR_AUTH0_DOMAIN>',
+'clientId': '<YOUR_AUTH0_CLIENT_ID>'
+}
+
+### Testing Auth0 Configuration
+
+On the main page, click **Log in** to authenticate with Auth0 and type in the following credentials:
+
+username/email: **test@testing.com**
+password: **Password!123**
+
+Afterwards, it should log you in and since the User does not exist in your local database, it will create one for you.
+
+### User API Calls
+
+1. GET to '/api/users' returns all of the Users in our local database
+2. POST to '/api/users' which requires:
+   {
+   "username": 'STRING',
+   "email:" 'STRING',
+   "image:" 'STRING'
+   "achievements:" 'STRING',
+   "preferences:" 'STRING'
+   }
+   creates a User in our local database
+
+3. GET to '/api/users/email' returns a unique User with the given email
+
 # API Poker
 
 ### The API server is able to play a single hand of poker through api calls. Here's how:

@@ -5,22 +5,7 @@ const db = require("../models");
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/project03");
 
-const userSeed = [
-  {
-    username: "Test1",
-    email: "Test1@test.com",
-    image: "TestingIMG",
-    achievements: "",
-    preferences: "String"
-  },
-  {
-    username: "Test2",
-    email: "Test2@test.com",
-    image: "TestingIMG",
-    achievements: "",
-    preferences: "String"
-  }
-];
+const userSeed = [{}];
 
 db.User.remove({})
   .then(() => db.User.collection.insertMany(userSeed))
