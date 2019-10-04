@@ -2,6 +2,7 @@ const db = require("../models");
 import Table from "../classes/table";
 import Player from "../classes/player";
 import Deck from "../classes/Deck";
+import io from "../server";
 
 var serverTable;
 var que = [];
@@ -12,7 +13,11 @@ module.exports = {
 
   //flash is a route that returns the entire table object, or null if init has not been performed
   flash: (req, res) => {
-    res.json(serverTable || null);
+    if (!serverTable) {
+      serverTable = new Table();
+    }
+    io.emit("FLASH", serverTable);
+    res.status(200).send();
   },
   // init is a route that will initiate or reset the virtual table. This route is accessed via get or post
   // get will init with defualt values. post will allow for custom values.
