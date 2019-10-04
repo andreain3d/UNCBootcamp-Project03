@@ -3,11 +3,10 @@ import { withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Table from "./components/table";
 import Navbar from "./components/navbar";
-import Chat from "./components/Chat/";
+import Chat from "./components/chat";
 import Options from "./components/options";
 import io from "socket.io-client";
 import axios from "axios";
-
 
 const styles = {
   grow: {
@@ -28,7 +27,7 @@ class App extends Component {
       hands: [],
       action: 0
     };
-
+    //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
 
     this.socket.on("ADDPLAYER", data => {
@@ -92,13 +91,20 @@ class App extends Component {
     return (
       <Fragment>
         <Navbar />
-        <Table nextDeckAction={this.nextDeckAction} primeTable={this.primeTable} flop={this.state.flop} turn={this.state.turn} river={this.state.river} />
+        <Table
+          socket={this.socket}
+          nextDeckAction={this.nextDeckAction}
+          primeTable={this.primeTable}
+          flop={this.state.flop}
+          turn={this.state.turn}
+          river={this.state.river}
+        />
         <Grid container className={classes.grow}>
           <Grid item xs={12} md={6}>
-            <Options cards={this.state.playerCards} />
+            <Options socket={this.socket} cards={this.state.playerCards} />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Chat />
+            <Chat socket={this.socket} />
           </Grid>
         </Grid>
       </Fragment>
