@@ -20,9 +20,39 @@ class Options extends Component {
   constructor(props) {
     super(props);
 
-    this.FLASHCALL = event => {
+    // this.BETTING = event => {
+    //   event.preventDefault();
+    //   Axios.get("api/table/bet/0/0").then(res => {
+    //     console.log(res);
+    //   });
+    // };
+
+    this.DEAL = event => {
       event.preventDefault();
-      Axios.get("api/table");
+      Axios.get("api/table/deal").then(res => {
+        console.log(res);
+      });
+    };
+
+    this.FLOP = event => {
+      event.preventDefault();
+      Axios.get("api/table/flop").then(res => {
+        console.log(res);
+      });
+    };
+
+    this.TURN = event => {
+      event.preventDefault();
+      Axios.get("api/table/turn").then(res => {
+        console.log(res);
+      });
+    };
+
+    this.RIVER = event => {
+      event.preventDefault();
+      Axios.get("api/table/river").then(res => {
+        console.log(res);
+      });
     };
   }
 
@@ -36,14 +66,32 @@ class Options extends Component {
           <PlayerCard />
         </Grid>
         <Grid container justify="center">
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.FLASHCALL}>
+          {/* <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
             Fold
           </Button>
-          <Button color="primary" variant="contained" className={classes.button}>
+          <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
+            check
+          </Button>
+          <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
             call
           </Button>
-          <Button color="primary" variant="contained" className={classes.button}>
+          <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
             raise
+          </Button> */}
+
+          {/* TEST BUTTONS FOR GAME PLAY*/}
+
+          <Button color="primary" variant="contained" className={classes.button} onClick={this.DEAL}>
+            Deal
+          </Button>
+          <Button color="primary" variant="contained" className={classes.button} onClick={this.FLOP}>
+            Flop
+          </Button>
+          <Button color="primary" variant="contained" className={classes.button} onClick={this.TURN}>
+            Turn
+          </Button>
+          <Button color="primary" variant="contained" className={classes.button} onClick={this.RIVER}>
+            River
           </Button>
         </Grid>
         <Grid container justify="center">
