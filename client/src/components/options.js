@@ -4,6 +4,7 @@ import { Grid, Button, Paper, Typography } from "@material-ui/core";
 import PlayerCard from "./playerCard";
 import Axios from "axios";
 
+
 const styles = {
   grow: {
     flexGrow: 1,
@@ -59,6 +60,7 @@ class Options extends Component {
   render(props) {
     const classes = this.props.classes;
     const { cards } = this.props;
+
     return (
       <Paper className={classes.grow}>
         <Typography variant="h6">Your Hand</Typography>
