@@ -56,12 +56,20 @@ export const Auth0Provider = ({
     setUser(user);
     setIsAuthenticated(true);
     console.log(user);
-    API.saveUser({
-      username: user.nickname,
-      email: user.email,
-      image: user.picture
-    })
-      .then(alert("Book has been added."))
+    API.getUser(user.email)
+      .then(res => {
+        if (!res.data) {
+          API.saveUser({
+            username: user.nickname,
+            email: user.email,
+            image: user.picture
+          })
+            .then(console.log("User has been added"))
+            .catch(err => console.log(err));
+        } else {
+          console.log("User already exists");
+        }
+      })
       .catch(err => console.log(err));
   };
 
