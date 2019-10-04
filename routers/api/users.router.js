@@ -6,10 +6,6 @@ router
   .get(usersController.findAll)
   .post(usersController.create);
 
-router
-  .route("/:email")
-  .get(usersController.findByEmail)
-  .put(usersController.update)
-  .delete(usersController.remove);
+router.route("/:email").get(usersController.findByEmail);
 
 module.exports = router;
