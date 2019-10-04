@@ -17,7 +17,7 @@ module.exports = {
       serverTable = new Table();
     }
     io.emit("FLASH", serverTable);
-    res.status(200).send();
+    res.send();
   },
   // init is a route that will initiate or reset the virtual table. This route is accessed via get or post
   // get will init with defualt values. post will allow for custom values.
@@ -58,12 +58,12 @@ module.exports = {
       }
       serverTable.addPlayer(player);
     }
-
-    res.json({
+    io.emit("PRIME", {
       message: "Table is set up and primed for the next hand",
       next: "POST '/api/table/deal'",
       tooPoor
     });
+    res.send();
   },
 
   //addPlayer is a route that will create a new player and add them to the virtual table. This route is
@@ -73,11 +73,12 @@ module.exports = {
     var player = new Player(name, parseInt(cash));
     var quePos = que.length;
     que.push(player);
-    res.json({
+    io.emit("ADDPLAYER", {
       message: `${player.name}, welcome to api casino! You've been added to the que for the table in position ${quePos}. Players are added to the table at the start of a hand in FIFO order as seats become available.`,
       quePos,
       next: "GET '/api/table/init'"
     });
+    res.send();
   },
 
   //leaveTable will automatically cause a player to fold their current hand and flag the player for removal at the end of the hand
@@ -87,22 +88,20 @@ module.exports = {
   dealCards: (req, res) => {
     //check the deck to ensure that cards have not yet been dealt.
     if (serverTable.deck.cards.length < 52) {
-      return res.json({
+      io.emit("ERROR", {
         err: "Cards have already been dealt!",
         next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
       });
+      return res.send();
     }
     //make sure there is at least one player at the table
     if (serverTable.players.length === 0) {
-      return res.json({
+      io.emit("ERROR", {
         err: "You need to add at least one player to the table before you deal!",
         next: "GET '/api/table/join'",
         expecting: { name: "player name", chips: 200 }
       });
-    }
-    //If only one player, make a bot.
-    if (serverTable.players.length === 1) {
-      serverTable.addPlayer(new Player("Bot", serverTable.buyIn, true));
+      return res.send();
     }
     //collect the blinds from players in position 1 and 2 (or position 0 and 1 for a 2 player game).
     if (serverTable.players.length === 2) {
@@ -131,9 +130,10 @@ module.exports = {
     }
     const { position, players, currentBet, round } = serverTable;
     let playerBet = players[position].bets[round];
-    res.json({
+    io.emit("DEALCARDS", {
       message: "Cards have been dealt! If you are in a betting mood, follow the next key in the betObj",
       next: "GET '/api/player/<position>/cards' OR '/api/table/flop'",
+      players: serverTable.players,
       betObj: {
         next: "/api/table/bet/<position>/<amount>",
         nextPlayer: players[position].name,
@@ -144,6 +144,7 @@ module.exports = {
         position
       }
     });
+    res.send();
   },
 
   //To get a players card, do a get request to "/player/:position/cards". This route expects the player position on req.params.position
@@ -170,7 +171,7 @@ module.exports = {
       player.bets.push(0);
     });
     const { position, currentBet, players, round } = serverTable;
-    res.json({
+    io.emit("DOFLOP", {
       flop,
       message: "The flop has been dealt! If you are in a betting mood, follow the next key in the betObj",
       next: "GET '/api/player/<position>/cards' OR '/api/table/turn'",
@@ -184,6 +185,7 @@ module.exports = {
         position
       }
     });
+    res.send();
   },
 
   //doTurn will burn a card from the deck and return a single card. This card is stored in the turn key of the table object.
@@ -210,7 +212,7 @@ module.exports = {
       player.bets.push(0);
     });
     const { position, currentBet, players, round } = serverTable;
-    res.json({
+    io.emit("DOTURN", {
       turn,
       message: "The turn has been dealt! If you are in a betting mood, follow the next key in the betObj",
       next: "GET '/api/player/<position>/cards' OR '/api/table/river'",
@@ -224,6 +226,7 @@ module.exports = {
         position
       }
     });
+    res.send();
   },
 
   //doRiver will burn a card from the deck and return a single card. This card is stored in the river key of the table object.
@@ -250,7 +253,7 @@ module.exports = {
       player.bets.push(0);
     });
     const { position, currentBet, players, round } = serverTable;
-    res.json({
+    io.emit("DORIVER", {
       river,
       message: "The river has been dealt! If you are in a betting mood, follow the next key in the betObj",
       next: "GET '/api/player/<position>/cards' OR '/api/table/hands'",
@@ -264,6 +267,7 @@ module.exports = {
         position
       }
     });
+    res.send();
   },
 
   //getTableCards will return all cards from the flop, turn, and river keys of the table object
@@ -278,13 +282,14 @@ module.exports = {
     if (serverTable.river) {
       tableCards.push(serverTable.river);
     }
-    res.json({ tableCards });
+    io.emit("TABLECARDS", { tableCards });
   },
 
   //calculateHands uses the findBestHands method on the table object to determine the hand rankings. The entire hands array is returned.
   calculateHands: (req, res) => {
     var hands = serverTable.findBestHand();
-    res.json({ hands });
+    io.emit("CALCULATEHANDS", { hands });
+    res.send();
   },
   //payout is a method that pays out a player based on the hand ranking
   payout: (req, res) => {
@@ -393,12 +398,13 @@ module.exports = {
       console.log("FALLOUT", amount, position);
     }
 
-    res.json({
+    io.emit("PLACEBET", {
       message: "You have placed a bet for " + amount + " chips.",
       remainingChips: serverTable.players[position].chips,
       potTotal: serverTable.pot[0],
       betObj
     });
+    res.send();
   }
 };
 
