@@ -52,6 +52,10 @@ class ChatWindow extends Component {
         addMessage(`${username} is typing...`);
       }
     });
+
+    this.socket.on("FLASH", data) {
+      console.log(data);
+    }
   }
 
   handleInputChange = event => {
