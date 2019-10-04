@@ -1,13 +1,11 @@
 export default class Card {
-  constructor(value, suit, asciiFront) {
+  constructor(value, suit, frontImage) {
     this.value = value;
     this.faceUp = false;
     this.location = "deck";
-    this.backImage = "cardback.png";
+    this.backImage = "/assets/img/gray_back.png";
     this.suit = suit;
-    this.frontImage = suit + "-" + value + ".png";
-    this.asciiFront = asciiFront;
-    this.asciiBack = " _____ \n| ~ //|\n|}}:{{|\n|}}:{{|\n|}}:{{|\n|/_~_\\|";
+    this.frontImage = frontImage;
 
     switch (this.value) {
       case 11:
@@ -30,10 +28,10 @@ export default class Card {
 
   flip() {
     this.faceUp = !this.faceUp;
-    return this.faceUp ? this.asciiFront : this.asciiBack;
+    return this.faceUp ? this.frontImage : this.backImage;
   }
 
   print() {
-    return this.faceUp ? this.asciiFront : this.asciiBack;
+    return this.displayValue;
   }
 }

@@ -56,30 +56,6 @@ class ChatWindow extends Component {
     this.socket.on("FLASH", data => {
       console.log(data);
     });
-
-    this.socket.on("PRIME", data => {
-      console.log(data);
-    });
-
-    this.socket.on("ADDPLAYER", data => {
-      console.log(data);
-    });
-
-    this.socket.on("DEALCARDS", data => {
-      console.log(data);
-    });
-
-    this.socket.on("DOFLOP", data => {
-      console.log(data);
-    });
-
-    this.socket.on("DOTURN", data => {
-      console.log(data);
-    });
-
-    this.socket.on("DORIVER", data => {
-      console.log(data);
-    });
   }
 
   handleInputChange = event => {

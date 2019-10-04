@@ -11,11 +11,18 @@ const styles = {
 };
 
 class PlayerCard extends Component {
-  render() {
+  constructor(props) {
+    super(props);
+  }
+  render(props) {
     const classes = this.props.classes;
+    const { src } = this.props;
     return (
       <Fragment>
-        <Paper className={classes.paper} />
+        <Paper
+          className={classes.paper}
+          style={{ backgroundImage: `url(${src})`, backgroundSize: "contain", backgroundRepeat: "no-repeat", backgroundPosition: "center" }}
+        />
         <Paper />
         <Paper />
         <Paper />

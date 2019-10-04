@@ -4,6 +4,7 @@ import { Grid, Button, Paper, Typography } from "@material-ui/core";
 import PlayerCard from "./playerCard";
 import Axios from "axios";
 
+
 const styles = {
   grow: {
     flexGrow: 1,
@@ -50,12 +51,14 @@ class Options extends Component {
 
   render(props) {
     const classes = this.props.classes;
+    const { cards } = this.props;
+
     return (
       <Paper className={classes.grow}>
         <Typography variant="h6">Your Hand</Typography>
         <Grid container justify="center">
-          <PlayerCard />
-          <PlayerCard />
+          <PlayerCard src={cards.length > 0 ? cards[0].frontImage : ""} />
+          <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
         </Grid>
         <Grid container justify="center">
           {/* <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
