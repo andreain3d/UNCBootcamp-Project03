@@ -39,6 +39,7 @@ class ChatWindow extends Component {
         //`${this.state.username} is typing...` needs to be changed to find any message that includes " is typing..."
         allMessages: this.state.allMessages.filter(value => value !== `${this.state.username} is typing...`)
       });
+
     };
 
     // this.typing method containing socket emitter goes here
@@ -53,9 +54,11 @@ class ChatWindow extends Component {
       }
     });
 
+
     this.socket.on("FLASH", data => {
       console.log(data);
     });
+
   }
 
   handleInputChange = event => {

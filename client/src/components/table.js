@@ -17,46 +17,36 @@ const styles = {
 };
 
 class Table extends Component {
+
+  constructor(props) {
+    super(props);
+  }
+
   render(props) {
     const classes = this.props.classes;
+    const { primeTable, nextDeckAction, flop, turn, river } = this.props;
+
     return (
       <Grid container>
         <Grid item xs={3} />
         <Grid item xs={3}>
-          <Grid
-            container
-            justify="center"
-            alignItems="center"
-            className={classes.item}
-          >
+
+          <Grid container justify="center" alignItems="center" className={classes.item}>
             <Player />
           </Grid>
         </Grid>
         <Grid item xs={3}>
-          <Grid
-            container
-            justify="center"
-            alignItems="center"
-            className={classes.item}
-          >
+          <Grid container justify="center" alignItems="center" className={classes.item}>
             <Player />
           </Grid>
         </Grid>
         <Grid item xs={3}>
           <Grid container justify="flex-end">
-            <Button
-              color="primary"
-              variant="contained"
-              className={classes.button}
-            >
-              Rules
+            <Button color="primary" variant="contained" onClick={primeTable} className={classes.button}>
+              Prime Table
             </Button>
-            <Button
-              color="primary"
-              variant="contained"
-              className={classes.button}
-            >
-              Hands
+            <Button color="primary" variant="contained" onClick={nextDeckAction} className={classes.button}>
+              Next Deck Action
             </Button>
           </Grid>
         </Grid>
@@ -74,26 +64,15 @@ class Table extends Component {
             </Grid>
           </Grid>
           <Grid item xs={6}>
-            <Grid
-              container
-              height={1}
-              className={classes.cardContainer}
-              justify="center"
-              alignItems="center"
-            >
-              <TableCard />
-              <TableCard />
-              <TableCard />
-              <TableCard />
-              <TableCard />
+
+            <Grid container height={1} className={classes.cardContainer} justify="center" alignItems="center">
+              <TableCard src={flop.length > 0 ? flop[0].frontImage : ""} />
+              <TableCard src={flop.length > 0 ? flop[1].frontImage : ""} />
+              <TableCard src={flop.length > 0 ? flop[2].frontImage : ""} />
+              <TableCard src={Object.keys(turn).length > 0 ? turn.frontImage : ""} />
+              <TableCard src={Object.keys(river).length > 0 ? river.frontImage : ""} />
             </Grid>
-            <Grid
-              container
-              height={1}
-              className={classes.cardContainer}
-              justify="center"
-              alignItems="center"
-            >
+            <Grid container height={1} className={classes.cardContainer} justify="center" alignItems="center">
               <Typography variant="h6">Pot Value</Typography>
             </Grid>
           </Grid>
@@ -112,22 +91,12 @@ class Table extends Component {
         </Grid>
         <Grid item xs={3} />
         <Grid item xs={3}>
-          <Grid
-            container
-            justify="center"
-            alignItems="center"
-            className={classes.item}
-          >
+          <Grid container justify="center" alignItems="center" className={classes.item}>
             <Player />
           </Grid>
         </Grid>
         <Grid item xs={3}>
-          <Grid
-            container
-            justify="center"
-            alignItems="center"
-            className={classes.item}
-          >
+          <Grid container justify="center" alignItems="center" className={classes.item}>
             <Player />
           </Grid>
         </Grid>
