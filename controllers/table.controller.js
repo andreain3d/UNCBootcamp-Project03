@@ -158,7 +158,8 @@ module.exports = {
     if (serverTable.flop.length === 3) {
       return res.json({
         err: "The flop has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
     }
     var flop = serverTable.doFlop();
@@ -199,7 +200,8 @@ module.exports = {
     if (serverTable.turn) {
       return res.json({
         err: "The turn has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
       });
     }
     var turn = serverTable.doTurn();
@@ -234,13 +236,15 @@ module.exports = {
     if (!serverTable.turn) {
       return res.json({
         err: "The turn has not been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
     }
     if (serverTable.river) {
       return res.json({
         err: "The river has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
       });
     }
     var river = serverTable.doRiver();
