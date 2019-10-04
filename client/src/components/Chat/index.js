@@ -53,9 +53,9 @@ class ChatWindow extends Component {
       }
     });
 
-    this.socket.on("FLASH", data) {
+    this.socket.on("FLASH", data => {
       console.log(data);
-    }
+    });
   }
 
   handleInputChange = event => {
