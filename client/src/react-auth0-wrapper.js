@@ -55,7 +55,6 @@ export const Auth0Provider = ({
     const user = await auth0Client.getUser();
     setUser(user);
     setIsAuthenticated(true);
-    console.log(user);
     API.getUser(user.email)
       .then(res => {
         if (!res.data) {
@@ -64,10 +63,10 @@ export const Auth0Provider = ({
             email: user.email,
             image: user.picture
           })
-            .then(console.log("User has been added"))
+            .then(console.log("User has been added!"))
             .catch(err => console.log(err));
         } else {
-          console.log("User already exists");
+          console.log("User already exists!");
         }
       })
       .catch(err => console.log(err));
