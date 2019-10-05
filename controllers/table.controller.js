@@ -199,10 +199,12 @@ module.exports = {
       return res.send();
     }
     if (serverTable.turn) {
+      console.log("Error Turn");
       io.emit("ERROR", {
         err: "The turn has already been dealt",
         next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
       });
+      return res.send();
     }
     var turn = serverTable.doTurn();
     //increment the round, toggle betsIn, reset the currentBet value, and reset the didBet value for each player
@@ -324,7 +326,7 @@ module.exports = {
     }
     var pot = serverTable.pot;
     var payouts = [];
-    for(var i=0; i<serverTable.players.length; i++){
+    for (var i = 0; i < serverTable.players.length; i++) {
       payouts.push(0);
     }
     var rank = 1;
@@ -341,20 +343,20 @@ module.exports = {
         payout: serverTable.players[hand.playerIndex].payout
       }));
       var n = sortedPayoutArray.length;
-      for(var j=0; j<n; j++){
+      for (var j = 0; j < n; j++) {
         var sidePot = pot - sortedPayoutArray[j].payout;
         pot -= sidePot;
-        var split = Math.round(sidePot/n)
+        var split = Math.round(sidePot / n);
         payouts[sortedPayoutArray[j].index] += split;
-        for(var k=j+1; k<n; k++){
+        for (var k = j + 1; k < n; k++) {
           payouts[sortedPayoutArray[k].index] += split;
           sortedPlayersArray[k].payout -= sidePot;
         }
       }
     }
-    payouts.forEach((value,index) => {
+    payouts.forEach((value, index) => {
       serverTable.players[index].chips += value;
-    })
+    });
     io.emit("PAYOUT", {
       payouts,
       hands
