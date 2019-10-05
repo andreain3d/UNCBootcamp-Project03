@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const tableController = require("../../controllers/table.controller");
 
-router.route("/").get(tableController.placeBet);
+router.route("/").get(tableController.flash);
 router
   .route("/prime")
   .get(tableController.prime)
