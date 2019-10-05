@@ -11,7 +11,6 @@ const styles = {
 };
 
 class TableCard extends Component {
-
   constructor(props) {
     super(props);
   }
@@ -22,7 +21,12 @@ class TableCard extends Component {
       <Fragment>
         <Paper
           className={classes.paper}
-          style={{ backgroundImage: `url(${src})`, backgroundSize: "contain", backgroundRepeat: "no-repeat", backgroundPosition: "center" }}
+          style={{
+            backgroundImage: `url(${src})`,
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center"
+          }}
         />
 
         <Paper />

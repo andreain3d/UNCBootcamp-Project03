@@ -4,6 +4,7 @@ import App from "./App";
 import * as serviceWorker from "./registerServiceWorker";
 import { Auth0Provider } from "./react-auth0-wrapper";
 import config from "./auth_config.json";
+import "./index.css";
 
 // A function that routes the user to the right place
 // after login

@@ -5,6 +5,8 @@ import Table from "./components/table";
 import Navbar from "./components/navbar";
 import Chat from "./components/chat";
 import Options from "./components/options";
+import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
+import { amber } from "@material-ui/core/colors";
 import io from "socket.io-client";
 import axios from "axios";
 
@@ -14,6 +16,18 @@ const styles = {
     bottom: 0
   }
 };
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: "#1C2022"
+    },
+    secondary: amber,
+    tertiary: {
+      main: "#c62828"
+    }
+  }
+});
 
 class App extends Component {
   constructor(props) {
@@ -89,7 +103,7 @@ class App extends Component {
   render() {
     const classes = this.props.classes;
     return (
-      <Fragment>
+      <MuiThemeProvider theme={theme}>
         <Navbar />
         <Table
           socket={this.socket}
@@ -107,7 +121,7 @@ class App extends Component {
             <Chat socket={this.socket} />
           </Grid>
         </Grid>
-      </Fragment>
+      </MuiThemeProvider>
     );
   }
 }

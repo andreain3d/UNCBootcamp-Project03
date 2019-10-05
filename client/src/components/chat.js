@@ -12,7 +12,17 @@ const styles = {
   grow: {
     flexGrow: 1,
     height: "35vh",
-    marginTop: 5
+    marginTop: 5,
+    background: "#1C2022"
+  },
+  header: {
+    color: "#fff"
+  },
+  inner: {
+    margin: 5,
+    padding: 10,
+    background: "#D5D5D5",
+    height: "25vh"
   }
 };
 
@@ -70,7 +80,9 @@ class Chat extends Component {
     this.setState({
       message: "",
       //`${this.state.username} is typing...` needs to be changed to find any message that includes " is typing..."
-      allMessages: this.state.allMessages.filter(value => value !== `${this.state.username} is typing...`)
+      allMessages: this.state.allMessages.filter(
+        value => value !== `${this.state.username} is typing...`
+      )
     });
   };
 
@@ -78,42 +90,46 @@ class Chat extends Component {
     const classes = this.props.classes;
     return (
       <Paper className={classes.grow}>
-        <Typography variant="h6">Chat</Typography>
-        <Paper>
-          {this.state.allMessages.map(message => {
-            if (isEmpty(message.author)) {
-              return <div>{message}</div>;
-            }
-            return (
-              <div>
-                {message.author}: {message.message}
-              </div>
-            );
-          })}
+        <Typography className={classes.header} align="center" variant="h6">
+          Chat
+        </Typography>
+        <Paper className={classes.inner}>
+          <Paper>
+            {this.state.allMessages.map(message => {
+              if (isEmpty(message.author)) {
+                return <div>{message}</div>;
+              }
+              return (
+                <div>
+                  {message.author}: {message.message}
+                </div>
+              );
+            })}
+          </Paper>
+          <form className={classes.container} noValidate autoComplete="off">
+            <TextField
+              key="username"
+              name="username"
+              placeholder="username"
+              value={this.state.username}
+              onChange={this.handleInputChange}
+              label="Name"
+              className={classes.textField}
+              margin="normal"
+            />
+            <TextField
+              key="message"
+              name="message"
+              placeholder="message"
+              value={this.state.message}
+              onChange={this.handleInputChange}
+              label="Message"
+              className={classes.textField}
+              margin="normal"
+            />
+            <Button onClick={this.sendMessage}>Post</Button>
+          </form>
         </Paper>
-        <form className={classes.container} noValidate autoComplete="off">
-          <TextField
-            key="username"
-            name="username"
-            placeholder="username"
-            value={this.state.username}
-            onChange={this.handleInputChange}
-            label="Name"
-            className={classes.textField}
-            margin="normal"
-          />
-          <TextField
-            key="message"
-            name="message"
-            placeholder="message"
-            value={this.state.message}
-            onChange={this.handleInputChange}
-            label="Message"
-            className={classes.textField}
-            margin="normal"
-          />
-          <Button onClick={this.sendMessage}>Post</Button>
-        </form>
       </Paper>
     );
   }
