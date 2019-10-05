@@ -9,10 +9,19 @@ const styles = {
     flexGrow: 1,
     height: "35vh",
     bottom: 0,
-    marginTop: 5
+    marginTop: 5,
+    background: "#1C2022"
   },
   button: {
     margin: 5
+  },
+  header: {
+    color: "#fff"
+  },
+  inner: {
+    margin: 5,
+    padding: 10,
+    background: "#D5D5D5"
   }
 };
 
@@ -53,43 +62,33 @@ class Options extends Component {
 
     return (
       <Paper className={classes.grow}>
-        <Typography variant="h6">Your Hand</Typography>
-        <Grid container justify="center">
-          <PlayerCard src={cards.length > 0 ? cards[0].frontImage : ""} />
-          <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
-        </Grid>
-        <Grid container justify="center">
-          <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(-1)}>
-            Fold
-          </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
-            check
-          </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
-            call
-          </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
-            raise
-          </Button>
-
-          {/* TEST BUTTONS FOR GAME PLAY*/}
-
-          {/* <Button color="primary" variant="contained" className={classes.button} onClick={this.DEAL}>
-            Deal
-          </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.FLOP}>
-            Flop
-          </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.TURN}>
-            Turn
-          </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.RIVER}>
-            River
-          </Button> */}
-        </Grid>
-        <Grid container justify="center">
-          <input type="range" min="1" max="100" className={classes.slider} id="myRange" />
-        </Grid>
+        <Typography variant="h6" align="center" className={classes.header}>
+          Your Hand
+        </Typography>
+        <Paper className={classes.inner}>
+          <Grid container justify="center">
+            <PlayerCard src={cards.length > 0 ? cards[0].frontImage : ""} />
+            <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
+          </Grid>
+          <Grid container justify="center">
+            <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(-1)}>
+              Fold
+            </Button>
+            <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              check
+            </Button>
+            <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              call
+            </Button>
+            <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              raise
+            </Button>
+          </Grid>
+          <Grid container justify="center">
+            <input type="range" min="1" max="100" className={classes.slider} id="myRange" />
+            <Typography variant="h6">$0.00</Typography>
+          </Grid>
+        </Paper>
       </Paper>
     );
   }

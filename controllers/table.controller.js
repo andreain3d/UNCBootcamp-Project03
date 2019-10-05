@@ -51,7 +51,16 @@ module.exports = {
         player.didBet = false;
       });
     }
-    var rejected = [];
+    if (deque.length > 0) {
+      for (var i = 0; i < serverTable.players.length; i++) {
+        if (deque.includes(serverTable.players[i].name)) {
+          deque = deque.filter(name => name !== serverTable.players[i].name);
+          io.emit("LEAVETABLE", serverTable.players[i]);
+          var player = que.shift();
+          serverTable.addPlayer(player, i);
+        }
+      }
+    }
     while (que.length > 0) {
       if (serverTable.players.length === 8) {
         break;
@@ -79,13 +88,17 @@ module.exports = {
     que.push(player);
     io.emit("ADDPLAYER", {
       quePos,
-      player
+      player,
+      que
     });
     res.send();
   },
 
   //leaveTable will automatically cause a player to fold their current hand and flag the player for removal at the end of the hand
-  leaveTable: (req, res) => {},
+  leaveTable: (req, res) => {
+    deque.push(req.params.name);
+    res.send();
+  },
   //dealCards will update the player object for each player stored in the players array. Because player cards are private,
   //this route will not return any data.
   dealCards: (req, res) => {
@@ -148,8 +161,7 @@ module.exports = {
     if (serverTable.flop.length === 3) {
       io.emit("ERROR", {
         err: "The flop has already been dealt",
-        next:
-          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return res.send();
     }
@@ -182,8 +194,7 @@ module.exports = {
       console.log("Error Turn");
       io.emit("ERROR", {
         err: "The turn has already been dealt",
-        next:
-          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
+        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
       });
       return res.send();
     }
@@ -208,16 +219,14 @@ module.exports = {
     if (!serverTable.turn) {
       io.emit("ERROR", {
         err: "The turn has not been dealt",
-        next:
-          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return res.send();
     }
     if (serverTable.river) {
       io.emit("ERROR", {
         err: "The river has already been dealt",
-        next:
-          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
+        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
       });
       return res.send();
     }
