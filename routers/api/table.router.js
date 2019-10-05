@@ -16,4 +16,5 @@ router.route("/cards").get(tableController.getTableCards);
 router.route("/hands").get(tableController.calculateHands);
 router.route("/payout").get(tableController.payout);
 router.route("/reset").get(tableController.reset);
+router.route("/leave/:name").get(tableController.leaveTable);
 module.exports = router;

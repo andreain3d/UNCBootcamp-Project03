@@ -80,15 +80,20 @@ export default class Table {
     this.pot[0] += bet;
   }
 
-  addPlayer(player) {
+  addPlayer(player, pos) {
     if (player.cash < this.buyIn) {
       console.log("you don't have enough chips to join this table");
       return -1;
     }
     player.cash -= this.buyIn;
     player.chips = this.buyIn;
-    player.position = this.players.length;
-    this.players.push(player);
+    if (pos) {
+      player.position = pos;
+      this.players[pos] = player;
+    } else {
+      player.position = this.players.length;
+      this.players.push(player);
+    }
     return player.position;
   }
 
