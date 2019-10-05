@@ -5,11 +5,12 @@ import Button from "@material-ui/core/Button";
 import { useAuth0 } from "../react-auth0-wrapper";
 import API from "../utils/API";
 
-const LobbyView = () => {
+const LobbyView = ({ setName }) => {
   const { user, isAuthenticated, loginWithPopup, logout } = useAuth0();
 
   const joinGame = () => {
     API.getUser(user.email).then(res => {
+      setName(res.data.username);
       API.createPlayer({
         name: res.data.username,
         cash: res.data.cash,
@@ -21,9 +22,7 @@ const LobbyView = () => {
   return (
     <Fragment>
       <Grid container direction="row" justify="center" alignItems="center">
-        {!isAuthenticated && (
-          <Button onClick={() => loginWithPopup({})}>Log in</Button>
-        )}
+        {!isAuthenticated && <Button onClick={() => loginWithPopup({})}>Log in</Button>}
 
         {isAuthenticated && (
           <Button onClick={joinGame}>

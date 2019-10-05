@@ -30,12 +30,17 @@ class App extends Component {
     });
 
     this.socket.on("PRIME", data => {
-      console.log(data);
+      var players = data.players;
+      players.forEach(player => {
+        if (player.name === this.state.name) {
+          this.setState({ position: player.position });
+        }
+      });
     });
 
     this.socket.on("DEALCARDS", data => {
       console.log(data);
-      axios.get("/api/player/0/cards").then(res => {
+      axios.get(`/api/player/${this.state.position}/cards`).then(res => {
         console.log(res.data.playerCards);
         this.setState({ playerCards: res.data.playerCards });
       });
@@ -83,6 +88,11 @@ class App extends Component {
     });
   };
 
+  setName = name => {
+    console.log("NAME SET: ", name);
+    this.setState({ name: name });
+  };
+
   render() {
     return (
       <BrowserRouter>
@@ -102,7 +112,7 @@ class App extends Component {
             <ProfileView />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView socket={this.socket} />
+            <LobbyView socket={this.socket} setName={this.setName} />
           </Route>
         </Switch>
       </BrowserRouter>
