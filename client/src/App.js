@@ -68,6 +68,12 @@ class App extends Component {
       console.log(data);
       this.setState({ hands: data.hands });
     });
+
+    this.socket.on("LEAVETABLE", data => {
+      console.log(data);
+      //compare data.name to this.state.name
+      //if the same, send to lobby and save data
+    });
   }
 
   primeTable = async () => {
