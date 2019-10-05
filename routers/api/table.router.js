@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const tableController = require("../../controllers/table.controller");
 
-router.route("/").get(tableController.placeBet);
+router.route("/").get(tableController.flash);
 router
   .route("/prime")
   .get(tableController.prime)
@@ -15,4 +15,5 @@ router.route("/river").get(tableController.doRiver);
 router.route("/cards").get(tableController.getTableCards);
 router.route("/hands").get(tableController.calculateHands);
 router.route("/payout").get(tableController.payout);
+router.route("/reset").get(tableController.reset);
 module.exports = router;

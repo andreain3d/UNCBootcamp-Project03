@@ -22,25 +22,28 @@ const styles = {
 };
 
 class Table extends Component {
+
   constructor(props) {
     super(props);
   }
 
   render(props) {
-    const classes = this.props.classes;
-    const { primeTable, nextDeckAction, flop, turn, river } = this.props;
 
+    const classes = this.props.classes;
+    const { players, primeTable, nextDeckAction, flop, turn, river } = this.props;
+    console.log("Player array from table.js:", players);
     return (
       <Grid container>
         <Grid item xs={3} />
         <Grid item xs={3}>
+
           <Grid
             container
             justify="center"
             alignItems="center"
             className={classes.item}
           >
-            <Player />
+            {players[0] ? <Player playerInfo={players[0]} /> : null}
             <Grid item xs={12}>
               <Grid container justify="center">
                 <Token type="D" />
@@ -56,13 +59,14 @@ class Table extends Component {
             alignItems="center"
             className={classes.item}
           >
-            <Player />
+            {players[1] ? <Player playerInfo={players[1]} /> : null}
             <Grid item xs={12}>
               <Grid container justify="center">
                 <Token type="SB" />
                 <Token type="C" />
               </Grid>
             </Grid>
+
           </Grid>
         </Grid>
         <Grid item xs={3}>
@@ -89,8 +93,10 @@ class Table extends Component {
         <Grid container>
           <Grid item xs={3}>
             <Grid container className={classes.item}>
+
               <Grid item xs={11}>
-                <Player />
+                {players[7] ? <Player playerInfo={players[7]} /> : null}
+
               </Grid>
               <Grid item xs={1}>
                 <Token type="x" />
@@ -99,7 +105,8 @@ class Table extends Component {
             </Grid>
             <Grid container>
               <Grid item xs={11}>
-                <Player />
+                {players[6] ? <Player playerInfo={players[6]} /> : null}
+
               </Grid>
               <Grid item xs={1}>
                 <Token type="x" />
@@ -115,6 +122,7 @@ class Table extends Component {
               justify="center"
               alignItems="center"
             >
+
               <TableCard src={flop.length > 0 ? flop[0].frontImage : ""} />
               <TableCard src={flop.length > 0 ? flop[1].frontImage : ""} />
               <TableCard src={flop.length > 0 ? flop[2].frontImage : ""} />
@@ -136,12 +144,13 @@ class Table extends Component {
           </Grid>
           <Grid item xs={3}>
             <Grid container className={classes.item}>
+
               <Grid item xs={1}>
                 <Token type="BB" />
                 <Token type="C" />
               </Grid>
               <Grid item xs={11}>
-                <Player />
+                 {players[2] ? <Player playerInfo={players[2]} /> : null}
               </Grid>
             </Grid>
             <Grid container>
@@ -150,13 +159,22 @@ class Table extends Component {
                 <Token type="x" />
               </Grid>
               <Grid item xs={11}>
-                <Player />
+               {players[3] ? <Player playerInfo={players[3]} /> : null}
+
+              <Grid item xs={12}>
+               
+              </Grid>
+            </Grid>
+            <Grid container>
+              <Grid item xs={12}>
+                
               </Grid>
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={3} />
         <Grid item xs={3}>
+
           <Grid
             container
             justify="center"
@@ -169,7 +187,7 @@ class Table extends Component {
                 <Token type="x" />
               </Grid>
             </Grid>
-            <Player />
+            {players[5] ? <Player playerInfo={players[5]} /> : null}
           </Grid>
         </Grid>
         <Grid item xs={3}>
@@ -185,7 +203,8 @@ class Table extends Component {
                 <Token type="x" />
               </Grid>
             </Grid>
-            <Player />
+            {players[4] ? <Player playerInfo={players[4]} /> : null}
+
           </Grid>
         </Grid>
         <Grid item xs={3} />

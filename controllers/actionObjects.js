@@ -1,6 +1,6 @@
 //Join table
 const joinTable = {
-  socketId: "",
+  user_id: "",
   mongoInfo: {
     mongoId: "",
     username: "",
@@ -14,12 +14,12 @@ const joinTable = {
 //Deal
 const dealObj = {
   holeCards: [],
-  socketId: ""
+  user_id: ""
 };
 
 //Bet
 const betObj = {
-  socketId: "",
+  user_id: "",
   username: "",
   mongoId: "",
   betAmt: 0
@@ -27,20 +27,20 @@ const betObj = {
 
 //Check
 const checkObj = {
-  socketId: "",
+  user_id: "",
   username: ""
 };
 
 //Call
 const callObj = {
-  socketId: "",
+  user_id: "",
   username: "",
   prevBetAmt: 0
 };
 
 //Raise
 const raiseObj = {
-  socketId: "",
+  user_id: "",
   username: "",
   prevBetAmt: 0,
   raise: 0
@@ -48,20 +48,20 @@ const raiseObj = {
 
 //Fold
 const foldObj = {
-  socketId: "",
+  user_id: "",
   username: ""
 };
 
 //Payout
 const payout = {
-  socketId: "",
+  user_id: "",
   mongoId: "",
   payAmt: 0
 };
 
 //Leave table
 const leaveTableObj = {
-  socketId: "",
+  user_id: "",
   username: "",
   mongoId: "",
   chips: 0 //to be converted back into cash
@@ -69,7 +69,7 @@ const leaveTableObj = {
 
 //Chat message
 const chatObj = {
-  socketId: "",
+  user_id: "",
   username: "",
   message: ""
 };

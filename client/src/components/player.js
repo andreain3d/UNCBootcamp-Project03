@@ -15,8 +15,9 @@ const styles = {
 };
 
 class Player extends Component {
-  render(props) {
+  render() {
     const classes = this.props.classes;
+    const { playerInfo } = this.props;
     return (
       <Fragment>
         <Paper className={classes.paper}>
@@ -29,8 +30,8 @@ class Player extends Component {
               />
             </Grid>
             <Grid item xs={12} sm={8}>
-              <Typography variant="body1">Username</Typography>
-              <Typography variant="subtitle1">$0.00</Typography>
+              <Typography variant="body1">{playerInfo.name}</Typography>
+              <Typography variant="subtitle1">{playerInfo.chips}</Typography>
             </Grid>
           </Grid>
         </Paper>

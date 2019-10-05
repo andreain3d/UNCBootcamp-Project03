@@ -5,7 +5,9 @@ import Table from "../components/table";
 import Navbar from "../components/navbar";
 import Chat from "../components/chat";
 import Options from "../components/options";
+
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
+
 
 const styles = {
   grow: {
@@ -13,6 +15,7 @@ const styles = {
     bottom: 0
   }
 };
+
 
 const theme = createMuiTheme({
   palette: {
@@ -26,6 +29,7 @@ const theme = createMuiTheme({
   }
 });
 
+
 class TableView extends Component {
   constructor(props) {
     super(props);
@@ -33,6 +37,7 @@ class TableView extends Component {
 
   render(props) {
     const classes = this.props.classes;
+
     const {
       socket,
       primeTable,
@@ -55,6 +60,7 @@ class TableView extends Component {
           turn={turn}
           river={river}
         />
+
         <Grid container className={classes.grow}>
           <Grid item xs={12} md={6}>
             <Options socket={socket} cards={playerCards} />
@@ -63,7 +69,9 @@ class TableView extends Component {
             <Chat socket={socket} />
           </Grid>
         </Grid>
+
       </MuiThemeProvider>
+
     );
   }
 }

@@ -11,6 +11,11 @@ var deque = [];
 module.exports = {
   // These routes will operate on a virtual table that lives on the server.
 
+  //the reset button clears the table
+  reset: (req, res) => {
+    serverTable = undefined;
+    res.send();
+  },
   //flash is a route that returns the entire table object, or null if init has not been performed
   flash: (req, res) => {
     if (!serverTable) {
@@ -59,9 +64,8 @@ module.exports = {
       serverTable.addPlayer(player);
     }
     io.emit("PRIME", {
-      message: "Table is set up and primed for the next hand",
-      next: "POST '/api/table/deal'",
-      rejected
+      players: serverTable.players,
+      dealerIndex: serverTable.dealerIndex
     });
     res.send();
   },
@@ -69,14 +73,13 @@ module.exports = {
   //addPlayer is a route that will create a new player and add them to the virtual table. This route is
   //accessed via post with req.body containing name and cash keys.
   addPlayer: (req, res) => {
-    const { name, cash } = req.body;
-    var player = new Player(name, parseInt(cash));
+    const { name, cash, img } = req.body;
+    var player = new Player(name, parseInt(cash), img);
     var quePos = que.length;
     que.push(player);
     io.emit("ADDPLAYER", {
-      message: `${player.name}, welcome to api casino! You've been added to the que for the table in position ${quePos}. Players are added to the table at the start of a hand in FIFO order as seats become available.`,
       quePos,
-      next: "GET '/api/table/init'"
+      player
     });
     res.send();
   },
@@ -128,21 +131,8 @@ module.exports = {
     if (serverTable.players.length > 3) {
       serverTable.position = 3;
     }
-    const { position, players, currentBet, round } = serverTable;
-    let playerBet = players[position].bets[round];
     io.emit("DEALCARDS", {
-      message: "Cards have been dealt! If you are in a betting mood, follow the next key in the betObj",
-      next: "GET '/api/player/<position>/cards' OR '/api/table/flop'",
-      players: serverTable.players,
-      betObj: {
-        next: "/api/table/bet/<position>/<amount>",
-        nextPlayer: players[position].name,
-        nextBetPosition: serverTable.position,
-        action: currentBet - playerBet,
-        currentBet,
-        playerBet,
-        position
-      }
+      players: serverTable.players
     });
     res.send();
   },
@@ -158,7 +148,8 @@ module.exports = {
     if (serverTable.flop.length === 3) {
       io.emit("ERROR", {
         err: "The flop has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return res.send();
     }
@@ -173,18 +164,7 @@ module.exports = {
     });
     const { position, currentBet, players, round } = serverTable;
     io.emit("DOFLOP", {
-      flop,
-      message: "The flop has been dealt! If you are in a betting mood, follow the next key in the betObj",
-      next: "GET '/api/player/<position>/cards' OR '/api/table/turn'",
-      betObj: {
-        next: `/api/table/bet/${position}/${currentBet}`,
-        nextPlayer: players[position].name,
-        nextBetPosition: position,
-        action: currentBet - players[position].bets[round],
-        currentBet,
-        playerBet: players[position].bets[round],
-        position
-      }
+      flop
     });
     res.send();
   },
@@ -202,7 +182,8 @@ module.exports = {
       console.log("Error Turn");
       io.emit("ERROR", {
         err: "The turn has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
       });
       return res.send();
     }
@@ -217,18 +198,7 @@ module.exports = {
     });
     const { position, currentBet, players, round } = serverTable;
     io.emit("DOTURN", {
-      turn,
-      message: "The turn has been dealt! If you are in a betting mood, follow the next key in the betObj",
-      next: "GET '/api/player/<position>/cards' OR '/api/table/river'",
-      betObj: {
-        next: `/api/table/bet/${position}/${currentBet}`,
-        nextPlayer: players[position].name,
-        nextBetPosition: position,
-        action: currentBet - players[position].bets[round],
-        currentBet,
-        playerBet: players[position].bets[round],
-        position
-      }
+      turn
     });
     res.send();
   },
@@ -238,14 +208,16 @@ module.exports = {
     if (!serverTable.turn) {
       io.emit("ERROR", {
         err: "The turn has not been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return res.send();
     }
     if (serverTable.river) {
       io.emit("ERROR", {
         err: "The river has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
       });
       return res.send();
     }
@@ -260,18 +232,7 @@ module.exports = {
     });
     const { position, currentBet, players, round } = serverTable;
     io.emit("DORIVER", {
-      river,
-      message: "The river has been dealt! If you are in a betting mood, follow the next key in the betObj",
-      next: "GET '/api/player/<position>/cards' OR '/api/table/hands'",
-      betObj: {
-        next: `/api/table/bet/${position}/${currentBet}`,
-        nextPlayer: players[position].name,
-        nextBetPosition: position,
-        action: currentBet - players[position].bets[round],
-        currentBet,
-        playerBet: players[position].bets[round],
-        position
-      }
+      river
     });
     res.send();
   },
