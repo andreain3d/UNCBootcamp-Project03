@@ -12,8 +12,9 @@ module.exports = {
   // These routes will operate on a virtual table that lives on the server.
 
   //the reset button clears the table
-  reset: (req,res) => {
+  reset: (req, res) => {
     serverTable = undefined;
+    res.send();
   },
   //flash is a route that returns the entire table object, or null if init has not been performed
   flash: (req, res) => {
