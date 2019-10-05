@@ -368,7 +368,6 @@ module.exports = {
     //check the bet amount against the current bet.
     //the table expects a bet that will, at minimum, bring the player to par with the current total bet.
     var parAmount = currentBet - players[position].bets[round];
-    console.log("PARAMOUNT", parAmount);
     var betObj;
     if (amount === players[pos].chips) {
       betObj = allIn(pos);
@@ -405,10 +404,10 @@ module.exports = {
     }
 
     io.emit("PLACEBET", {
-      message: "You have placed a bet for " + amount + " chips.",
-      remainingChips: serverTable.players[position].chips,
-      potTotal: serverTable.pot[0],
-      betObj
+      round: serverTable.round,
+      action: betObj.action ? betObj.action : null,
+      currentBet: serverTable.currentBet,
+      position: serverTable.position
     });
     res.send();
   }
