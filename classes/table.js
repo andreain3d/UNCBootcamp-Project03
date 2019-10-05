@@ -20,7 +20,6 @@ export default class Table {
     this.position = 0;
     this.betsIn = false;
     this.foldedPlayers = 0;
-    this.next = ["deal", "flop", "turn", "river", "hands", "payout"];
   }
 
   rotate() {
@@ -54,11 +53,15 @@ export default class Table {
       this.betsIn = true;
       //reset the betting position to the small blind
       if (this.players.length === 2) {
-        console.log("SET POSITION TO SMALL BLIND");
-        this.position = 0;
+        this.position = this.dealerIndex;
+        if (this.position === this.players.length) {
+          this.position = 0;
+        }
       } else {
-        console.log("SET POSITION TO SMALL BLIND");
         this.position = this.dealerIndex + 1;
+        if (this.position === this.players.length) {
+          this.position = 0;
+        }
       }
     } else {
       this.shift();

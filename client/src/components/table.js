@@ -29,7 +29,7 @@ class Table extends Component {
   render(props) {
     const classes = this.props.classes;
     const { players, primeTable, nextDeckAction, flop, turn, river } = this.props;
-    console.log("Player array from table.js:", players);
+    //console.log("Player array from table.js:", players);
     return (
       <Grid container>
         <Grid item xs={3} />
