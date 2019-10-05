@@ -14,6 +14,7 @@ class App extends Component {
 
     this.state = {
       playerCards: [],
+      playerInfo: [],
       flop: [],
       turn: {},
       river: {},
@@ -36,11 +37,16 @@ class App extends Component {
           this.setState({ position: player.position });
         }
       });
+
+      this.setState({ playerInfo: data.players });
+
     });
 
     this.socket.on("DEALCARDS", data => {
       console.log(data);
+
       axios.get(`/api/player/${this.state.position}/cards`).then(res => {
+
         console.log(res.data.playerCards);
         this.setState({ playerCards: res.data.playerCards });
       });
@@ -99,6 +105,7 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
+              players={this.state.playerInfo}
               socket={this.socket}
               nextDeckAction={this.nextDeckAction}
               primeTable={this.primeTable}

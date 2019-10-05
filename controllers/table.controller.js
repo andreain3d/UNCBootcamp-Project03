@@ -148,7 +148,8 @@ module.exports = {
     if (serverTable.flop.length === 3) {
       io.emit("ERROR", {
         err: "The flop has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return res.send();
     }
@@ -181,7 +182,8 @@ module.exports = {
       console.log("Error Turn");
       io.emit("ERROR", {
         err: "The turn has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
       });
       return res.send();
     }
@@ -206,14 +208,16 @@ module.exports = {
     if (!serverTable.turn) {
       io.emit("ERROR", {
         err: "The turn has not been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return res.send();
     }
     if (serverTable.river) {
       io.emit("ERROR", {
         err: "The river has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
       });
       return res.send();
     }
