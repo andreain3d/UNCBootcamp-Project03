@@ -18,7 +18,9 @@ class App extends Component {
       turn: {},
       river: {},
       hands: [],
-      action: 0
+      action: 0,
+      position: 0,
+      name: ""
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
