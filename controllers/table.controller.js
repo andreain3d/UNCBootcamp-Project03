@@ -59,9 +59,7 @@ module.exports = {
       serverTable.addPlayer(player);
     }
     io.emit("PRIME", {
-      message: "Table is set up and primed for the next hand",
-      next: "POST '/api/table/deal'",
-      rejected
+      players: serverTable.players
     });
     res.send();
   },

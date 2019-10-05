@@ -21,6 +21,7 @@ class App extends Component {
 
     this.state = {
       playerCards: [],
+      playerInfo: [],
       flop: [],
       turn: {},
       river: {},
@@ -35,7 +36,7 @@ class App extends Component {
     });
 
     this.socket.on("PRIME", data => {
-      console.log(data);
+      this.setState({ playerInfo: data.players });
     });
 
     this.socket.on("DEALCARDS", data => {
@@ -93,6 +94,7 @@ class App extends Component {
       <Fragment>
         <Navbar />
         <Table
+          players={this.state.playerInfo}
           socket={this.socket}
           nextDeckAction={this.nextDeckAction}
           primeTable={this.primeTable}

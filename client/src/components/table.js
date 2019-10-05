@@ -17,27 +17,21 @@ const styles = {
 };
 
 class Table extends Component {
-
-  constructor(props) {
-    super(props);
-  }
-
-  render(props) {
+  render() {
     const classes = this.props.classes;
-    const { primeTable, nextDeckAction, flop, turn, river } = this.props;
-
+    const { players, primeTable, nextDeckAction, flop, turn, river } = this.props;
+    console.log("Player array from table.js:", players);
     return (
       <Grid container>
         <Grid item xs={3} />
         <Grid item xs={3}>
-
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            <Player />
+            {players[0] ? <Player playerInfo={players[0]} /> : null}
           </Grid>
         </Grid>
         <Grid item xs={3}>
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            <Player />
+            {players[1] ? <Player playerInfo={players[1]} /> : null}
           </Grid>
         </Grid>
         <Grid item xs={3}>
@@ -54,17 +48,16 @@ class Table extends Component {
           <Grid item xs={3}>
             <Grid container className={classes.item}>
               <Grid item xs={12}>
-                <Player />
+                {players[7] ? <Player playerInfo={players[7]} /> : null}
               </Grid>
             </Grid>
             <Grid container>
               <Grid item xs={12}>
-                <Player />
+                {players[6] ? <Player playerInfo={players[6]} /> : null}
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={6}>
-
             <Grid container height={1} className={classes.cardContainer} justify="center" alignItems="center">
               <TableCard src={flop.length > 0 ? flop[0].frontImage : ""} />
               <TableCard src={flop.length > 0 ? flop[1].frontImage : ""} />
@@ -79,12 +72,12 @@ class Table extends Component {
           <Grid item xs={3}>
             <Grid container className={classes.item}>
               <Grid item xs={12}>
-                <Player />
+                {players[2] ? <Player playerInfo={players[2]} /> : null}
               </Grid>
             </Grid>
             <Grid container>
               <Grid item xs={12}>
-                <Player />
+                {players[3] ? <Player playerInfo={players[3]} /> : null}
               </Grid>
             </Grid>
           </Grid>
@@ -92,12 +85,12 @@ class Table extends Component {
         <Grid item xs={3} />
         <Grid item xs={3}>
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            <Player />
+            {players[5] ? <Player playerInfo={players[5]} /> : null}
           </Grid>
         </Grid>
         <Grid item xs={3}>
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            <Player />
+            {players[4] ? <Player playerInfo={players[4]} /> : null}
           </Grid>
         </Grid>
         <Grid item xs={3} />
