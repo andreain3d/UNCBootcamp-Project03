@@ -1,28 +1,45 @@
-// import React from "react";
-// import { BrowserRouter, Route, Switch } from "react-router-dom";
-// import { useAuth0 } from "./react-auth0-wrapper";
-// import NavBar from "./components/NavBar";
-// import Profile from "./components/Profile";
-// import ChatWindow from "./components/Chat";
-// import PrivateRoute from "./components/PrivateRoute";
+import React, { Fragment } from "react";
+import { Link } from "react-router-dom";
+import Grid from "@material-ui/core/Grid";
+import Button from "@material-ui/core/Button";
+import { useAuth0 } from "../react-auth0-wrapper";
+import API from "../utils/API";
 
-// const App = () => {
-//   const { isAuthenticated } = useAuth0();
+const LobbyView = () => {
+  const { user, isAuthenticated, loginWithPopup, logout } = useAuth0();
 
-//   return (
-//     <div className="App">
-//       <BrowserRouter>
-//         <header>
-//           <NavBar />
-//         </header>
-//         {isAuthenticated && <ChatWindow />}
-//         <Switch>
-//           <Route path="/" exact />
-//           <PrivateRoute path="/profile" component={Profile} />
-//         </Switch>
-//       </BrowserRouter>
-//     </div>
-//   );
-// };
+  const joinGame = () => {
+    API.getUser(user.email).then(res => {
+      API.createPlayer({
+        name: res.data.username,
+        cash: res.data.cash,
+        img: res.data.image
+      }).then(res => console.log(res));
+    });
+  };
 
-// export default App;
+  return (
+    <Fragment>
+      <Grid container direction="row" justify="center" alignItems="center">
+        {!isAuthenticated && (
+          <Button onClick={() => loginWithPopup({})}>Log in</Button>
+        )}
+
+        {isAuthenticated && (
+          <Button onClick={joinGame}>
+            <Link to="/table">Join Game</Link>
+          </Button>
+        )}
+        {isAuthenticated && (
+          <Button>
+            <Link to="/profile">Profile</Link>
+          </Button>
+        )}
+
+        {isAuthenticated && <Button onClick={() => logout()}>Log out</Button>}
+      </Grid>
+    </Fragment>
+  );
+};
+
+export default LobbyView;

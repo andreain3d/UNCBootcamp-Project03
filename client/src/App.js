@@ -1,19 +1,12 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import Table from "./components/table";
-import Navbar from "./components/navbar";
-import Chat from "./components/chat";
-import Options from "./components/options";
+import PrivateRoute from "./components/PrivateRoute";
+import LobbyView from "./pages/LobbyView";
+import TableView from "./pages/TableView";
+import ProfileView from "./pages/ProfileView";
 import io from "socket.io-client";
 import axios from "axios";
-
-const styles = {
-  grow: {
-    flexGrow: 1,
-    bottom: 0
-  }
-};
 
 class App extends Component {
   constructor(props) {
@@ -66,6 +59,7 @@ class App extends Component {
       this.setState({ hands: data.hands });
     });
   }
+
   primeTable = async () => {
     for (var i = 0; i < 4; i++) {
       await axios.post("/api/table/join", {
@@ -86,30 +80,32 @@ class App extends Component {
       this.setState({ action: this.state.action + 1 });
     });
   };
+
   render() {
-    const classes = this.props.classes;
     return (
-      <Fragment>
-        <Navbar />
-        <Table
-          socket={this.socket}
-          nextDeckAction={this.nextDeckAction}
-          primeTable={this.primeTable}
-          flop={this.state.flop}
-          turn={this.state.turn}
-          river={this.state.river}
-        />
-        <Grid container className={classes.grow}>
-          <Grid item xs={12} md={6}>
-            <Options socket={this.socket} cards={this.state.playerCards} />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Chat socket={this.socket} />
-          </Grid>
-        </Grid>
-      </Fragment>
+      <BrowserRouter>
+        <Switch>
+          <PrivateRoute path="/table">
+            <TableView
+              socket={this.socket}
+              nextDeckAction={this.nextDeckAction}
+              primeTable={this.primeTable}
+              flop={this.state.flop}
+              turn={this.state.turn}
+              river={this.state.river}
+              playerCards={this.state.playerCards}
+            />
+          </PrivateRoute>
+          <PrivateRoute path="/profile">
+            <ProfileView />
+          </PrivateRoute>
+          <Route path="/">
+            <LobbyView socket={this.socket} />
+          </Route>
+        </Switch>
+      </BrowserRouter>
     );
   }
 }
 
-export default withStyles(styles)(App);
+export default App;
