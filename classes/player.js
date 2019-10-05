@@ -10,7 +10,7 @@ export default class Player {
     this.isAllIn = false;
     this.allInRound = 0;
     this.position = 0;
-    this.img = "";
+    this.img = img;
   }
 
   bet(chipValue, index) {

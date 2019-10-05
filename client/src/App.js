@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import { withStyles } from "@material-ui/core/styles";
 import PrivateRoute from "./components/PrivateRoute";
 import LobbyView from "./pages/LobbyView";
 import TableView from "./pages/TableView";
@@ -39,14 +38,12 @@ class App extends Component {
       });
 
       this.setState({ playerInfo: data.players });
-
     });
 
     this.socket.on("DEALCARDS", data => {
       console.log(data);
 
       axios.get(`/api/player/${this.state.position}/cards`).then(res => {
-
         console.log(res.data.playerCards);
         this.setState({ playerCards: res.data.playerCards });
       });
