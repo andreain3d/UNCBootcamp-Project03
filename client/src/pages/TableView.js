@@ -6,12 +6,29 @@ import Navbar from "../components/navbar";
 import Chat from "../components/chat";
 import Options from "../components/options";
 
+import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
+
+
 const styles = {
   grow: {
     flexGrow: 1,
     bottom: 0
   }
 };
+
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: "#1C2022"
+    },
+    secondary: amber,
+    tertiary: {
+      main: "#c62828"
+    }
+  }
+});
+
 
 class TableView extends Component {
   constructor(props) {
@@ -20,11 +37,30 @@ class TableView extends Component {
 
   render(props) {
     const classes = this.props.classes;
-    const { socket, primeTable, nextDeckAction, flop, turn, river, playerCards, players } = this.props;
+
+    const {
+      socket,
+      primeTable,
+      nextDeckAction,
+      flop,
+      turn,
+      river,
+      playerCards,
+      players
+    } = this.props;
     return (
-      <Fragment>
+      <MuiThemeProvider theme={theme}>
         <Navbar />
-        <Table players={players} socket={socket} nextDeckAction={nextDeckAction} primeTable={primeTable} flop={flop} turn={turn} river={river} />
+        <Table
+          players={players}
+          socket={socket}
+          nextDeckAction={nextDeckAction}
+          primeTable={primeTable}
+          flop={flop}
+          turn={turn}
+          river={river}
+        />
+
         <Grid container className={classes.grow}>
           <Grid item xs={12} md={6}>
             <Options socket={socket} cards={playerCards} />
@@ -33,7 +69,9 @@ class TableView extends Component {
             <Chat socket={socket} />
           </Grid>
         </Grid>
-      </Fragment>
+
+      </MuiThemeProvider>
+
     );
   }
 }
