@@ -40,6 +40,7 @@ class App extends Component {
 
     this.socket.on("DEALCARDS", data => {
       console.log(data);
+      // Does this route need to contain the position variable for players to see their hole cards?
       axios.get("/api/player/0/cards").then(res => {
         console.log(res.data.playerCards);
         this.setState({ playerCards: res.data.playerCards });
