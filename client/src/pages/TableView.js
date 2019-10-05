@@ -13,6 +13,9 @@ const styles = {
   grow: {
     flexGrow: 1,
     bottom: 0
+  },
+  background: {
+    backgroundImage: "radial-gradient(#1a643f, #1a643f, black)"
   }
 };
 
@@ -39,15 +42,25 @@ class TableView extends Component {
     const { socket, primeTable, nextDeckAction, flop, turn, river, playerCards, players, position } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
-        <Navbar />
-        <Table players={players} socket={socket} nextDeckAction={nextDeckAction} primeTable={primeTable} flop={flop} turn={turn} river={river} />
+        <Grid container className={classes.background}>
+          <Navbar />
+          <Table
+            players={players}
+            socket={socket}
+            nextDeckAction={nextDeckAction}
+            primeTable={primeTable}
+            flop={flop}
+            turn={turn}
+            river={river}
+          />
+          <Grid container className={classes.grow}>
+            <Grid item xs={12} md={6}>
+              <Options socket={socket} cards={playerCards} position={position} />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Chat socket={socket} />
+            </Grid>
 
-        <Grid container className={classes.grow}>
-          <Grid item xs={12} md={6}>
-            <Options socket={socket} cards={playerCards} position={position} />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Chat socket={socket} />
           </Grid>
         </Grid>
       </MuiThemeProvider>
