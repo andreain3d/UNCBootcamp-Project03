@@ -116,6 +116,7 @@ class App extends Component {
               turn={this.state.turn}
               river={this.state.river}
               playerCards={this.state.playerCards}
+              position={this.state.position}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
