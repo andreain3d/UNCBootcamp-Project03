@@ -79,7 +79,8 @@ module.exports = {
     que.push(player);
     io.emit("ADDPLAYER", {
       quePos,
-      player
+      player,
+      que
     });
     res.send();
   },
