@@ -30,30 +30,22 @@ class Options extends Component {
 
     this.DEAL = event => {
       event.preventDefault();
-      Axios.get("api/table/deal").then(res => {
-        console.log(res);
-      });
+      Axios.get("api/table/deal");
     };
 
     this.FLOP = event => {
       event.preventDefault();
-      Axios.get("api/table/flop").then(res => {
-        console.log(res);
-      });
+      Axios.get("api/table/flop");
     };
 
     this.TURN = event => {
       event.preventDefault();
-      Axios.get("api/table/turn").then(res => {
-        console.log(res);
-      });
+      Axios.get("api/table/turn");
     };
 
     this.RIVER = event => {
       event.preventDefault();
-      Axios.get("api/table/river").then(res => {
-        console.log(res);
-      });
+      Axios.get("api/table/river");
     };
   }
 
