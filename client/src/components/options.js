@@ -4,7 +4,6 @@ import { Grid, Button, Paper, Typography } from "@material-ui/core";
 import PlayerCard from "./playerCard";
 import Axios from "axios";
 
-
 const styles = {
   grow: {
     flexGrow: 1,
@@ -21,12 +20,11 @@ class Options extends Component {
   constructor(props) {
     super(props);
 
-    // this.BETTING = event => {
-    //   event.preventDefault();
-    //   Axios.get("api/table/bet/0/0").then(res => {
-    //     console.log(res);
-    //   });
-    // };
+    this.BETTING = bet => {
+      Axios.get(`api/table/bet/${props.position}/${bet}`).then(res => {
+        console.log(res);
+      });
+    };
 
     this.DEAL = event => {
       event.preventDefault();
@@ -61,22 +59,22 @@ class Options extends Component {
           <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
         </Grid>
         <Grid container justify="center">
-          {/* <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
+          <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(-1)}>
             Fold
           </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
+          <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
             check
           </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
+          <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
             call
           </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
+          <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
             raise
-          </Button> */}
+          </Button>
 
           {/* TEST BUTTONS FOR GAME PLAY*/}
 
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.DEAL}>
+          {/* <Button color="primary" variant="contained" className={classes.button} onClick={this.DEAL}>
             Deal
           </Button>
           <Button color="primary" variant="contained" className={classes.button} onClick={this.FLOP}>
@@ -87,7 +85,7 @@ class Options extends Component {
           </Button>
           <Button color="primary" variant="contained" className={classes.button} onClick={this.RIVER}>
             River
-          </Button>
+          </Button> */}
         </Grid>
         <Grid container justify="center">
           <input type="range" min="1" max="100" className={classes.slider} id="myRange" />

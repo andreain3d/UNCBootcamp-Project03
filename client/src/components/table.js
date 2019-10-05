@@ -26,12 +26,12 @@ class Table extends Component {
         <Grid item xs={3} />
         <Grid item xs={3}>
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            {players[0] ? <Player playerInfo={players[0]} /> : null}
+            {players ? players[0] ? <Player playerInfo={players[0]} /> : null : null}
           </Grid>
         </Grid>
         <Grid item xs={3}>
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            {players[1] ? <Player playerInfo={players[1]} /> : null}
+            {players ? players[1] ? <Player playerInfo={players[1]} /> : null : null}
           </Grid>
         </Grid>
         <Grid item xs={3}>
@@ -48,12 +48,12 @@ class Table extends Component {
           <Grid item xs={3}>
             <Grid container className={classes.item}>
               <Grid item xs={12}>
-                {players[7] ? <Player playerInfo={players[7]} /> : null}
+                {players ? players[7] ? <Player playerInfo={players[7]} /> : null : null}
               </Grid>
             </Grid>
             <Grid container>
               <Grid item xs={12}>
-                {players[6] ? <Player playerInfo={players[6]} /> : null}
+                {players ? players[6] ? <Player playerInfo={players[6]} /> : null : null}
               </Grid>
             </Grid>
           </Grid>
@@ -72,12 +72,12 @@ class Table extends Component {
           <Grid item xs={3}>
             <Grid container className={classes.item}>
               <Grid item xs={12}>
-                {players[2] ? <Player playerInfo={players[2]} /> : null}
+                {players ? players[2] ? <Player playerInfo={players[2]} /> : null : null}
               </Grid>
             </Grid>
             <Grid container>
               <Grid item xs={12}>
-                {players[3] ? <Player playerInfo={players[3]} /> : null}
+                {players ? players[3] ? <Player playerInfo={players[3]} /> : null : null}
               </Grid>
             </Grid>
           </Grid>
@@ -85,12 +85,12 @@ class Table extends Component {
         <Grid item xs={3} />
         <Grid item xs={3}>
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            {players[5] ? <Player playerInfo={players[5]} /> : null}
+            {players ? players[5] ? <Player playerInfo={players[5]} /> : null : null}
           </Grid>
         </Grid>
         <Grid item xs={3}>
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            {players[4] ? <Player playerInfo={players[4]} /> : null}
+            {players ? players[4] ? <Player playerInfo={players[4]} /> : null : null}
           </Grid>
         </Grid>
         <Grid item xs={3} />

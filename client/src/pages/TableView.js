@@ -20,14 +20,22 @@ class TableView extends Component {
 
   render(props) {
     const classes = this.props.classes;
-    const { socket, primeTable, nextDeckAction, flop, turn, river, playerCards, players } = this.props;
+    const { socket, primeTable, nextDeckAction, flop, turn, river, playerCards, players, position } = this.props;
     return (
       <Fragment>
         <Navbar />
-        <Table players={players} socket={socket} nextDeckAction={nextDeckAction} primeTable={primeTable} flop={flop} turn={turn} river={river} />
+        <Table
+          players={players}
+          socket={socket}
+          nextDeckAction={nextDeckAction}
+          primeTable={primeTable}
+          flop={flop}
+          turn={turn}
+          river={river}
+        />
         <Grid container className={classes.grow}>
           <Grid item xs={12} md={6}>
-            <Options socket={socket} cards={playerCards} />
+            <Options socket={socket} cards={playerCards} position={position} />
           </Grid>
           <Grid item xs={12} md={6}>
             <Chat socket={socket} />
