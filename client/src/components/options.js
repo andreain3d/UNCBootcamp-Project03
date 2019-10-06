@@ -27,8 +27,32 @@ const styles = {
 class Options extends Component {
   constructor(props) {
     super(props);
-    console.log("OPTIONS COMPONENT CONSTRUCTOR");
-    console.log(props);
+
+    this.BETTING = bet => {
+      Axios.get(`api/table/bet/${props.position}/${bet}`).then(res => {
+        console.log(res);
+      });
+    };
+
+    this.DEAL = event => {
+      event.preventDefault();
+      Axios.get("api/table/deal");
+    };
+
+    this.FLOP = event => {
+      event.preventDefault();
+      Axios.get("api/table/flop");
+    };
+
+    this.TURN = event => {
+      event.preventDefault();
+      Axios.get("api/table/turn");
+    };
+
+    this.RIVER = event => {
+      event.preventDefault();
+      Axios.get("api/table/river");
+    };
   }
 
   render(props) {
@@ -46,32 +70,17 @@ class Options extends Component {
             <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
           </Grid>
           <Grid container justify="center">
-            {/* <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
-            Fold
-          </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
-            check
-          </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
-            call
-          </Button>
-          <Button color="primary" variant="contained" className={classes.button} onClick={this.BETTING}>
-            raise
-          </Button> */}
-
-            {/* TEST BUTTONS FOR GAME PLAY*/}
-
-            <Button color="secondary" variant="contained" className={classes.button} onClick={this.DEAL}>
-              Deal
+            <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(-1)}>
+              Fold
             </Button>
-            <Button color="secondary" variant="contained" className={classes.button} onClick={this.FLOP}>
-              Flop
+            <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              check
             </Button>
-            <Button color="secondary" variant="contained" className={classes.button} onClick={this.TURN}>
-              Turn
+            <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              call
             </Button>
-            <Button color="secondary" variant="contained" className={classes.button} onClick={this.RIVER}>
-              River
+            <Button color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              raise
             </Button>
           </Grid>
           <Grid container justify="center">
