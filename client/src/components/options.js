@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { Grid, Button, Paper, Typography } from "@material-ui/core";
 import PlayerCard from "./playerCard";
-import Axios from "axios";
 
 const styles = {
   grow: {
@@ -28,33 +27,8 @@ const styles = {
 class Options extends Component {
   constructor(props) {
     super(props);
-
-    // this.BETTING = event => {
-    //   event.preventDefault();
-    //   Axios.get("api/table/bet/0/0").then(res => {
-    //     console.log(res);
-    //   });
-    // };
-
-    this.DEAL = event => {
-      event.preventDefault();
-      Axios.get("api/table/deal");
-    };
-
-    this.FLOP = event => {
-      event.preventDefault();
-      Axios.get("api/table/flop");
-    };
-
-    this.TURN = event => {
-      event.preventDefault();
-      Axios.get("api/table/turn");
-    };
-
-    this.RIVER = event => {
-      event.preventDefault();
-      Axios.get("api/table/river");
-    };
+    console.log("OPTIONS COMPONENT CONSTRUCTOR");
+    console.log(props);
   }
 
   render(props) {
@@ -87,47 +61,21 @@ class Options extends Component {
 
             {/* TEST BUTTONS FOR GAME PLAY*/}
 
-            <Button
-              color="secondary"
-              variant="contained"
-              className={classes.button}
-              onClick={this.DEAL}
-            >
+            <Button color="secondary" variant="contained" className={classes.button} onClick={this.DEAL}>
               Deal
             </Button>
-            <Button
-              color="secondary"
-              variant="contained"
-              className={classes.button}
-              onClick={this.FLOP}
-            >
+            <Button color="secondary" variant="contained" className={classes.button} onClick={this.FLOP}>
               Flop
             </Button>
-            <Button
-              color="secondary"
-              variant="contained"
-              className={classes.button}
-              onClick={this.TURN}
-            >
+            <Button color="secondary" variant="contained" className={classes.button} onClick={this.TURN}>
               Turn
             </Button>
-            <Button
-              color="secondary"
-              variant="contained"
-              className={classes.button}
-              onClick={this.RIVER}
-            >
+            <Button color="secondary" variant="contained" className={classes.button} onClick={this.RIVER}>
               River
             </Button>
           </Grid>
           <Grid container justify="center">
-            <input
-              type="range"
-              min="1"
-              max="100"
-              className={classes.slider}
-              id="myRange"
-            />
+            <input type="range" min="1" max="100" className={classes.slider} id="myRange" />
             <Typography variant="h6">$0.00</Typography>
           </Grid>
         </Paper>

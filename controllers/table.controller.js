@@ -39,6 +39,7 @@ module.exports = {
       serverTable.turn = undefined;
       serverTable.river = undefined;
       serverTable.pot = [0];
+      serverTable.betsIn = false;
       serverTable.dealerIndex++;
       if (serverTable.dealerIndex === serverTable.players.length) {
         serverTable.dealerIndex = 0;
@@ -75,7 +76,8 @@ module.exports = {
     }
     io.emit("PRIME", {
       players: fetchPlayers(),
-      dealerIndex: serverTable.dealerIndex
+      dealerIndex: serverTable.dealerIndex,
+      pot: serverTable.pot[0]
     });
     res.send();
   },
@@ -277,6 +279,7 @@ module.exports = {
   },
   //payout is a method that pays out a player based on the hand ranking
   payout: (req, res) => {
+    console.log("*******************PAYOUT***********************");
     let hands = serverTable.findBestHand();
     //determine the max payout for all players and add the payout key to the player object;
     for (var i = 0; i < serverTable.players.length; i++) {
@@ -306,37 +309,67 @@ module.exports = {
     for (var i = 0; i < serverTable.players.length; i++) {
       payouts.push(0);
     }
-    var rank = 1;
-    while (pot > 0) {
-      //look at hand rankings and pay out players accordingly...
-      var topRank = hands.filter(hand => hand.rank === rank);
-      //sort Toprank by player payout smallest to largest
-      topRank.sort((a, b) => {
-        return serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout;
-      });
-      //topRank should now be mapped to a players array
-      var sortedPayoutArray = topRank.map(hand => ({
-        index: hand.playerIndex.position,
-        payout: serverTable.players[hand.playerIndex].payout
-      }));
-      var n = sortedPayoutArray.length;
-      for (var j = 0; j < n; j++) {
-        var sidePot = pot - sortedPayoutArray[j].payout;
+    //ranks is an array of arrays of similaraly ranked hands
+    var ranks = [];
+    for (var i = 1; i < hands[hands.length - 1].rank + 1; i++) {
+      var clone = cloneDeep(hands);
+      ranks.push(clone.filter(hand => hand.rank === i));
+    }
+    for (var i = 0; i < ranks.length; i++) {
+      var players = cloneDeep(serverTable.players);
+      var group = cloneDeep(ranks[i]);
+      group.sort((a, b) => players[a.playerIndex].payout - players[b.playerIndex].payout);
+      //group is now a sorted array of winning hands of the same length. In most cases this array will have a length of 1
+      //loop though group
+      while (group.length > 0) {
+        var n = group.length;
+        var hand = group.shift();
+        var sidePot = players[hand.playerIndex].payout;
         pot -= sidePot;
-        var split = Math.round(sidePot / n);
-        payouts[sortedPayoutArray[j].index] += split;
-        for (var k = j + 1; k < n; k++) {
-          payouts[sortedPayoutArray[k].index] += split;
-          sortedPlayersArray[k].payout -= sidePot;
-        }
+        payouts[hand.playerIndex] += Math.round(sidePot / n);
+        group.forEach(hand => {
+          payouts[hand.playerIndex] += Math.round(sidePot / n);
+        });
+      }
+      console.log("POT: ", pot);
+      if (pot <= 0) {
+        break;
       }
     }
+    // while (pot > 0) {
+    //   //look at hand rankings and pay out players accordingly...
+    //   var topRank = hands.filter(hand => hand.rank === rank);
+    //   //sort Toprank by player payout smallest to largest
+    //   topRank.sort((a, b) => {
+    //     return serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout;
+    //   });
+    //   //topRank should now be mapped to a players array
+    //   var sortedPayoutArray = topRank.map(hand => ({
+    //     index: hand.playerIndex.position,
+    //     payout: serverTable.players[hand.playerIndex].payout
+    //   }));
+    //   var n = sortedPayoutArray.length;
+    //   for (var j = 0; j < n; j++) {
+    //     var sidePot = pot - sortedPayoutArray[j].payout;
+    //     pot -= sidePot;
+    //     var split = Math.round(sidePot / n);
+    //     payouts[sortedPayoutArray[j].index] += split;
+    //     for (var k = j + 1; k < n; k++) {
+    //       payouts[sortedPayoutArray[k].index] += split;
+    //       sortedPlayersArray[k].payout -= sidePot;
+    //     }
+    //   }
+    //   console.log("IN LOOP ", pot);
+    // }
+    console.log("AFTER LOOP");
     payouts.forEach((value, index) => {
       serverTable.players[index].chips += value;
     });
     io.emit("PAYOUT", {
+      players: fetchPlayers(),
       payouts,
-      hands
+      hands,
+      pot
     });
     res.send();
   },
@@ -345,46 +378,34 @@ module.exports = {
   // amounts can be -1 (or any value less than 0 -> this is a fold), 0 (this is a check), amount (any number greater than 0 -> this is a bet or raise)
   placeBet: (req, res) => {
     const { position: pos, amount: amt } = req.params;
-    const { position: tablePos, round, currentBet, players, betsIn, next } = serverTable;
+    const { position: tablePos, round, currentBet, players, betsIn, pot } = serverTable;
     let position = parseInt(pos);
     let amount = parseInt(amt);
     if (position < 0) {
       io.emit("PLACEBET", {
         players: fetchPlayers(),
-        minBet: currentBet - players[position].bets[round],
+        minBet: currentBet - players[tablePos].bets[round],
         currentBet,
-        position
+        position: tablePos,
+        pot: pot[0]
       });
       return res.send();
     }
     if (betsIn) {
       io.emit("ERROR", {
-        err: "All bets are in for the current round.",
-        next: `/api/table/${next[round + 1]}`
+        err: "All bets are in for the current round."
       });
       return res.send();
     }
     if (position !== tablePos) {
       io.emit("ERROR", {
-        err: `It's not your turn to bet. Betting is on the player at position ${tablePos} and the currentBet is ${currentBet}`,
-        betObj: {
-          betObj: {
-            next: "/api/table/bet/<position>/<amount>",
-            nextPlayer: players[tablePos].name,
-            nextBetPosition: tablePos,
-            action: currentBet - players[position].bets[round],
-            currentBet,
-            playerBet: players[position].bets[round],
-            position: tablePos
-          }
-        }
+        err: `It's not your turn to bet. Betting is on the player at position ${tablePos} and the currentBet is ${currentBet}`
       });
       return res.send();
     }
     //check the bet amount against the current bet.
     //the table expects a bet that will, at minimum, bring the player to par with the current total bet.
     var parAmount = currentBet - players[position].bets[round];
-    var betObj;
     if (amount === players[pos].chips) {
       allIn(pos);
     } else if (amount < 0) {
@@ -394,16 +415,7 @@ module.exports = {
     } else if (parAmount > amount) {
       //the player bet is too small. throw err
       io.emit("ERROR", {
-        err: `Your bet of ${amount} is too low. The action (the minimum to bet) is ${parAmount}`,
-        betObj: {
-          next: "/api/table/bet/<position>/<amount>",
-          nextPlayer: players[tablePos].name,
-          nextBetPosition: tablePos,
-          action: currentBet - players[position].bets[round],
-          currentBet,
-          playerBet: players[position].bets[round],
-          position: tablePos
-        }
+        err: `Your bet of ${amount} is too low. The action (the minimum to bet) is ${parAmount}`
       });
       return res.send();
     } else if (amount === parAmount) {
@@ -427,20 +439,21 @@ let fold = pos => {
   console.log("FOLD METHOD");
   serverTable.players[parseInt(pos)].didFold = true;
   serverTable.foldedPlayers++;
-  var remainingChips = serverTable.players[parseInt(pos)].chips;
   serverTable.checkBets();
   if (serverTable.betsIn && serverTable.foldedPlayers === serverTable.players.length - 1) {
     io.emit("PLACEBET", {
-      players: fetchPlayers()
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
     });
     io.emit("NEXT", {
-      round: 5
+      round: 4
     });
   }
   const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
     io.emit("PLACEBET", {
-      players: fetchPlayers()
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
     });
     io.emit("NEXT", {
       round: serverTable.round + 1
@@ -450,7 +463,8 @@ let fold = pos => {
       players: fetchPlayers(),
       minBet: currentBet - players[position].bets[round],
       currentBet,
-      position
+      position,
+      pot: serverTable.pot[0]
     });
   }
 };
@@ -458,13 +472,13 @@ let fold = pos => {
 let call = (amount, pos) => {
   console.log("CALL METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
-  var remainingChips = serverTable.players[pos].chips;
   serverTable.collect(amount);
   serverTable.checkBets();
   const { next, position, players, currentBet, round } = serverTable;
   if (serverTable.betsIn) {
     io.emit("PLACEBET", {
-      players: fetchPlayers()
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
     });
     io.emit("NEXT", {
       round: serverTable.round + 1
@@ -474,13 +488,13 @@ let call = (amount, pos) => {
       players: fetchPlayers(),
       minBet: currentBet - players[position].bets[round],
       currentBet,
-      position
+      position,
+      pot: serverTable.pot[0]
     });
   }
 };
 
 let bet = (amount, pos) => {
-  console.log("BET METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
   var remainingChips = serverTable.players[pos].chips;
   serverTable.collect(amount);
@@ -489,7 +503,8 @@ let bet = (amount, pos) => {
   const { next, position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
     io.emit("PLACEBET", {
-      players: fetchPlayers()
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
     });
     io.emit("NEXT", {
       round: serverTable.round + 1
@@ -499,13 +514,13 @@ let bet = (amount, pos) => {
       players: fetchPlayers(),
       minBet: currentBet - players[position].bets[round],
       currentBet,
-      position
+      position,
+      pot: serverTable.pot[0]
     });
   }
 };
 
 let raise = (amount, pos) => {
-  console.log("RAISE METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
   serverTable.currentBet = amount;
@@ -515,19 +530,19 @@ let raise = (amount, pos) => {
     players: fetchPlayers(),
     minBet: currentBet - players[position].bets[round],
     currentBet,
-    position
+    position,
+    pot: serverTable.pot[0]
   });
 };
 
 let check = pos => {
-  console.log("CHECK METHOD");
   serverTable.players[pos].didBet = true;
-  var remainingChips = serverTable.players[pos].chips;
   serverTable.checkBets();
-  const { next, position, players, currentBet, round, betsIn } = serverTable;
+  const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
     io.emit("PLACEBET", {
-      players: fetchPlayers()
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
     });
     io.emit("NEXT", {
       round: serverTable.round + 1
@@ -537,7 +552,8 @@ let check = pos => {
       players: fetchPlayers(),
       minBet: currentBet - players[position].bets[round],
       currentBet,
-      position
+      position,
+      pot: serverTable.pot[0]
     });
   }
 };
@@ -551,10 +567,11 @@ let allIn = pos => {
     serverTable.currentBet = amount;
   }
   serverTable.checkBets();
-  const { next, position, players, currentBet, round, betsIn } = serverTable;
+  const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
     io.emit("PLACEBET", {
-      players: fetchPlayers()
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
     });
     io.emit("NEXT", {
       round: serverTable.round + 1
@@ -564,7 +581,8 @@ let allIn = pos => {
       players: fetchPlayers(),
       minBet: currentBet - players[position].bets[round],
       currentBet,
-      position
+      position,
+      pot: serverTable.pot[0]
     });
   }
 };
