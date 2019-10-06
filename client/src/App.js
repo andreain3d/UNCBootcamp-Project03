@@ -87,7 +87,7 @@ class App extends Component {
       this.setState({ playerInfo, currentBet, minBet, actionTo, pot });
       //if actionTo === this.state.position
       // Start the timer, activate the buttons in options
-
+      console.log("Next bet is " + minBet + " to the player at position " + actionTo);
       //at the end of a round of betting, the data received in this listener only contains the playerInfo. All other values will be undefined
       //This implies that currentBet, minBet, and actionTo will only be on the state variable during betting
       //If these values are used to render data, conditional rendering should be used
@@ -150,7 +150,6 @@ class App extends Component {
   nextDeckAction = () => {
     if (this.state.handAction > 4) {
       console.log("HAND OVER");
-      //in here we can call payout
       return;
     }
     let deckActions = ["deal", "flop", "turn", "river", "hands"];

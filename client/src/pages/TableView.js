@@ -40,7 +40,17 @@ class TableView extends Component {
       <MuiThemeProvider theme={theme}>
         <Grid container className={classes.background}>
           <Navbar />
-          <Table pot={pot} players={players} socket={socket} nextDeckAction={nextDeckAction} primeTable={primeTable} flop={flop} turn={turn} river={river} />
+          <Table
+            pot={pot}
+            players={players}
+            socket={socket}
+            nextBetAction={nextBetAction}
+            nextDeckAction={nextDeckAction}
+            primeTable={primeTable}
+            flop={flop}
+            turn={turn}
+            river={river}
+          />
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
               <Options socket={socket} cards={playerCards} position={position} />

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { Grid, Button, Paper, Typography } from "@material-ui/core";
 import PlayerCard from "./playerCard";
+import axios from "axios";
 
 const styles = {
   grow: {
@@ -29,29 +30,29 @@ class Options extends Component {
     super(props);
 
     this.BETTING = bet => {
-      Axios.get(`api/table/bet/${props.position}/${bet}`).then(res => {
+      axios.get(`api/table/bet/${props.position}/${bet}`).then(res => {
         console.log(res);
       });
     };
 
     this.DEAL = event => {
       event.preventDefault();
-      Axios.get("api/table/deal");
+      axios.get("api/table/deal");
     };
 
     this.FLOP = event => {
       event.preventDefault();
-      Axios.get("api/table/flop");
+      axios.get("api/table/flop");
     };
 
     this.TURN = event => {
       event.preventDefault();
-      Axios.get("api/table/turn");
+      axios.get("api/table/turn");
     };
 
     this.RIVER = event => {
       event.preventDefault();
-      Axios.get("api/table/river");
+      axios.get("api/table/river");
     };
   }
 
