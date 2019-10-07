@@ -23,11 +23,7 @@ class Player extends Component {
         <Paper className={classes.paper}>
           <Grid container>
             <Grid item xs={4}>
-              <Avatar
-                className={classes.avatar}
-                alt="Player Avatar"
-                src="https://placehold.it/200"
-              />
+              <Avatar className={classes.avatar} alt="Player Avatar" src={playerInfo.img ? playerInfo.img : "https://placehold.it/200"} />
             </Grid>
             <Grid item xs={12} sm={8}>
               <Typography variant="body1">{playerInfo.name}</Typography>

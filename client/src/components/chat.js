@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { Paper, Typography, Button, TextField } from "@material-ui/core";
-import io from "socket.io-client";
 import { isEmpty } from "lodash";
 
 const styles = {
@@ -80,9 +79,7 @@ class Chat extends Component {
     this.setState({
       message: "",
       //`${this.state.username} is typing...` needs to be changed to find any message that includes " is typing..."
-      allMessages: this.state.allMessages.filter(
-        value => value !== `${this.state.username} is typing...`
-      )
+      allMessages: this.state.allMessages.filter(value => value !== `${this.state.username} is typing...`)
     });
   };
 

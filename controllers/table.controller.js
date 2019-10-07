@@ -3,6 +3,7 @@ import Table from "../classes/table";
 import Player from "../classes/player";
 import Deck from "../classes/Deck";
 import io from "../server";
+import { cloneDeep } from "lodash";
 
 var serverTable;
 var que = [];
@@ -11,11 +12,6 @@ var deque = [];
 module.exports = {
   // These routes will operate on a virtual table that lives on the server.
 
-  //the reset button clears the table
-  reset: (req, res) => {
-    serverTable = undefined;
-    res.send();
-  },
   //flash is a route that returns the entire table object, or null if init has not been performed
   flash: (req, res) => {
     if (!serverTable) {
@@ -24,6 +20,7 @@ module.exports = {
     io.emit("FLASH", serverTable);
     res.send();
   },
+
   // init is a route that will initiate or reset the virtual table. This route is accessed via get or post
   // get will init with defualt values. post will allow for custom values.
   prime: (req, res) => {
@@ -42,6 +39,11 @@ module.exports = {
       serverTable.turn = undefined;
       serverTable.river = undefined;
       serverTable.pot = [0];
+      serverTable.betsIn = false;
+      serverTable.dealerIndex++;
+      if (serverTable.dealerIndex === serverTable.players.length) {
+        serverTable.dealerIndex = 0;
+      }
       serverTable.players.forEach((player, index) => {
         player.position = index;
         player.bets = [0];
@@ -73,8 +75,9 @@ module.exports = {
       serverTable.addPlayer(player);
     }
     io.emit("PRIME", {
-      players: serverTable.players,
-      dealerIndex: serverTable.dealerIndex
+      players: fetchPlayers(),
+      dealerIndex: serverTable.dealerIndex,
+      pot: serverTable.pot[0]
     });
     res.send();
   },
@@ -97,6 +100,12 @@ module.exports = {
   //leaveTable will automatically cause a player to fold their current hand and flag the player for removal at the end of the hand
   leaveTable: (req, res) => {
     deque.push(req.params.name);
+    res.send();
+  },
+
+  leaveQue: (req, res) => {
+    que = que.filter(player => player.name !== req.params.name);
+    io.emit("LEAVEQUE", { name: req.params.name });
     res.send();
   },
   //dealCards will update the player object for each player stored in the players array. Because player cards are private,
@@ -145,7 +154,7 @@ module.exports = {
       serverTable.position = 3;
     }
     io.emit("DEALCARDS", {
-      players: serverTable.players
+      players: fetchPlayers()
     });
     res.send();
   },
@@ -270,6 +279,7 @@ module.exports = {
   },
   //payout is a method that pays out a player based on the hand ranking
   payout: (req, res) => {
+    console.log("*******************PAYOUT***********************");
     let hands = serverTable.findBestHand();
     //determine the max payout for all players and add the payout key to the player object;
     for (var i = 0; i < serverTable.players.length; i++) {
@@ -299,37 +309,67 @@ module.exports = {
     for (var i = 0; i < serverTable.players.length; i++) {
       payouts.push(0);
     }
-    var rank = 1;
-    while (pot > 0) {
-      //look at hand rankings and pay out players accordingly...
-      var topRank = hands.filter(hand => hand.rank === rank);
-      //sort Toprank by player payout smallest to largest
-      topRank.sort((a, b) => {
-        return serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout;
-      });
-      //topRank should now be mapped to a players array
-      var sortedPayoutArray = topRank.map(hand => ({
-        index: hand.playerIndex.position,
-        payout: serverTable.players[hand.playerIndex].payout
-      }));
-      var n = sortedPayoutArray.length;
-      for (var j = 0; j < n; j++) {
-        var sidePot = pot - sortedPayoutArray[j].payout;
+    //ranks is an array of arrays of similaraly ranked hands
+    var ranks = [];
+    for (var i = 1; i < hands[hands.length - 1].rank + 1; i++) {
+      var clone = cloneDeep(hands);
+      ranks.push(clone.filter(hand => hand.rank === i));
+    }
+    for (var i = 0; i < ranks.length; i++) {
+      var players = cloneDeep(serverTable.players);
+      var group = cloneDeep(ranks[i]);
+      group.sort((a, b) => players[a.playerIndex].payout - players[b.playerIndex].payout);
+      //group is now a sorted array of winning hands of the same length. In most cases this array will have a length of 1
+      //loop though group
+      while (group.length > 0) {
+        var n = group.length;
+        var hand = group.shift();
+        var sidePot = players[hand.playerIndex].payout;
         pot -= sidePot;
-        var split = Math.round(sidePot / n);
-        payouts[sortedPayoutArray[j].index] += split;
-        for (var k = j + 1; k < n; k++) {
-          payouts[sortedPayoutArray[k].index] += split;
-          sortedPlayersArray[k].payout -= sidePot;
-        }
+        payouts[hand.playerIndex] += Math.round(sidePot / n);
+        group.forEach(hand => {
+          payouts[hand.playerIndex] += Math.round(sidePot / n);
+        });
+      }
+      console.log("POT: ", pot);
+      if (pot <= 0) {
+        break;
       }
     }
+    // while (pot > 0) {
+    //   //look at hand rankings and pay out players accordingly...
+    //   var topRank = hands.filter(hand => hand.rank === rank);
+    //   //sort Toprank by player payout smallest to largest
+    //   topRank.sort((a, b) => {
+    //     return serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout;
+    //   });
+    //   //topRank should now be mapped to a players array
+    //   var sortedPayoutArray = topRank.map(hand => ({
+    //     index: hand.playerIndex.position,
+    //     payout: serverTable.players[hand.playerIndex].payout
+    //   }));
+    //   var n = sortedPayoutArray.length;
+    //   for (var j = 0; j < n; j++) {
+    //     var sidePot = pot - sortedPayoutArray[j].payout;
+    //     pot -= sidePot;
+    //     var split = Math.round(sidePot / n);
+    //     payouts[sortedPayoutArray[j].index] += split;
+    //     for (var k = j + 1; k < n; k++) {
+    //       payouts[sortedPayoutArray[k].index] += split;
+    //       sortedPlayersArray[k].payout -= sidePot;
+    //     }
+    //   }
+    //   console.log("IN LOOP ", pot);
+    // }
+    console.log("AFTER LOOP");
     payouts.forEach((value, index) => {
       serverTable.players[index].chips += value;
     });
     io.emit("PAYOUT", {
+      players: fetchPlayers(),
       payouts,
-      hands
+      hands,
+      pot
     });
     res.send();
   },
@@ -338,77 +378,58 @@ module.exports = {
   // amounts can be -1 (or any value less than 0 -> this is a fold), 0 (this is a check), amount (any number greater than 0 -> this is a bet or raise)
   placeBet: (req, res) => {
     const { position: pos, amount: amt } = req.params;
-    const { position: tablePos, round, currentBet, players, betsIn, next } = serverTable;
+    const { position: tablePos, round, currentBet, players, betsIn, pot } = serverTable;
     let position = parseInt(pos);
     let amount = parseInt(amt);
+    if (position < 0) {
+      io.emit("PLACEBET", {
+        players: fetchPlayers(),
+        minBet: currentBet - players[tablePos].bets[round],
+        currentBet,
+        position: tablePos,
+        pot: pot[0]
+      });
+      return res.send();
+    }
     if (betsIn) {
       io.emit("ERROR", {
-        err: "All bets are in for the current round.",
-        next: `/api/table/${next[round + 1]}`
+        err: "All bets are in for the current round."
       });
       return res.send();
     }
     if (position !== tablePos) {
       io.emit("ERROR", {
-        err: `It's not your turn to bet. Betting is on the player at position ${tablePos} and the currentBet is ${currentBet}`,
-        betObj: {
-          betObj: {
-            next: "/api/table/bet/<position>/<amount>",
-            nextPlayer: players[tablePos].name,
-            nextBetPosition: tablePos,
-            action: currentBet - players[position].bets[round],
-            currentBet,
-            playerBet: players[position].bets[round],
-            position: tablePos
-          }
-        }
+        err: `It's not your turn to bet. Betting is on the player at position ${tablePos} and the currentBet is ${currentBet}`
       });
       return res.send();
     }
     //check the bet amount against the current bet.
     //the table expects a bet that will, at minimum, bring the player to par with the current total bet.
     var parAmount = currentBet - players[position].bets[round];
-    var betObj;
     if (amount === players[pos].chips) {
-      betObj = allIn(pos);
+      allIn(pos);
     } else if (amount < 0) {
-      betObj = fold(position);
+      fold(position);
     } else if (amount === 0 && parAmount === 0) {
-      betObj = check(position);
+      check(position);
     } else if (parAmount > amount) {
       //the player bet is too small. throw err
       io.emit("ERROR", {
-        err: `Your bet of ${amount} is too low. The action (the minimum to bet) is ${parAmount}`,
-        betObj: {
-          next: "/api/table/bet/<position>/<amount>",
-          nextPlayer: players[tablePos].name,
-          nextBetPosition: tablePos,
-          action: currentBet - players[position].bets[round],
-          currentBet,
-          playerBet: players[position].bets[round],
-          position: tablePos
-        }
+        err: `Your bet of ${amount} is too low. The action (the minimum to bet) is ${parAmount}`
       });
       return res.send();
     } else if (amount === parAmount) {
       //the player calls
-      betObj = call(amount, position);
+      call(amount, position);
     } else if (amount > parAmount && parAmount === 0) {
       //this is a bet (because parAmount is 0)
-      betObj = bet(amount, position);
+      bet(amount, position);
     } else if (amount > parAmount) {
       //or a raise (because parAmount > 0 and amount > parAmount)
-      betObj = raise(amount, position);
+      raise(amount, position);
     } else {
       console.log("FALLOUT", amount, position);
     }
-
-    io.emit("PLACEBET", {
-      round: serverTable.round,
-      action: betObj.action ? betObj.action : null,
-      currentBet: serverTable.currentBet,
-      position: serverTable.position
-    });
     res.send();
   }
 };
@@ -418,71 +439,62 @@ let fold = pos => {
   console.log("FOLD METHOD");
   serverTable.players[parseInt(pos)].didFold = true;
   serverTable.foldedPlayers++;
-  var remainingChips = serverTable.players[parseInt(pos)].chips;
   serverTable.checkBets();
   if (serverTable.betsIn && serverTable.foldedPlayers === serverTable.players.length - 1) {
-    serverTable.round = 5;
-    return {
-      playerAction: "fold",
-      remainingChips,
-      message: "all players have folded",
-      next: `/api/table/${serverTable.next[serverTable.round]}`
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
+    });
+    io.emit("NEXT", {
+      round: 4
+    });
   }
-  const { next, position, players, currentBet, round, betsIn } = serverTable;
+  const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
-    return {
-      playerAction: "fold",
-      remainingChips,
-      message: "all bets are in",
-      next: `/api/table/${next[round + 1]}`
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
+    });
+    io.emit("NEXT", {
+      round: serverTable.round + 1
+    });
   } else {
-    return {
-      playerAction: "fold",
-      remainingChips,
-      next: `/api/table/bet/${position}/<amount>`,
-      nextPlayer: players[position].name,
-      nextBetPosition: position,
-      action: currentBet - players[position].bets[round],
-      currentBet: currentBet,
-      playerBet: players[position].bets[round],
-      position: position
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      minBet: currentBet - players[position].bets[round],
+      currentBet,
+      position,
+      pot: serverTable.pot[0]
+    });
   }
 };
 
 let call = (amount, pos) => {
   console.log("CALL METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
-  var remainingChips = serverTable.players[pos].chips;
   serverTable.collect(amount);
   serverTable.checkBets();
   const { next, position, players, currentBet, round } = serverTable;
   if (serverTable.betsIn) {
-    return {
-      playerAction: "call",
-      remainingChips,
-      message: "all bets are in",
-      next: `/api/table/${next[round + 1]}`
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
+    });
+    io.emit("NEXT", {
+      round: serverTable.round + 1
+    });
   } else {
-    return {
-      playerAction: "call",
-      remainingChips,
-      next: `/api/table/bet/${position}/<amount>`,
-      nextPlayer: players[position].name,
-      nextBetPosition: position,
-      action: currentBet - players[position].bets[round],
-      currentBet: currentBet,
-      playerBet: players[position].bets[round],
-      position: position
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      minBet: currentBet - players[position].bets[round],
+      currentBet,
+      position,
+      pot: serverTable.pot[0]
+    });
   }
 };
 
 let bet = (amount, pos) => {
-  console.log("BET METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
   var remainingChips = serverTable.players[pos].chips;
   serverTable.collect(amount);
@@ -490,73 +502,59 @@ let bet = (amount, pos) => {
   serverTable.checkBets();
   const { next, position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
-    return {
-      playerAction: "bet",
-      remainingChips,
-      message: "all bets are in",
-      next: `/api/table/${next[round + 1]}`
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
+    });
+    io.emit("NEXT", {
+      round: serverTable.round + 1
+    });
   } else {
-    return {
-      playerAction: "bet",
-      remainingChips,
-      next: `/api/table/bet/${position}/<amount>`,
-      nextPlayer: players[position].name,
-      nextBetPosition: position,
-      action: currentBet - players[position].bets[round],
-      currentBet: currentBet,
-      playerBet: players[position].bets[round],
-      position: position
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      minBet: currentBet - players[position].bets[round],
+      currentBet,
+      position,
+      pot: serverTable.pot[0]
+    });
   }
 };
 
 let raise = (amount, pos) => {
-  console.log("RAISE METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
-  var remainingChips = serverTable.players[pos].chips;
   serverTable.collect(amount);
   serverTable.currentBet = amount;
   serverTable.checkBets();
   const { position, players, currentBet, round } = serverTable;
-  return {
-    playerAction: "raise",
-    remainingChips,
-    next: `/api/table/bet/${position}/<amount>`,
-    nextPlayer: players[position].name,
-    nextBetPosition: position,
-    action: currentBet - players[position].bets[round],
-    currentBet: currentBet,
-    playerBet: players[position].bets[round],
-    position: position
-  };
+  io.emit("PLACEBET", {
+    players: fetchPlayers(),
+    minBet: currentBet - players[position].bets[round],
+    currentBet,
+    position,
+    pot: serverTable.pot[0]
+  });
 };
 
 let check = pos => {
-  console.log("CHECK METHOD");
   serverTable.players[pos].didBet = true;
-  var remainingChips = serverTable.players[pos].chips;
   serverTable.checkBets();
-  const { next, position, players, currentBet, round, betsIn } = serverTable;
+  const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
-    return {
-      playerAction: "check",
-      remainingChips,
-      message: "all bets are in",
-      next: `/api/table/${next[round + 1]}`
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
+    });
+    io.emit("NEXT", {
+      round: serverTable.round + 1
+    });
   } else {
-    return {
-      playerAction: "check",
-      remainingChips,
-      next: `/api/table/bet/${position}/<amount>`,
-      nextPlayer: players[position].name,
-      nextBetPosition: position,
-      action: currentBet - players[position].bets[round],
-      currentBet: currentBet,
-      playerBet: players[position].bets[round],
-      position: position
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      minBet: currentBet - players[position].bets[round],
+      currentBet,
+      position,
+      pot: serverTable.pot[0]
+    });
   }
 };
 
@@ -569,25 +567,30 @@ let allIn = pos => {
     serverTable.currentBet = amount;
   }
   serverTable.checkBets();
-  const { next, position, players, currentBet, round, betsIn } = serverTable;
+  const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
-    return {
-      playerAction: "all in",
-      remainingChips: 0,
-      message: "all bets are in",
-      next: `/api/table/${next[round + 1]}`
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
+    });
+    io.emit("NEXT", {
+      round: serverTable.round + 1
+    });
   } else {
-    return {
-      playerAction: "all in",
-      remainingChips: 0,
-      next: `/api/table/bet/${position}/<amount>`,
-      nextPlayer: players[position].name,
-      nextBetPosition: position,
-      action: currentBet - players[position].bets[round],
-      currentBet: currentBet,
-      playerBet: players[position].bets[round],
-      position: position
-    };
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      minBet: currentBet - players[position].bets[round],
+      currentBet,
+      position,
+      pot: serverTable.pot[0]
+    });
   }
+};
+
+let fetchPlayers = () => {
+  var playerInfo = cloneDeep(serverTable.players);
+  playerInfo.forEach(player => {
+    player.cards = undefined;
+  });
+  return playerInfo;
 };

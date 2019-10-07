@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { amber } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
@@ -32,28 +32,25 @@ const theme = createMuiTheme({
 });
 
 class TableView extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render(props) {
     const classes = this.props.classes;
 
-    const { socket, primeTable, nextDeckAction, flop, turn, river, playerCards, players, position } = this.props;
+    const { pot, socket, primeTable, nextDeckAction, nextBetAction, flop, turn, river, playerCards, players, position } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
         <Grid container className={classes.background}>
           <Navbar />
           <Table
+            pot={pot}
             players={players}
             socket={socket}
+            nextBetAction={nextBetAction}
             nextDeckAction={nextDeckAction}
             primeTable={primeTable}
             flop={flop}
             turn={turn}
             river={river}
           />
-
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
               <Options socket={socket} cards={playerCards} position={position} />
