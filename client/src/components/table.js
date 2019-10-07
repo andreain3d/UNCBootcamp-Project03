@@ -51,6 +51,11 @@ class Table extends Component {
     }
     return "x";
   };
+
+  didFold = (players, position) => {
+    return players[position].didFold ? { opacity: "0.5" } : {};
+  };
+
   render(props) {
     const classes = this.props.classes;
     const { dealer, pot, players, primeTable, nextDeckAction, nextBetAction, flop, turn, river, position } = this.props;
@@ -59,7 +64,7 @@ class Table extends Component {
         <Grid item xs={3} />
         <Grid item xs={3}>
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            {players[0] ? <Player playerInfo={players[0]} position={position} /> : null}
+            {players[0] ? <Player playerInfo={players[0]} position={position} style={players[0].didFold ? { opacity: "0.5" } : {}} /> : null}
             <Grid item xs={12}>
               <Grid container justify="center">
                 <Token type={this.getToken(dealer, 0, players)} />
@@ -70,7 +75,7 @@ class Table extends Component {
         </Grid>
         <Grid item xs={3}>
           <Grid container justify="center" alignItems="center" className={classes.item}>
-            {players[1] ? <Player playerInfo={players[1]} position={position} /> : null}
+            {players[1] ? <Player playerInfo={players[1]} position={position} style={players[1].didFold ? { opacity: "0.5" } : {}} /> : null}
             <Grid item xs={12}>
               <Grid container justify="center">
                 <Token type={this.getToken(dealer, 1, players)} />
@@ -97,7 +102,7 @@ class Table extends Component {
           <Grid item xs={3}>
             <Grid container className={classes.item}>
               <Grid item xs={11}>
-                {players[7] ? <Player playerInfo={players[7]} position={position} /> : null}
+                {players[7] ? <Player playerInfo={players[7]} position={position} style={players[7].didFold ? { opacity: "0.5" } : {}} /> : null}
               </Grid>
               <Grid item xs={1}>
                 <Token type={this.getToken(dealer, 7, players)} />
@@ -106,7 +111,7 @@ class Table extends Component {
             </Grid>
             <Grid container>
               <Grid item xs={11}>
-                {players[6] ? <Player playerInfo={players[6]} position={position} /> : null}
+                {players[6] ? <Player playerInfo={players[6]} position={position} style={players[6].didFold ? { opacity: "0.5" } : {}} /> : null}
               </Grid>
               <Grid item xs={1}>
                 <Token type={this.getToken(dealer, 6, players)} />
@@ -134,7 +139,7 @@ class Table extends Component {
                 <Token type="C" />
               </Grid>
               <Grid item xs={11}>
-                {players[2] ? <Player playerInfo={players[2]} position={position} /> : null}
+                {players[2] ? <Player playerInfo={players[2]} position={position} style={players[2].didFold ? { opacity: "0.5" } : {}} /> : null}
               </Grid>
             </Grid>
             <Grid container>
@@ -143,7 +148,7 @@ class Table extends Component {
                 <Token type="x" />
               </Grid>
               <Grid item xs={11}>
-                {players[3] ? <Player playerInfo={players[3]} position={position} /> : null}
+                {players[3] ? <Player playerInfo={players[3]} position={position} style={players[3].didFold ? { opacity: "0.5" } : {}} /> : null}
 
                 <Grid item xs={12}></Grid>
               </Grid>
@@ -161,7 +166,7 @@ class Table extends Component {
                   <Token type="x" />
                 </Grid>
               </Grid>
-              {players[5] ? <Player playerInfo={players[5]} position={position} /> : null}
+              {players[5] ? <Player playerInfo={players[5]} position={position} style={players[5].didFold ? { opacity: "0.5" } : {}} /> : null}
             </Grid>
           </Grid>
           <Grid item xs={3}>
@@ -172,7 +177,7 @@ class Table extends Component {
                   <Token type="x" />
                 </Grid>
               </Grid>
-              {players[4] ? <Player playerInfo={players[4]} position={position} /> : null}
+              {players[4] ? <Player playerInfo={players[4]} position={position} style={players[4].didFold ? { opacity: "0.5" } : {}} /> : null}
             </Grid>
           </Grid>
           <Grid item xs={3} />

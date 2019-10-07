@@ -17,30 +17,19 @@ const styles = {
 class Navbar extends Component {
   render(props) {
     const classes = this.props.classes;
+    const { leaveTable } = this.props;
     return (
       <AppBar position="static" className={classes.grow}>
         <Toolbar>
-          <img
-            className={classes.logo}
-            alt="Poker Logo"
-            src="./assets/img/logo.png"
-          />
+          <img className={classes.logo} alt="Poker Logo" src="./assets/img/logo.png" />
           <Typography variant="h6" color="inherit" className={classes.grow}>
             Poker
           </Typography>
-          <Button
-            color="secondary"
-            variant="contained"
-            className={classes.button}
-          >
+          <Button color="secondary" variant="contained" className={classes.button} onClick={leaveTable}>
             <MeetingRoom />
             Return to Lobby
           </Button>
-          <Button
-            color="secondary"
-            variant="contained"
-            className={classes.button}
-          >
+          <Button color="secondary" variant="contained" className={classes.button}>
             <ExitToApp />
             Logout
           </Button>

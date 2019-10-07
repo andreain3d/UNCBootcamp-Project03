@@ -100,23 +100,26 @@ class App extends Component {
       //If these values are used to render data, conditional rendering should be used
     });
 
-    this.socket.on("NEXT", data => {
-      const { round } = data;
+    // this.socket.on("NEXT", data => {
+    //   const { round } = data;
 
-      //round is the NEXT deck action and this listener is only triggered after a round of betting ends.
-      //for example, after the deal there is a round of betting. When that round of betting concludes, this
-      //listener will receive a value of round = 1;
-      let deckActions = ["deal", "flop", "turn", "river", "payout"];
-      console.log("ROUND: ", round, deckActions[round]);
-      axios.get("/api/table/" + deckActions[round]);
-      //Each of the deck actions fire a listener (DOFLOP, DOTURN, DORIVER)
-      //and the subsequent betting rounds are triggered from within the socket listeners
-    });
+    //   //round is the NEXT deck action and this listener is only triggered after a round of betting ends.
+    //   //for example, after the deal there is a round of betting. When that round of betting concludes, this
+    //   //listener will receive a value of round = 1;
+    //   let deckActions = ["deal", "flop", "turn", "river", "payout"];
+    //   console.log("ROUND: ", round, deckActions[round]);
+    //   axios.get("/api/table/" + deckActions[round]);
+    //   //Each of the deck actions fire a listener (DOFLOP, DOTURN, DORIVER)
+    //   //and the subsequent betting rounds are triggered from within the socket listeners
+    // });
 
     this.socket.on("LEAVETABLE", data => {
       console.log(data);
       //compare data.name to this.state.name
       //if the same, send to lobby and save data
+      if (data.name === this.state.name) {
+        window.location.href = "/";
+      }
     });
 
     this.socket.on("LEAVEQUE", data => {
@@ -174,6 +177,11 @@ class App extends Component {
     axios.get(`/api/table/bet/${this.state.actionTo}/${this.state.minBet}`);
   };
 
+  leaveTable = () => {
+    console.log("LEAVE");
+    axios.get("/api/table/leave/" + this.state.name);
+  };
+
   setName = name => {
     this.setState({ name: name });
   };
@@ -184,6 +192,7 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
+              leaveTable={this.leaveTable}
               pot={this.state.pot}
               nextBetAction={this.nextBetAction}
               players={this.state.playerInfo}
