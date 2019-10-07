@@ -58,7 +58,7 @@ class Options extends Component {
 
   render(props) {
     const classes = this.props.classes;
-    const { cards, socket, position, actionTo, currentBet, minBet } = this.props;
+    const { cards, socket, position, actionTo, minBet } = this.props;
 
     return (
       <Paper className={classes.grow}>
@@ -80,33 +80,52 @@ class Options extends Component {
             >
               Fold
             </Button>
-            <Button
-              disabled={position !== actionTo}
-              color="primary"
-              variant="contained"
-              className={classes.button}
-              onClick={() => this.BETTING(0)}
-            >
-              check
-            </Button>
-            <Button
-              disabled={position !== actionTo}
-              color="primary"
-              variant="contained"
-              className={classes.button}
-              onClick={() => this.BETTING({ minBet })}
-            >
-              call
-            </Button>
-            <Button
-              disabled={position !== actionTo}
-              color="primary"
-              variant="contained"
-              className={classes.button}
-              onClick={() => this.BETTING(0)}
-            >
-              raise
-            </Button>
+            {minBet === 0 ? (
+              <Button
+                disabled={position !== actionTo}
+                color="primary"
+                variant="contained"
+                className={classes.button}
+                onClick={() => this.BETTING(0)}
+              >
+                check
+              </Button>
+            ) : null}
+            {minBet === 0 ? (
+              <Button
+                disabled={position !== actionTo}
+                color="primary"
+                variant="contained"
+                className={classes.button}
+                onClick={() => this.BETTING(0)}
+              >
+                Bet
+              </Button>
+            ) : null}
+
+            {minBet > 0 ? (
+              <Button
+                disabled={position !== actionTo}
+                color="primary"
+                variant="contained"
+                className={classes.button}
+                onClick={() => this.BETTING({ minBet })}
+              >
+                Call
+              </Button>
+            ) : null}
+
+            {minBet > 0 ? (
+              <Button
+                disabled={position !== actionTo}
+                color="primary"
+                variant="contained"
+                className={classes.button}
+                onClick={() => this.BETTING(0)}
+              >
+                raise
+              </Button>
+            ) : null}
           </Grid>
           <Grid container justify="center">
             <input type="range" min="1" max="100" className={classes.slider} id="myRange" />

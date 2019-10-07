@@ -53,7 +53,6 @@ class TableView extends Component {
       players,
       position,
       actionTo,
-      currentBet,
       minBet
     } = this.props;
     return (
@@ -75,14 +74,7 @@ class TableView extends Component {
           />
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
-              <Options
-                socket={socket}
-                cards={playerCards}
-                position={position}
-                actionTo={actionTo}
-                currentBet={currentBet}
-                minBet={minBet}
-              />
+              <Options socket={socket} cards={playerCards} position={position} actionTo={actionTo} minBet={minBet} />
             </Grid>
             <Grid item xs={12} md={6}>
               <Chat socket={socket} />
