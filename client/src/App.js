@@ -205,6 +205,9 @@ class App extends Component {
               playerCards={this.state.playerCards}
               position={this.state.position}
               dealer={this.state.dealerIndex}
+              actionTo={this.state.actionTo}
+              currentBet={this.currentBet}
+              minBet={this.minBet}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
