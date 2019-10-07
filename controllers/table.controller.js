@@ -8,6 +8,7 @@ import { cloneDeep } from "lodash";
 var serverTable;
 var que = [];
 var deque = [];
+var gameInProgress = false;
 
 module.exports = {
   // These routes will operate on a virtual table that lives on the server.
@@ -38,21 +39,28 @@ module.exports = {
   //leaveTable will automatically cause a player to fold their current hand and flag the player for removal at the end of the hand
   leaveTable: (req, res) => {
     deque.push(req.params.name);
-    var pos = -1;
-    serverTable.players.forEach((player, index) => {
-      if (player.name === req.params.name) {
-        pos = index;
-        player.didFold = true;
-      }
-    });
-    const { currentBet, position: tablePos, players, pot, round } = serverTable;
-    io.emit("PLACEBET", {
-      players: fetchPlayers(),
-      minBet: currentBet - players[tablePos].bets[round],
-      currentBet,
-      position: tablePos,
-      pot: pot[0]
-    });
+    if (serverTable) {
+      serverTable.players.forEach(player => {
+        if (player.name === req.params.name) {
+          player.didFold = true;
+        }
+      });
+      const { currentBet, position: tablePos, players, pot, round } = serverTable;
+      io.emit("PLACEBET", {
+        players: fetchPlayers(),
+        minBet: currentBet - players[tablePos].bets[round],
+        currentBet,
+        position: tablePos,
+        pot: pot[0]
+      });
+    } else {
+      que = que.filter(player => player.name !== req.params.name);
+      deque = deque.filter(name => name !== req.params.name);
+      io.emit("LEAVETABLE", { name: req.params.name, que, deque });
+      console.log(que);
+      console.log(deque);
+    }
+
     res.send();
   },
 
@@ -425,8 +433,13 @@ let prime = async obj => {
     io.emit("PRIME", {
       players: fetchPlayers(),
       dealerIndex: serverTable.dealerIndex,
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      flop: serverTable.flop,
+      turn: serverTable.turn,
+      river: serverTable.river
     });
+    gameInProgress = true;
+    next(0);
     resolve();
   });
 };
@@ -462,6 +475,9 @@ let addPlayer = async obj => {
       player,
       que
     });
+    if (que.length > 1 && !gameInProgress) {
+      prime();
+    }
     resolve();
   });
 };
@@ -697,6 +713,7 @@ let payout = async () => {
       hands,
       pot
     });
+    prime();
     resolve();
   });
 };

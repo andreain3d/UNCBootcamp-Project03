@@ -86,12 +86,6 @@ class Table extends Component {
         </Grid>
         <Grid item xs={3}>
           <Grid container justify="flex-end">
-            <Button color="inherit" variant="contained" onClick={primeTable} className={classes.button}>
-              Prime Table
-            </Button>
-            <Button color="inherit" variant="contained" onClick={nextDeckAction} className={classes.button}>
-              Next Deck Action
-            </Button>
             <Button color="inherit" variant="contained" onClick={nextBetAction} className={classes.button}>
               Next Bet Action
             </Button>
@@ -124,8 +118,8 @@ class Table extends Component {
               <TableCard src={flop.length > 0 ? flop[0].frontImage : ""} />
               <TableCard src={flop.length > 0 ? flop[1].frontImage : ""} />
               <TableCard src={flop.length > 0 ? flop[2].frontImage : ""} />
-              <TableCard src={Object.keys(turn).length > 0 ? turn.frontImage : ""} />
-              <TableCard src={Object.keys(river).length > 0 ? river.frontImage : ""} />
+              <TableCard src={turn ? turn.frontImage : ""} />
+              <TableCard src={river ? river.frontImage : ""} />
             </Grid>
             <Grid container justify="center" alignItems="center">
               <img className={classes.potChips} alt="Total Pot" src="./assets/img/potChips.png" />

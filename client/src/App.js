@@ -15,8 +15,6 @@ class App extends Component {
       playerCards: [],
       playerInfo: [],
       flop: [],
-      turn: {},
-      river: {},
       hands: [],
       pot: 0,
       handAction: 0,
@@ -45,8 +43,8 @@ class App extends Component {
           this.setState({ position: player.position });
         }
       });
-      const { players: playerInfo, dealerIndex } = data;
-      this.setState({ playerInfo, handAction: 0, dealerIndex });
+      const { players: playerInfo, dealerIndex, flop, turn, river } = data;
+      this.setState({ playerInfo, handAction: 0, dealerIndex, flop, turn, river });
     });
 
     this.socket.on("DEALCARDS", data => {
@@ -99,19 +97,6 @@ class App extends Component {
       //This implies that currentBet, minBet, and actionTo will only be on the state variable during betting
       //If these values are used to render data, conditional rendering should be used
     });
-
-    // this.socket.on("NEXT", data => {
-    //   const { round } = data;
-
-    //   //round is the NEXT deck action and this listener is only triggered after a round of betting ends.
-    //   //for example, after the deal there is a round of betting. When that round of betting concludes, this
-    //   //listener will receive a value of round = 1;
-    //   let deckActions = ["deal", "flop", "turn", "river", "payout"];
-    //   console.log("ROUND: ", round, deckActions[round]);
-    //   axios.get("/api/table/" + deckActions[round]);
-    //   //Each of the deck actions fire a listener (DOFLOP, DOTURN, DORIVER)
-    //   //and the subsequent betting rounds are triggered from within the socket listeners
-    // });
 
     this.socket.on("LEAVETABLE", data => {
       console.log(data);
