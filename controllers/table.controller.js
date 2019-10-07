@@ -128,7 +128,15 @@ module.exports = {
       });
       return res.send();
     }
-    //collect the blinds from players in position 1 and 2 (or position 0 and 1 for a 2 player game).
+    //collect the blinds from players in the small blind and big blind position.
+    var small = serverTable.dealerIndex + 1;
+    if (small === serverTable.players.length) {
+      small = 0;
+    }
+    var big = small + 1;
+    if (big === serverTable.players.length) {
+      big = 0;
+    }
     if (serverTable.players.length === 2) {
       //the dealer is also the small blind
       serverTable.players[0].chips -= serverTable.smallBlind;
@@ -138,21 +146,26 @@ module.exports = {
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
     } else {
       //there are more than 2 players
-      serverTable.players[1].chips -= serverTable.smallBlind;
-      serverTable.players[1].bets[0] += serverTable.smallBlind;
-      serverTable.players[2].chips -= serverTable.bigBlind;
-      serverTable.players[2].bets[0] += serverTable.bigBlind;
+      serverTable.players[small].chips -= serverTable.smallBlind;
+      serverTable.players[small].bets[0] += serverTable.smallBlind;
+      serverTable.players[big].chips -= serverTable.bigBlind;
+      serverTable.players[big].bets[0] += serverTable.bigBlind;
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
     }
     serverTable.currentBet = serverTable.bigBlind;
-    //the player in position 0 is the dealer. rotate past this player before starting the deal.
-    serverTable.rotate();
+    //rotate past the dealer.
+    var amount = serverTable.dealerIndex + 1;
+    for (var i = 0; i < amount; i++) {
+      serverTable.rotate();
+    }
     serverTable.deal();
     serverTable.restoreOrder();
     //set the stage for betting by setting the table.position value to the player after big blind
-    if (serverTable.players.length > 3) {
-      serverTable.position = 3;
+    var after = big + 1;
+    if (after === serverTable.players.length) {
+      after = 0;
     }
+    serverTable.position = after;
     io.emit("DEALCARDS", {
       players: fetchPlayers()
     });
@@ -279,13 +292,17 @@ module.exports = {
   },
   //payout is a method that pays out a player based on the hand ranking
   payout: (req, res) => {
-    console.log("*******************PAYOUT***********************");
-    let hands = serverTable.findBestHand();
-    //determine the max payout for all players and add the payout key to the player object;
+    var hands = serverTable.findBestHand();
+
+    //calculate the max payout for each player
     for (var i = 0; i < serverTable.players.length; i++) {
       var currentPlayer = serverTable.players[i];
       var payout = 0;
-      var count = currentPlayer.bets.length - 1;
+      var count = 0;
+      currentPlayer.bets.forEach((bet, index) => {
+        if (bet === 0) return;
+        count = index;
+      });
       var lastBet = currentPlayer.bets[count];
       //sum up all but the last bet
       for (var j = 0; j < count; j++) {
@@ -304,7 +321,7 @@ module.exports = {
       });
       currentPlayer.payout = payout;
     }
-    var pot = serverTable.pot;
+    var pot = serverTable.pot[0];
     var payouts = [];
     for (var i = 0; i < serverTable.players.length; i++) {
       payouts.push(0);
@@ -316,52 +333,29 @@ module.exports = {
       ranks.push(clone.filter(hand => hand.rank === i));
     }
     for (var i = 0; i < ranks.length; i++) {
-      var players = cloneDeep(serverTable.players);
-      var group = cloneDeep(ranks[i]);
-      group.sort((a, b) => players[a.playerIndex].payout - players[b.playerIndex].payout);
-      //group is now a sorted array of winning hands of the same length. In most cases this array will have a length of 1
-      //loop though group
-      while (group.length > 0) {
-        var n = group.length;
-        var hand = group.shift();
-        var sidePot = players[hand.playerIndex].payout;
+      var currentRank = ranks[i];
+      currentRank.sort((a, b) => serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout);
+      while (currentRank.length > 0) {
+        var n = currentRank.length;
+        var lowestPayout = currentRank.shift();
+        var sidePot = serverTable.players[lowestPayout.playerIndex].payout;
         pot -= sidePot;
-        payouts[hand.playerIndex] += Math.round(sidePot / n);
-        group.forEach(hand => {
-          payouts[hand.playerIndex] += Math.round(sidePot / n);
+        serverTable.players.forEach(player => {
+          player.payout -= sidePot;
+          if (player.payout < 0) {
+            player.payout = 0;
+          }
+        });
+        payouts[lowestPayout.playerIndex] += Math.round(sidePot / n);
+        currentRank.forEach(rank => {
+          payouts[rank.playerIndex] += Math.round(sidePot / n);
         });
       }
-      console.log("POT: ", pot);
       if (pot <= 0) {
         break;
       }
     }
-    // while (pot > 0) {
-    //   //look at hand rankings and pay out players accordingly...
-    //   var topRank = hands.filter(hand => hand.rank === rank);
-    //   //sort Toprank by player payout smallest to largest
-    //   topRank.sort((a, b) => {
-    //     return serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout;
-    //   });
-    //   //topRank should now be mapped to a players array
-    //   var sortedPayoutArray = topRank.map(hand => ({
-    //     index: hand.playerIndex.position,
-    //     payout: serverTable.players[hand.playerIndex].payout
-    //   }));
-    //   var n = sortedPayoutArray.length;
-    //   for (var j = 0; j < n; j++) {
-    //     var sidePot = pot - sortedPayoutArray[j].payout;
-    //     pot -= sidePot;
-    //     var split = Math.round(sidePot / n);
-    //     payouts[sortedPayoutArray[j].index] += split;
-    //     for (var k = j + 1; k < n; k++) {
-    //       payouts[sortedPayoutArray[k].index] += split;
-    //       sortedPlayersArray[k].payout -= sidePot;
-    //     }
-    //   }
-    //   console.log("IN LOOP ", pot);
-    // }
-    console.log("AFTER LOOP");
+
     payouts.forEach((value, index) => {
       serverTable.players[index].chips += value;
     });

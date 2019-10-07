@@ -20,6 +20,9 @@ const styles = {
 };
 
 const theme = createMuiTheme({
+  typography: {
+    useNextVariants: true
+  },
   palette: {
     primary: {
       main: "#1C2022"
@@ -35,12 +38,13 @@ class TableView extends Component {
   render(props) {
     const classes = this.props.classes;
 
-    const { pot, socket, primeTable, nextDeckAction, nextBetAction, flop, turn, river, playerCards, players, position } = this.props;
+    const { dealer, pot, socket, primeTable, nextDeckAction, nextBetAction, flop, turn, river, playerCards, players, position } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
         <Grid container className={classes.background}>
           <Navbar />
           <Table
+            dealer={dealer}
             pot={pot}
             players={players}
             socket={socket}
@@ -50,6 +54,7 @@ class TableView extends Component {
             flop={flop}
             turn={turn}
             river={river}
+            position={position}
           />
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>

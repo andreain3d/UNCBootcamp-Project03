@@ -22,9 +22,38 @@ const styles = {
 };
 
 class Table extends Component {
+  getToken = (dealer, position, players) => {
+    var small, big;
+    if (players.length === 2) {
+      small = dealer;
+      big = dealer + 1;
+      if (big === players.length) {
+        big = 0;
+      }
+    } else {
+      small = dealer + 1;
+      if (small === players.length) {
+        small = 0;
+      }
+      big = small + 1;
+      if (big === players.length) {
+        big = 0;
+      }
+    }
+    if (position === dealer) {
+      return "D";
+    }
+    if (position === small) {
+      return "SB";
+    }
+    if (position === big) {
+      return "BB";
+    }
+    return "x";
+  };
   render(props) {
     const classes = this.props.classes;
-    const { pot, players, primeTable, nextDeckAction, nextBetAction, flop, turn, river, position } = this.props;
+    const { dealer, pot, players, primeTable, nextDeckAction, nextBetAction, flop, turn, river, position } = this.props;
     return (
       <Grid container>
         <Grid item xs={3} />
@@ -33,7 +62,7 @@ class Table extends Component {
             {players[0] ? <Player playerInfo={players[0]} position={position} /> : null}
             <Grid item xs={12}>
               <Grid container justify="center">
-                <Token type="D" />
+                <Token type={this.getToken(dealer, 0, players)} />
                 <Token type="x" />
               </Grid>
             </Grid>
@@ -44,7 +73,7 @@ class Table extends Component {
             {players[1] ? <Player playerInfo={players[1]} position={position} /> : null}
             <Grid item xs={12}>
               <Grid container justify="center">
-                <Token type="SB" />
+                <Token type={this.getToken(dealer, 1, players)} />
                 <Token type="C" />
               </Grid>
             </Grid>
@@ -71,7 +100,7 @@ class Table extends Component {
                 {players[7] ? <Player playerInfo={players[7]} position={position} /> : null}
               </Grid>
               <Grid item xs={1}>
-                <Token type="x" />
+                <Token type={this.getToken(dealer, 7, players)} />
                 <Token type="C" />
               </Grid>
             </Grid>
@@ -80,7 +109,7 @@ class Table extends Component {
                 {players[6] ? <Player playerInfo={players[6]} position={position} /> : null}
               </Grid>
               <Grid item xs={1}>
-                <Token type="x" />
+                <Token type={this.getToken(dealer, 6, players)} />
                 <Token type="C" />
               </Grid>
             </Grid>
@@ -101,7 +130,7 @@ class Table extends Component {
           <Grid item xs={3}>
             <Grid container className={classes.item}>
               <Grid item xs={1}>
-                <Token type="BB" />
+                <Token type={this.getToken(dealer, 2, players)} />
                 <Token type="C" />
               </Grid>
               <Grid item xs={11}>
@@ -110,7 +139,7 @@ class Table extends Component {
             </Grid>
             <Grid container>
               <Grid item xs={1}>
-                <Token type="x" />
+                <Token type={this.getToken(dealer, 3, players)} />
                 <Token type="x" />
               </Grid>
               <Grid item xs={11}>
@@ -128,7 +157,7 @@ class Table extends Component {
             <Grid container justify="center" alignItems="center" className={classes.item}>
               <Grid item xs={12}>
                 <Grid container justify="center">
-                  <Token type="x" />
+                  <Token type={this.getToken(dealer, 5, players)} />
                   <Token type="x" />
                 </Grid>
               </Grid>
@@ -139,7 +168,7 @@ class Table extends Component {
             <Grid container justify="center" alignItems="center" className={classes.item}>
               <Grid item xs={12}>
                 <Grid container justify="center">
-                  <Token type="x" />
+                  <Token type={this.getToken(dealer, 4, players)} />
                   <Token type="x" />
                 </Grid>
               </Grid>

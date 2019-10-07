@@ -22,7 +22,8 @@ class App extends Component {
       handAction: 0,
       position: 0,
       name: "",
-      index: 0
+      index: 0,
+      dealerIndex: 0
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
@@ -39,7 +40,8 @@ class App extends Component {
           this.setState({ position: player.position });
         }
       });
-      this.setState({ playerInfo: data.players, handAction: 0 });
+      const { players: playerInfo, dealerIndex } = data;
+      this.setState({ playerInfo, handAction: 0, dealerIndex });
     });
 
     this.socket.on("DEALCARDS", data => {
@@ -119,8 +121,10 @@ class App extends Component {
     });
 
     this.socket.on("PAYOUT", data => {
-      this.setState({ playerInfo: data.players, pot: data.pot });
-      console.log(data);
+      const { players: playerInfo, pot, hands, payouts } = data;
+      this.setState({ playerInfo, pot });
+      console.log(hands);
+      console.log(payouts);
     });
 
     this.socket.on("ERROR", data => {
@@ -186,6 +190,7 @@ class App extends Component {
               river={this.state.river}
               playerCards={this.state.playerCards}
               position={this.state.position}
+              dealer={this.state.dealerIndex}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
