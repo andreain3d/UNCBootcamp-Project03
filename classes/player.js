@@ -1,5 +1,5 @@
 export default class Player {
-  constructor(name, cash, img) {
+  constructor(name, cash, img, id) {
     this.name = name;
     this.chips = 0;
     this.cash = cash;
@@ -11,6 +11,7 @@ export default class Player {
     this.allInRound = 0;
     this.position = 0;
     this.img = img;
+    this.id = id;
   }
 
   bet(chipValue, index) {

@@ -5,16 +5,16 @@ import Button from "@material-ui/core/Button";
 import { useAuth0 } from "../react-auth0-wrapper";
 import API from "../utils/API";
 
-const LobbyView = ({ setName }) => {
+const LobbyView = ({ setName, socketId }) => {
   const { user, isAuthenticated, loginWithPopup, logout } = useAuth0();
-
   const joinGame = () => {
     API.getUser(user.email).then(res => {
       setName(res.data.username);
       API.createPlayer({
         name: res.data.username,
         cash: res.data.cash,
-        img: res.data.image
+        img: res.data.image,
+        socketId
       }).then(res => console.log(res));
     });
   };

@@ -8,6 +8,7 @@
     "start:prod": "babel-node server.js",
     "start:dev": "concurrently \"babel-node server.js\" \"npm run client\"",
     "start:babel": "babel-node server.js",
+    "start:test": "babel-node test.js",
     "seed": "node scripts/seedDB.js",
     "client": "cd client && npm run start",
     "install": "cd client && npm install",

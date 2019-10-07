@@ -307,7 +307,6 @@ const bestHand = (cards = []) => {
 
   //check for full house
   if (groupsize.includes(3) && groupings >= 2) {
-    console.log(groupings);
     //examine the case where the player has two groups of 3 cards
     if (_.sum(groupsize) === 6) {
       //groupsize = [3,3]

@@ -22,24 +22,31 @@ class App extends Component {
       handAction: 0,
       position: 0,
       name: "",
-      index: 0
+      index: 0,
+      dealerIndex: 0,
+      socketId: ""
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
-
+    this.socket.on("connect", () => {
+      this.setState({ socketId: this.socket.id });
+      //update the user object
+    });
     this.socket.on("ADDPLAYER", data => {
       const { que, quePos } = data;
       console.log(que, quePos);
     });
 
     this.socket.on("PRIME", data => {
+      console.log("PRIME");
       var players = data.players;
       players.forEach(player => {
         if (player.name === this.state.name) {
           this.setState({ position: player.position });
         }
       });
-      this.setState({ playerInfo: data.players, handAction: 0 });
+      const { players: playerInfo, dealerIndex } = data;
+      this.setState({ playerInfo, handAction: 0, dealerIndex });
     });
 
     this.socket.on("DEALCARDS", data => {
@@ -93,23 +100,26 @@ class App extends Component {
       //If these values are used to render data, conditional rendering should be used
     });
 
-    this.socket.on("NEXT", data => {
-      const { round } = data;
+    // this.socket.on("NEXT", data => {
+    //   const { round } = data;
 
-      //round is the NEXT deck action and this listener is only triggered after a round of betting ends.
-      //for example, after the deal there is a round of betting. When that round of betting concludes, this
-      //listener will receive a value of round = 1;
-      let deckActions = ["deal", "flop", "turn", "river", "payout"];
-      console.log("ROUND: ", round, deckActions[round]);
-      axios.get("/api/table/" + deckActions[round]);
-      //Each of the deck actions fire a listener (DOFLOP, DOTURN, DORIVER)
-      //and the subsequent betting rounds are triggered from within the socket listeners
-    });
+    //   //round is the NEXT deck action and this listener is only triggered after a round of betting ends.
+    //   //for example, after the deal there is a round of betting. When that round of betting concludes, this
+    //   //listener will receive a value of round = 1;
+    //   let deckActions = ["deal", "flop", "turn", "river", "payout"];
+    //   console.log("ROUND: ", round, deckActions[round]);
+    //   axios.get("/api/table/" + deckActions[round]);
+    //   //Each of the deck actions fire a listener (DOFLOP, DOTURN, DORIVER)
+    //   //and the subsequent betting rounds are triggered from within the socket listeners
+    // });
 
     this.socket.on("LEAVETABLE", data => {
       console.log(data);
       //compare data.name to this.state.name
       //if the same, send to lobby and save data
+      if (data.name === this.state.name) {
+        window.location.href = "/";
+      }
     });
 
     this.socket.on("LEAVEQUE", data => {
@@ -119,8 +129,10 @@ class App extends Component {
     });
 
     this.socket.on("PAYOUT", data => {
-      this.setState({ playerInfo: data.players, pot: data.pot });
-      console.log(data);
+      const { players: playerInfo, pot, hands, payouts } = data;
+      this.setState({ playerInfo, pot });
+      console.log(hands);
+      console.log(payouts);
     });
 
     this.socket.on("ERROR", data => {
@@ -165,6 +177,11 @@ class App extends Component {
     axios.get(`/api/table/bet/${this.state.actionTo}/${this.state.minBet}`);
   };
 
+  leaveTable = () => {
+    console.log("LEAVE");
+    axios.get("/api/table/leave/" + this.state.name);
+  };
+
   setName = name => {
     this.setState({ name: name });
   };
@@ -175,6 +192,7 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
+              leaveTable={this.leaveTable}
               pot={this.state.pot}
               nextBetAction={this.nextBetAction}
               players={this.state.playerInfo}
@@ -186,13 +204,14 @@ class App extends Component {
               river={this.state.river}
               playerCards={this.state.playerCards}
               position={this.state.position}
+              dealer={this.state.dealerIndex}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
             <ProfileView />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView socket={this.socket} setName={this.setName} />
+            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} />
           </Route>
         </Switch>
       </BrowserRouter>
