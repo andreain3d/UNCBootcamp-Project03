@@ -23,17 +23,22 @@ class App extends Component {
       position: 0,
       name: "",
       index: 0,
-      dealerIndex: 0
+      dealerIndex: 0,
+      socketId: ""
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
-
+    this.socket.on("connect", () => {
+      this.setState({ socketId: this.socket.id });
+      //update the user object
+    });
     this.socket.on("ADDPLAYER", data => {
       const { que, quePos } = data;
       console.log(que, quePos);
     });
 
     this.socket.on("PRIME", data => {
+      console.log("PRIME");
       var players = data.players;
       players.forEach(player => {
         if (player.name === this.state.name) {
@@ -197,7 +202,7 @@ class App extends Component {
             <ProfileView />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView socket={this.socket} setName={this.setName} />
+            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} />
           </Route>
         </Switch>
       </BrowserRouter>

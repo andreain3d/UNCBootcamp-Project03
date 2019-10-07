@@ -85,8 +85,28 @@ module.exports = {
   //addPlayer is a route that will create a new player and add them to the virtual table. This route is
   //accessed via post with req.body containing name and cash keys.
   addPlayer: (req, res) => {
-    const { name, cash, img } = req.body;
-    var player = new Player(name, parseInt(cash), img);
+    const { name, cash, img, id } = req.body;
+    var player = new Player(name, parseInt(cash), img, id);
+    //check to see if the player name exists on the table
+    var isAtTable = false;
+    var tableIndex = -1;
+    if (serverTable) {
+      serverTable.players.forEach((p, index) => {
+        if (player.name === p.name) {
+          isAtTable = true;
+          tableIndex = index;
+        }
+      });
+    }
+    if (isAtTable) {
+      serverTable.players[tableIndex].id = player.id;
+      io.emit("PRIME", {
+        players: fetchPlayers(),
+        dealerIndex: serverTable.dealerIndex,
+        pot: serverTable.pot[0]
+      });
+      return res.send();
+    }
     var quePos = que.length;
     que.push(player);
     io.emit("ADDPLAYER", {
