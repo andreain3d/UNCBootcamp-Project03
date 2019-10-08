@@ -57,6 +57,8 @@ class TableView extends Component {
       bigBlind,
       availableChips
     } = this.props;
+    // console.log("players in table view: ", players);
+
     return (
       <MuiThemeProvider theme={theme}>
         <Grid container className={classes.background}>

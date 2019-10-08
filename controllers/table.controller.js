@@ -426,7 +426,7 @@ let prime = async obj => {
       players: fetchPlayers(),
       dealerIndex: serverTable.dealerIndex,
       pot: serverTable.pot[0],
-      bigBlind: bigBlind
+      bigBlind: serverTable.bigBlind
     });
     resolve();
   });
