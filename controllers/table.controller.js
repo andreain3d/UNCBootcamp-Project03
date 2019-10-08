@@ -339,6 +339,7 @@ let fetchPlayers = () => {
 };
 
 let next = async round => {
+  await timer(5000);
   let deckActions = ["deal", "flop", "turn", "river", "payout"];
   switch (deckActions[round]) {
     case "deal":
@@ -715,5 +716,11 @@ let payout = async () => {
     });
     prime();
     resolve();
+  });
+};
+
+let timer = time => {
+  return new Promise(resolve => {
+    setTimeout(resolve, time);
   });
 };
