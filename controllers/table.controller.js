@@ -466,9 +466,11 @@ let prime = async obj => {
       players: fetchPlayers(),
       dealerIndex: serverTable.dealerIndex,
       pot: serverTable.pot[0],
+
       flop: serverTable.flop,
       turn: serverTable.turn,
       river: serverTable.river,
+
       bigBlind: serverTable.bigBlind
     });
     gameInProgress = true;

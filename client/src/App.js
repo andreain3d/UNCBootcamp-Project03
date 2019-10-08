@@ -45,10 +45,13 @@ class App extends Component {
       players.forEach(player => {
         if (player.name === this.state.name) {
           this.setState({ position: player.position, availableChips: player.chips });
+          console.log("availableChips from App: " + this.state.availableChips);
         }
       });
+
       const { players: playerInfo, dealerIndex, turn, river, bigBlind } = data;
       this.setState({ playerInfo, handAction: 0, dealerIndex, flop: [], playerCards: [], turn, river, bigBlind });
+
     });
 
     this.socket.on("DEALCARDS", data => {
