@@ -43,8 +43,6 @@ class TableView extends Component {
       dealer,
       pot,
       socket,
-      primeTable,
-      nextDeckAction,
       nextBetAction,
       flop,
       turn,
@@ -64,13 +62,12 @@ class TableView extends Component {
         <Grid container className={classes.background}>
           <Navbar leaveTable={leaveTable} />
           <Table
+            actionTo={actionTo}
             dealer={dealer}
             pot={pot}
             players={players}
             socket={socket}
             nextBetAction={nextBetAction}
-            nextDeckAction={nextDeckAction}
-            primeTable={primeTable}
             flop={flop}
             turn={turn}
             river={river}

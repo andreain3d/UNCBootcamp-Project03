@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Auth0Context } from "../react-auth0-wrapper";
 import { withStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Typography, Button } from "@material-ui/core";
 import { ExitToApp, MeetingRoom } from "@material-ui/icons";
@@ -15,21 +16,37 @@ const styles = {
 };
 
 class Navbar extends Component {
+  static contextType = Auth0Context;
   render(props) {
+    const { logout } = this.context;
     const classes = this.props.classes;
     const { leaveTable } = this.props;
     return (
       <AppBar position="static" className={classes.grow}>
         <Toolbar>
-          <img className={classes.logo} alt="Poker Logo" src="./assets/img/logo.png" />
+          <img
+            className={classes.logo}
+            alt="Poker Logo"
+            src="./assets/img/logo.png"
+          />
           <Typography variant="h6" color="inherit" className={classes.grow}>
             Poker
           </Typography>
-          <Button color="secondary" variant="contained" className={classes.button} onClick={leaveTable}>
+          <Button
+            color="secondary"
+            variant="contained"
+            className={classes.button}
+            onClick={leaveTable}
+          >
             <MeetingRoom />
             Return to Lobby
           </Button>
-          <Button color="secondary" variant="contained" className={classes.button}>
+          <Button
+            color="secondary"
+            variant="contained"
+            className={classes.button}
+            onClick={() => logout()}
+          >
             <ExitToApp />
             Logout
           </Button>
