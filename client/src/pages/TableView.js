@@ -52,7 +52,10 @@ class TableView extends Component {
       playerCards,
       players,
       position,
-      actionTo
+      actionTo,
+      minBet,
+      bigBlind,
+      availableChips
     } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
@@ -72,7 +75,15 @@ class TableView extends Component {
           />
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
-              <Options socket={socket} cards={playerCards} position={position} />
+              <Options
+                socket={socket}
+                cards={playerCards}
+                position={position}
+                actionTo={actionTo}
+                minBet={minBet}
+                bigBlind={bigBlind}
+                availableChips={availableChips}
+              />
             </Grid>
             <Grid item xs={12} md={6}>
               <Chat socket={socket} />
