@@ -24,7 +24,9 @@ class App extends Component {
       name: "",
       index: 0,
       dealerIndex: 0,
-      socketId: ""
+      socketId: "",
+      availableChips: 0
+      //Does bigBlind need to be added here if it's set up in the PRIME listener setState function?
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
@@ -42,11 +44,11 @@ class App extends Component {
       var players = data.players;
       players.forEach(player => {
         if (player.name === this.state.name) {
-          this.setState({ position: player.position });
+          this.setState({ position: player.position, availableChips: player.chips });
         }
       });
-      const { players: playerInfo, dealerIndex } = data;
-      this.setState({ playerInfo, handAction: 0, dealerIndex });
+      const { players: playerInfo, dealerIndex, bigBlind } = data;
+      this.setState({ playerInfo, handAction: 0, dealerIndex, bigBlind });
     });
 
     this.socket.on("DEALCARDS", data => {
@@ -205,6 +207,10 @@ class App extends Component {
               playerCards={this.state.playerCards}
               position={this.state.position}
               dealer={this.state.dealerIndex}
+              actionTo={this.state.actionTo}
+              minBet={this.state.minBet}
+              bigBlind={this.state.bigBlind}
+              availableChips={this.state.availableChips}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">

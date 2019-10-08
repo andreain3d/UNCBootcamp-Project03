@@ -425,7 +425,8 @@ let prime = async obj => {
     io.emit("PRIME", {
       players: fetchPlayers(),
       dealerIndex: serverTable.dealerIndex,
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      bigBlind: bigBlind
     });
     resolve();
   });
@@ -534,7 +535,8 @@ let doFlop = async () => {
     if (serverTable.flop.length === 3) {
       io.emit("ERROR", {
         err: "The flop has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return resolve();
     }
@@ -568,7 +570,8 @@ let doTurn = async () => {
       console.log("Error Turn");
       io.emit("ERROR", {
         err: "The turn has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
       });
       return resolve();
     }
@@ -594,14 +597,16 @@ let doRiver = async () => {
     if (!serverTable.turn) {
       io.emit("ERROR", {
         err: "The turn has not been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return resolve();
     }
     if (serverTable.river) {
       io.emit("ERROR", {
         err: "The river has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
       });
       return resolve();
     }
