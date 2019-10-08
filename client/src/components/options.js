@@ -58,7 +58,7 @@ class Options extends Component {
 
   render(props) {
     const classes = this.props.classes;
-    const { cards, socket, position, actionTo, minBet } = this.props;
+    const { cards, socket, position, actionTo, minBet, bigBlind, availableChips } = this.props;
 
     return (
       <Paper className={classes.grow}>
@@ -128,7 +128,7 @@ class Options extends Component {
             ) : null}
           </Grid>
           <Grid container justify="center">
-            <input type="range" min="1" max="100" className={classes.slider} id="myRange" />
+            <input type="range" min={bigBlind} max={availableChips} className={classes.slider} id="myRange" />
             <Typography variant="h6">$0.00</Typography>
           </Grid>
         </Paper>
