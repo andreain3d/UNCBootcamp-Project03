@@ -15,5 +15,11 @@ export default {
   },
   createPlayer: function(playerData) {
     return axios.post("/api/table/join", playerData);
+  },
+  leaveQueue: function(name) {
+    return axios.delete("/api/table/leave/" + name);
+  },
+  leaveTable: function(name) {
+    return axios.get("/api/table/leave/" + name);
   }
 };

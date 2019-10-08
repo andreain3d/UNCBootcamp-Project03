@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import { Auth0Context } from "../react-auth0-wrapper";
@@ -15,10 +15,41 @@ class LobbyView extends Component {
       queueLength: 999999,
       joined: false
     };
+    const { user } = this.context;
     this.socket = this.props.socket;
+    // this.socket.on("ADDPLAYER", data => {
+    //   var pos = data.que
+    //     .map(player => {
+    //       return player.name;
+    //     })
+    //     .indexOf(user.nickname);
+    //   if (!this.state.joined && pos !== -1) {
+    //     this.setState({
+    //       currentPos: data.quePos + 1,
+    //       queueLength: data.que.length,
+    //       joined: true
+    //     });
+    //   } else {
+    //     this.setState({ queueLength: data.que.length });
+    //   }
+    // });
     this.socket.on("PRIME", () => {
       if (this.state.currentPos <= 8) {
         return (window.location.href = "http://localhost:3000/table");
+      }
+    });
+    this.socket.on("LEAVEQUE", data => {
+      const { user } = this.context;
+      if (this.state.joined) {
+        var pos = data.que
+          .map(player => {
+            return player.name;
+          })
+          .indexOf(user.nickname);
+        this.setState({
+          currentPos: pos + 1,
+          queueLength: data.que.length
+        });
       }
     });
   }
@@ -26,6 +57,7 @@ class LobbyView extends Component {
   joinGame = event => {
     event.preventDefault();
     const { user } = this.context;
+    this.socket = this.props.socket;
     API.getUser(user.email).then(res => {
       this.props.setName(res.data.username);
       API.createPlayer({
@@ -33,20 +65,24 @@ class LobbyView extends Component {
         cash: res.data.cash,
         img: res.data.image,
         socketId: this.props.socketId
-      }).then(() => {
-        this.socket = this.props.socket;
-        this.socket.on("ADDPLAYER", data => {
-          console.log("RECEIVING MESSAGE SOCKET");
-          if (!this.state.joined) {
-            this.setState({
-              currentPos: data.quePos + 1,
-              queueLength: data.que.length,
-              joined: true
-            });
-          } else {
-            this.setState({ queueLength: data.que.length });
-          }
+      }).then(res => {
+        this.setState({
+          currentPos: data.quePos + 1,
+          queueLength: data.que.length,
+          joined: true
         });
+      });
+    });
+  };
+
+  leaveQueue = event => {
+    event.preventDefault();
+    const { user } = this.context;
+    API.leaveQueue(user.nickname).then(() => {
+      this.setState({
+        currentPos: 999999,
+        queueLength: 999999,
+        joined: false
       });
     });
   };
@@ -79,10 +115,13 @@ class LobbyView extends Component {
         </Grid>
         <Grid container direction="row" justify="center" alignItems="center">
           {this.state.joined && (
-            <h3>
-              Current Queue Position: {this.state.currentPos} out of{" "}
-              {this.state.queueLength}
-            </h3>
+            <div>
+              <h3>
+                Current Queue Position: {this.state.currentPos} out of{" "}
+                {this.state.queueLength}
+              </h3>
+              <Button onClick={this.leaveQueue}>Leave Queue</Button>
+            </div>
           )}
         </Grid>
       </Fragment>
