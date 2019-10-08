@@ -127,34 +127,6 @@ class App extends Component {
     });
   }
 
-  primeTable = async () => {
-    //resets the table UI
-    this.setState({ playerCards: [], playerInfo: [], flop: [], turn: {}, river: {}, hands: [], handAction: 0 });
-    //build some dummy players
-    if (this.state.playerInfo.length === 0) {
-      for (var i = 0; i < 4; i++) {
-        await axios.post("/api/table/join", {
-          name: `Player_${this.state.index}`,
-          cash: 300
-        });
-        this.state.index++;
-      }
-    }
-    //send the call to the api to prime the table
-    await axios.get("/api/table/prime");
-  };
-
-  nextDeckAction = () => {
-    if (this.state.handAction > 4) {
-      console.log("HAND OVER");
-      return;
-    }
-    let deckActions = ["deal", "flop", "turn", "river", "hands"];
-    axios.get("/api/table/" + deckActions[this.state.handAction]).then(res => {
-      this.setState({ handAction: this.state.handAction + 1 });
-    });
-  };
-
   nextBetAction = () => {
     if (this.state.actionTo === undefined) {
       return;
@@ -177,13 +149,12 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
+              actionTo={this.state.actionTo}
               leaveTable={this.leaveTable}
               pot={this.state.pot}
               nextBetAction={this.nextBetAction}
               players={this.state.playerInfo}
               socket={this.socket}
-              nextDeckAction={this.nextDeckAction}
-              primeTable={this.primeTable}
               flop={this.state.flop}
               turn={this.state.turn}
               river={this.state.river}

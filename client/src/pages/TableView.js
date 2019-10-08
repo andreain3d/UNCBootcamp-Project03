@@ -38,19 +38,33 @@ class TableView extends Component {
   render(props) {
     const classes = this.props.classes;
 
-    const { leaveTable, dealer, pot, socket, primeTable, nextDeckAction, nextBetAction, flop, turn, river, playerCards, players, position } = this.props;
+    const {
+      leaveTable,
+      dealer,
+      pot,
+      socket,
+      primeTable,
+      nextDeckAction,
+      nextBetAction,
+      flop,
+      turn,
+      river,
+      playerCards,
+      players,
+      position,
+      actionTo
+    } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
         <Grid container className={classes.background}>
           <Navbar leaveTable={leaveTable} />
           <Table
+            actionTo={actionTo}
             dealer={dealer}
             pot={pot}
             players={players}
             socket={socket}
             nextBetAction={nextBetAction}
-            nextDeckAction={nextDeckAction}
-            primeTable={primeTable}
             flop={flop}
             turn={turn}
             river={river}
