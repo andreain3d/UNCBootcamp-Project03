@@ -31,8 +31,8 @@ module.exports = {
   //addPlayer is a route that will create a new player and add them to the virtual table. This route is
   //accessed via post with req.body containing name and cash keys.
   addPlayer: async (req, res) => {
-    await addPlayer(req.body);
-    res.send();
+    var obj = await addPlayer(req.body);
+    res.json(obj);
   },
 
   //leaveTable will automatically cause a player to fold their current hand and flag the player for removal at the end of the hand
@@ -453,7 +453,7 @@ let addPlayer = async obj => {
         dealerIndex: serverTable.dealerIndex,
         pot: serverTable.pot[0]
       });
-      return resolve();
+      return resolve({ que });
     }
     var quePos = que.length;
     que.push(player);
@@ -462,7 +462,7 @@ let addPlayer = async obj => {
       player,
       que
     });
-    resolve();
+    resolve({ que });
   });
 };
 
