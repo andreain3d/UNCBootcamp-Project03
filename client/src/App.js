@@ -34,10 +34,11 @@ class App extends Component {
       this.setState({ socketId: this.socket.id });
       //update the user object
     });
-    this.socket.on("ADDPLAYER", data => {
-      const { que, quePos } = data;
-      console.log(que, quePos);
-    });
+    // this.socket.on("ADDPLAYER", data => {
+    //   const { que, quePos } = data;
+    //   console.log(que, quePos);
+    //   con
+    // });
 
     this.socket.on("PRIME", data => {
       console.log("PRIME");
@@ -86,7 +87,13 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
+      const {
+        players: playerInfo,
+        currentBet,
+        minBet,
+        position: actionTo,
+        pot
+      } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -96,7 +103,9 @@ class App extends Component {
       this.setState({ playerInfo, currentBet, minBet, actionTo, pot });
       //if actionTo === this.state.position
       // Start the timer, activate the buttons in options
-      console.log("Next bet is " + minBet + " to the player at position " + actionTo);
+      console.log(
+        "Next bet is " + minBet + " to the player at position " + actionTo
+      );
       //at the end of a round of betting, the data received in this listener only contains the playerInfo. All other values will be undefined
       //This implies that currentBet, minBet, and actionTo will only be on the state variable during betting
       //If these values are used to render data, conditional rendering should be used
@@ -146,7 +155,15 @@ class App extends Component {
 
   primeTable = async () => {
     //resets the table UI
-    this.setState({ playerCards: [], playerInfo: [], flop: [], turn: {}, river: {}, hands: [], handAction: 0 });
+    this.setState({
+      playerCards: [],
+      playerInfo: [],
+      flop: [],
+      turn: {},
+      river: {},
+      hands: [],
+      handAction: 0
+    });
     //build some dummy players
     if (this.state.playerInfo.length === 0) {
       for (var i = 0; i < 4; i++) {
@@ -217,7 +234,11 @@ class App extends Component {
             <ProfileView />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} />
+            <LobbyView
+              socket={this.socket}
+              setName={this.setName}
+              socketId={this.state.socketId}
+            />
           </Route>
         </Switch>
       </BrowserRouter>
