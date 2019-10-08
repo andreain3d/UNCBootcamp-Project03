@@ -15,24 +15,12 @@ class LobbyView extends Component {
       queueLength: 999999,
       joined: false
     };
-    const { user } = this.context;
     this.socket = this.props.socket;
-    // this.socket.on("ADDPLAYER", data => {
-    //   var pos = data.que
-    //     .map(player => {
-    //       return player.name;
-    //     })
-    //     .indexOf(user.nickname);
-    //   if (!this.state.joined && pos !== -1) {
-    //     this.setState({
-    //       currentPos: data.quePos + 1,
-    //       queueLength: data.que.length,
-    //       joined: true
-    //     });
-    //   } else {
-    //     this.setState({ queueLength: data.que.length });
-    //   }
-    // });
+    this.socket.on("ADDPLAYER", data => {
+      if (this.state.joined) {
+        this.setState({ queueLength: data.que.length });
+      }
+    });
     this.socket.on("PRIME", () => {
       if (this.state.currentPos <= 8) {
         return (window.location.href = "http://localhost:3000/table");
@@ -67,8 +55,8 @@ class LobbyView extends Component {
         socketId: this.props.socketId
       }).then(res => {
         this.setState({
-          currentPos: data.quePos + 1,
-          queueLength: data.que.length,
+          currentPos: res.data.quePos + 1,
+          queueLength: res.data.que.length,
           joined: true
         });
       });

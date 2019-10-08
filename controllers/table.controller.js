@@ -456,7 +456,6 @@ let addPlayer = async obj => {
     //check to see if the player name exists on the table
     var isAtTable = false;
     var tableIndex = -1;
-    console.log("Testing4");
     if (serverTable) {
       serverTable.players.forEach((p, index) => {
         if (player.name === p.name) {
@@ -475,7 +474,6 @@ let addPlayer = async obj => {
       return resolve({ que });
     }
     var quePos = que.length;
-    console.log("Testing5");
     que.push(player);
 
     io.emit("ADDPLAYER", {
@@ -483,7 +481,7 @@ let addPlayer = async obj => {
       player,
       que
     });
-    resolve({ que });
+    resolve({ quePos, que });
   });
 };
 
