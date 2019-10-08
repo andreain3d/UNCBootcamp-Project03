@@ -40,6 +40,7 @@ class App extends Component {
     this.socket.on("PRIME", data => {
       console.log("PRIME");
       var players = data.players;
+      console.log(players);
       players.forEach(player => {
         if (player.name === this.state.name) {
           this.setState({ position: player.position, availableChips: player.chips });
