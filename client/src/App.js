@@ -15,8 +15,6 @@ class App extends Component {
       playerCards: [],
       playerInfo: [],
       flop: [],
-      turn: {},
-      river: {},
       hands: [],
       pot: 0,
       handAction: 0,
@@ -43,13 +41,14 @@ class App extends Component {
     this.socket.on("PRIME", data => {
       console.log("PRIME");
       var players = data.players;
+      console.log(players);
       players.forEach(player => {
         if (player.name === this.state.name) {
           this.setState({ position: player.position, availableChips: player.chips });
         }
       });
-      const { players: playerInfo, dealerIndex, bigBlind } = data;
-      this.setState({ playerInfo, handAction: 0, dealerIndex, bigBlind });
+      const { players: playerInfo, dealerIndex, turn, river, bigBlind } = data;
+      this.setState({ playerInfo, handAction: 0, dealerIndex, flop: [], playerCards: [], turn, river, bigBlind });
     });
 
     this.socket.on("DEALCARDS", data => {
@@ -111,19 +110,6 @@ class App extends Component {
       //If these values are used to render data, conditional rendering should be used
     });
 
-    // this.socket.on("NEXT", data => {
-    //   const { round } = data;
-
-    //   //round is the NEXT deck action and this listener is only triggered after a round of betting ends.
-    //   //for example, after the deal there is a round of betting. When that round of betting concludes, this
-    //   //listener will receive a value of round = 1;
-    //   let deckActions = ["deal", "flop", "turn", "river", "payout"];
-    //   console.log("ROUND: ", round, deckActions[round]);
-    //   axios.get("/api/table/" + deckActions[round]);
-    //   //Each of the deck actions fire a listener (DOFLOP, DOTURN, DORIVER)
-    //   //and the subsequent betting rounds are triggered from within the socket listeners
-    // });
-
     this.socket.on("LEAVETABLE", data => {
       console.log(data);
       //compare data.name to this.state.name
@@ -152,43 +138,6 @@ class App extends Component {
       console.log("==============END==============");
     });
   }
-
-  primeTable = async () => {
-    //resets the table UI
-    this.setState({
-      playerCards: [],
-      playerInfo: [],
-      flop: [],
-      turn: {},
-      river: {},
-      hands: [],
-      handAction: 0
-    });
-    //build some dummy players
-    if (this.state.playerInfo.length === 0) {
-      for (var i = 0; i < 4; i++) {
-        await axios.post("/api/table/join", {
-          name: `Player_${this.state.index}`,
-          cash: 300
-        });
-        this.state.index++;
-      }
-    }
-    //send the call to the api to prime the table
-    await axios.get("/api/table/prime");
-  };
-
-  nextDeckAction = () => {
-    if (this.state.handAction > 4) {
-      console.log("HAND OVER");
-      return;
-    }
-    let deckActions = ["deal", "flop", "turn", "river", "hands"];
-    axios.get("/api/table/" + deckActions[this.state.handAction]).then(res => {
-      this.setState({ handAction: this.state.handAction + 1 });
-    });
-  };
-
   nextBetAction = () => {
     if (this.state.actionTo === undefined) {
       return;
@@ -211,20 +160,18 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
+              actionTo={this.state.actionTo}
               leaveTable={this.leaveTable}
               pot={this.state.pot}
               nextBetAction={this.nextBetAction}
               players={this.state.playerInfo}
               socket={this.socket}
-              nextDeckAction={this.nextDeckAction}
-              primeTable={this.primeTable}
               flop={this.state.flop}
               turn={this.state.turn}
               river={this.state.river}
               playerCards={this.state.playerCards}
               position={this.state.position}
               dealer={this.state.dealerIndex}
-              actionTo={this.state.actionTo}
               minBet={this.state.minBet}
               bigBlind={this.state.bigBlind}
               availableChips={this.state.availableChips}
