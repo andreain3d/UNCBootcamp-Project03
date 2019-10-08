@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { Typography, Avatar, Grid, Paper } from "@material-ui/core";
-import { classNames } from "classnames";
 
 const styles = {
   paper: {

@@ -45,7 +45,7 @@ class App extends Component {
           this.setState({ position: player.position, availableChips: player.chips });
         }
       });
-      const { players: playerInfo, dealerIndex, flop, turn, river, bigBlind } = data;
+      const { players: playerInfo, dealerIndex, turn, river, bigBlind } = data;
       this.setState({ playerInfo, handAction: 0, dealerIndex, flop: [], playerCards: [], turn, river, bigBlind });
     });
 
@@ -163,7 +163,6 @@ class App extends Component {
               playerCards={this.state.playerCards}
               position={this.state.position}
               dealer={this.state.dealerIndex}
-              actionTo={this.state.actionTo}
               minBet={this.state.minBet}
               bigBlind={this.state.bigBlind}
               availableChips={this.state.availableChips}

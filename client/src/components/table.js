@@ -58,7 +58,7 @@ class Table extends Component {
 
   render(props) {
     const classes = this.props.classes;
-    const { dealer, pot, players, nextBetAction, flop, turn, river, position, actionTo } = this.props;
+    const { dealer, pot, players, nextBetAction, flop, turn, river, actionTo } = this.props;
     return (
       <Grid container>
         <Grid item xs={3} />

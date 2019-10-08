@@ -31,6 +31,8 @@ io.on("connection", socket => {
 
   socket.on("disconnect", () => {
     console.log(`user ${socket.id} disconnected`);
+    const { check } = require("./controllers/table.controller");
+    check(socket.id);
   });
 
   socket.on("SEND_MESSAGE", data => {

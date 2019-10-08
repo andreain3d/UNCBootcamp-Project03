@@ -43,8 +43,6 @@ class TableView extends Component {
       dealer,
       pot,
       socket,
-      primeTable,
-      nextDeckAction,
       nextBetAction,
       flop,
       turn,

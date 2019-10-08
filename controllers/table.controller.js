@@ -12,7 +12,29 @@ var gameInProgress = false;
 
 module.exports = {
   // These routes will operate on a virtual table that lives on the server.
-
+  check: socketId => {
+    //check is a function called from the server side on user disconnect
+    //look on the table for a user with the given socketId. If you find them...do something?
+    if (serverTable) {
+      var name = "";
+      serverTable.players.forEach(player => {
+        if (player.id === socketId) {
+          console.log("PLAYER ON TABLE");
+          name = player.name;
+        }
+      });
+      deque.forEach(playerName => {
+        if (playerName === name) {
+          console.log("PLAYER IN THE DEQUE ARRAY");
+        }
+      });
+    }
+    que.forEach(player => {
+      if (player.id === socketId) {
+        console.log("PLAYER IN QUEUE");
+      }
+    });
+  },
   //flash is a route that returns the entire table object, or null if init has not been performed
   flash: (req, res) => {
     if (!serverTable) {
@@ -289,7 +311,7 @@ let fetchPlayers = () => {
 };
 
 let next = async (round, force = false) => {
-  await timer(5000);
+  await timer(2000);
   let deckActions = ["deal", "flop", "turn", "river", "payout"];
   switch (deckActions[round]) {
     case "deal":
