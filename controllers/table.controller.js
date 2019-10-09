@@ -351,6 +351,9 @@ let placeBet = async (pos, amt) => {
         next(serverTable.round + 1);
         return;
       }
+      if (serverTable.foldedPlayers === serverTable.players.length - 1) {
+        next(4, true);
+      }
       io.emit("PLACEBET", {
         players: fetchPlayers(),
         minBet: currentBet - players[tablePos].bets[round],
