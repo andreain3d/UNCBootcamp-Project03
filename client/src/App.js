@@ -44,13 +44,25 @@ class App extends Component {
       console.log(players);
       players.forEach(player => {
         if (player.name === this.state.name) {
-          this.setState({ position: player.position, availableChips: player.chips });
+          this.setState({
+            position: player.position,
+            availableChips: player.chips
+          });
           console.log("availableChips from App: " + this.state.availableChips);
         }
       });
 
       const { players: playerInfo, dealerIndex, turn, river, bigBlind } = data;
-      this.setState({ playerInfo, handAction: 0, dealerIndex, flop: [], playerCards: [], turn, river, bigBlind });
+      this.setState({
+        playerInfo,
+        handAction: 0,
+        dealerIndex,
+        flop: [],
+        playerCards: [],
+        turn,
+        river,
+        bigBlind
+      });
     });
 
     this.socket.on("DEALCARDS", data => {
@@ -88,7 +100,13 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
+      const {
+        players: playerInfo,
+        currentBet,
+        minBet,
+        position: actionTo,
+        pot
+      } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -98,7 +116,9 @@ class App extends Component {
       this.setState({ playerInfo, currentBet, minBet, actionTo, pot });
       //if actionTo === this.state.position
       // Start the timer, activate the buttons in options
-      console.log("Next bet is " + minBet + " to the player at position " + actionTo);
+      console.log(
+        "Next bet is " + minBet + " to the player at position " + actionTo
+      );
       //at the end of a round of betting, the data received in this listener only contains the playerInfo. All other values will be undefined
       //This implies that currentBet, minBet, and actionTo will only be on the state variable during betting
       //If these values are used to render data, conditional rendering should be used
@@ -107,7 +127,17 @@ class App extends Component {
     this.socket.on("LEAVETABLE", data => {
       console.log(data);
       //reset all data that only exists on the table
-      this.setState({ playerCards: [], playerInfo: [], flop: [], hands: [], pot: 0, handAction: 0, position: -1, dealerIndex: 0, availableChips: 0 });
+      this.setState({
+        playerCards: [],
+        playerInfo: [],
+        flop: [],
+        hands: [],
+        pot: 0,
+        handAction: 0,
+        position: -1,
+        dealerIndex: 0,
+        availableChips: 0
+      });
       //compare data.name to this.state.name
       //if the same, send to lobby and save data
       if (data.name === this.state.name) {
@@ -177,7 +207,12 @@ class App extends Component {
             <ProfileView />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} />
+            <LobbyView
+              socket={this.socket}
+              setName={this.setName}
+              socketId={this.state.socketId}
+              position={this.state.position}
+            />
           </Route>
         </Switch>
       </BrowserRouter>

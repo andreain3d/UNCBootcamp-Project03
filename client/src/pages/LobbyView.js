@@ -23,7 +23,7 @@ class LobbyView extends Component {
       }
     });
     this.socket.on("PRIME", () => {
-      if (this.state.currentPos <= 8) {
+      if (this.props.position >= 0) {
         this.setState({ prime: true });
       }
     });
