@@ -4,7 +4,6 @@
   "description": "Mern Demo",
   "main": "server.js",
   "scripts": {
-    "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
     "start:prod": "babel-node server.js",
     "start:dev": "concurrently \"babel-node server.js\" \"npm run client\"",
     "start:babel": "babel-node server.js",
@@ -12,7 +11,10 @@
     "seed": "node scripts/seedDB.js",
     "client": "cd client && npm run start",
     "install": "cd client && npm install",
-    "build": "cd client && npm run build",
+    "clean": "rm -rf build && mkdir build",
+    "build-babel": "babel -d ./build ./src -s",
+    "build": "npm run clean && npm run build-babel",
+    "start": "npm run build && node ./build/index.js",
     "heroku-postbuild": "npm run build"
   },
   "author": "",
