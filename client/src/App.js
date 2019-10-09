@@ -18,7 +18,7 @@ class App extends Component {
       hands: [],
       pot: 0,
       handAction: 0,
-      position: 0,
+      position: -1,
       name: "",
       index: 0,
       dealerIndex: 0,
@@ -44,7 +44,11 @@ class App extends Component {
       console.log(players);
       players.forEach(player => {
         if (player.name === this.state.name) {
-          this.setState({ position: player.position });
+          this.setState({
+            position: player.position,
+            availableChips: player.chips
+          });
+          console.log("availableChips from App: " + this.state.availableChips);
         }
       });
 
@@ -122,6 +126,18 @@ class App extends Component {
 
     this.socket.on("LEAVETABLE", data => {
       console.log(data);
+      //reset all data that only exists on the table
+      this.setState({
+        playerCards: [],
+        playerInfo: [],
+        flop: [],
+        hands: [],
+        pot: 0,
+        handAction: 0,
+        position: -1,
+        dealerIndex: 0,
+        availableChips: 0
+      });
       //compare data.name to this.state.name
       //if the same, send to lobby and save data
       if (data.name === this.state.name) {
@@ -195,6 +211,7 @@ class App extends Component {
               socket={this.socket}
               setName={this.setName}
               socketId={this.state.socketId}
+              position={this.state.position}
             />
           </Route>
         </Switch>
