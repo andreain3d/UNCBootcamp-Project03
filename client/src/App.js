@@ -39,16 +39,16 @@ class App extends Component {
     // });
 
     this.socket.on("PRIME", data => {
-      console.log("PRIME");
+      //console.log("PRIME");
       var players = data.players;
-      console.log(players);
+      //console.log(players);
       players.forEach(player => {
         if (player.name === this.state.name) {
           this.setState({
             position: player.position,
             availableChips: player.chips
           });
-          console.log("availableChips from App: " + this.state.availableChips);
+          //console.log("availableChips from App: " + this.state.availableChips);
         }
       });
 
@@ -207,12 +207,7 @@ class App extends Component {
             <ProfileView />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView
-              socket={this.socket}
-              setName={this.setName}
-              socketId={this.state.socketId}
-              position={this.state.position}
-            />
+            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} position={this.state.position} />
           </Route>
         </Switch>
       </BrowserRouter>

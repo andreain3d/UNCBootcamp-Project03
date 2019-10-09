@@ -20,6 +20,7 @@ export default class Table {
     this.position = 0;
     this.betsIn = false;
     this.foldedPlayers = 0;
+    this.allInPlayers = 0;
   }
 
   rotate() {
@@ -31,6 +32,8 @@ export default class Table {
   }
 
   checkBets() {
+    console.log("**********CHECKBETS METHOD**********");
+    console.log("CURRENT BET", this.currentBet);
     //loop through the players array and compare each players bet to the current bet value.
     //If a player has folded, increment the folds variable and continue
     //If all players have bets in or have folded and at least two players remain in the hand,
@@ -38,17 +41,27 @@ export default class Table {
     //If all but one player has folded, update the betsIn and round values and return
     var count = 0;
     var folds = 0;
+    var allIns = 0;
     this.players.forEach(player => {
+      console.log("CHECKING PLAYER: ", player.name);
+      console.log(...player.bets);
+      console.log(player.didBet);
       if (player.didFold) {
         return folds++;
       }
+      if (player.isAllIn) {
+        allIns++;
+      }
       if (player.didBet && (player.bets[this.round] === this.currentBet || player.isAllIn)) {
+        console.log("INCREMENTING COUNT FOR PLAYER: ", player.name);
         return count++;
       }
       if (player.bets[this.round] < this.currentBet) {
+        console.log("RESETTING DIDBET FOR PLAYER: " + player.name);
         player.didBet = false;
       }
     });
+    this.allInPlayers = allIns;
     if (count + folds === this.players.length) {
       this.betsIn = true;
       //reset the betting position to the small blind
@@ -66,6 +79,40 @@ export default class Table {
     } else {
       this.shift();
     }
+  }
+
+  checkBetState() {
+    var count = 0;
+    var folds = 0;
+    var allIns = 0;
+    this.players.forEach(player => {
+      console.log("CHECKING PLAYER: ", player.name);
+      console.log(...player.bets);
+      console.log(player.didBet);
+      if (player.didFold) {
+        return folds++;
+      }
+      if (player.isAllIn) {
+        allIns++;
+      }
+      if (player.didBet && (player.bets[this.round] === this.currentBet || player.isAllIn)) {
+        console.log("INCREMENTING COUNT FOR PLAYER: ", player.name);
+        return count++;
+      }
+      if (player.bets[this.round] < this.currentBet) {
+        console.log("RESETTING DIDBET FOR PLAYER: " + player.name);
+        player.didBet = false;
+      }
+    });
+    this.allInPlayers = allIns;
+    if (count + folds === this.players.length) {
+      this.betsIn = true;
+    }
+    console.log("All In Players: ", this.allInPlayers);
+    if (this.allInPlayers >= this.players.length - 1) {
+      this.betsIn = true;
+    }
+    return;
   }
 
   shift() {

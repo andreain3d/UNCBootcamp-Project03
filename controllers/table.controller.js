@@ -219,10 +219,10 @@ let call = (amount, pos) => {
 };
 
 let bet = (amount, pos) => {
+  console.log("BET METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
-  var remainingChips = serverTable.players[pos].chips;
   serverTable.collect(amount);
-  serverTable.currentBet = amount;
+  serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
   serverTable.checkBets();
   const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
@@ -243,10 +243,12 @@ let bet = (amount, pos) => {
 };
 
 let raise = (amount, pos) => {
+  console.log("RAISE METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
   serverTable.currentBet = amount;
   serverTable.checkBets();
+  serverTable.players[pos].didBet = true;
   const { position, players, currentBet, round } = serverTable;
   io.emit("PLACEBET", {
     players: fetchPlayers(),
@@ -280,7 +282,6 @@ let check = pos => {
 
 let allIn = pos => {
   var amount = serverTable.players[pos].bet(serverTable.players[pos].chips);
-
   serverTable.collect(amount);
   //check the amount against the current bet
   if (amount > serverTable.currentBet) {
@@ -315,7 +316,7 @@ let fetchPlayers = () => {
 
 let next = async (round, force = false) => {
   console.log("NEXT CALLED", round);
-  await timer(2000);
+  await timer(1000);
   let deckActions = ["deal", "flop", "turn", "river", "payout"];
   switch (deckActions[round]) {
     case "deal":
@@ -344,6 +345,12 @@ let placeBet = async (pos, amt) => {
     let position = parseInt(pos);
     let amount = parseInt(amt);
     if (position < 0) {
+      //check to see if all bets are in
+      serverTable.checkBetState();
+      if (serverTable.betsIn) {
+        next(serverTable.round + 1);
+        return;
+      }
       io.emit("PLACEBET", {
         players: fetchPlayers(),
         minBet: currentBet - players[tablePos].bets[round],
@@ -359,17 +366,10 @@ let placeBet = async (pos, amt) => {
       });
       return resolve();
     }
-    if (position !== tablePos) {
-      io.emit("ERROR", {
-        err: `It's not your turn to bet. Betting is on the player at position ${tablePos} and the currentBet is ${currentBet}`
-      });
-      return resolve();
-    }
-    //check the bet amount against the current bet.
-    //the table expects a bet that will, at minimum, bring the player to par with the current total bet.
     var parAmount = currentBet - players[position].bets[round];
-    if (amount === players[pos].chips) {
-      allIn(pos);
+    console.log("PAR: ", parAmount);
+    if (amount === players[position].chips) {
+      allIn(position);
     } else if (amount < 0) {
       fold(position);
     } else if (amount === 0 && parAmount === 0) {
@@ -451,7 +451,6 @@ let prime = async obj => {
     serverTable.addPlayer(player);
   }
   if (serverTable.players.length === 1) {
-    console.log("YOU'RE ALL ALONE");
     return;
   }
 
@@ -467,7 +466,6 @@ let prime = async obj => {
     bigBlind: serverTable.bigBlind
   });
   gameInProgress = true;
-  console.log("PRIME CALLS NEXT");
   next(0);
   return new Promise(resolve => {
     resolve();
@@ -535,6 +533,9 @@ let dealCards = async () => {
     }
     //collect the blinds from players in the small blind and big blind position.
     var small = serverTable.dealerIndex + 1;
+    if (serverTable.players.length === 2) {
+      small = serverTable.dealerIndex;
+    }
     if (small === serverTable.players.length) {
       small = 0;
     }
@@ -544,10 +545,10 @@ let dealCards = async () => {
     }
     if (serverTable.players.length === 2) {
       //the dealer is also the small blind
-      serverTable.players[0].chips -= serverTable.smallBlind;
-      serverTable.players[0].bets[0] += serverTable.smallBlind;
-      serverTable.players[1].chips -= serverTable.bigBlind;
-      serverTable.players[1].bets[0] += serverTable.bigBlind;
+      serverTable.players[small].chips -= serverTable.smallBlind;
+      serverTable.players[small].bets[0] += serverTable.smallBlind;
+      serverTable.players[big].chips -= serverTable.bigBlind;
+      serverTable.players[big].bets[0] += serverTable.bigBlind;
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
     } else {
       //there are more than 2 players

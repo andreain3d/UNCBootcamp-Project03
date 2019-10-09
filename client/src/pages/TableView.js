@@ -53,8 +53,6 @@ class TableView extends Component {
       bigBlind,
       hands
     } = this.props;
-    console.log("bigBlind in table view: ", bigBlind);
-    console.log("availableChips in table view: ", players[position].chips);
 
     return (
       <MuiThemeProvider theme={theme}>

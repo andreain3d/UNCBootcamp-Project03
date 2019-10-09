@@ -35,14 +35,11 @@ class Options extends Component {
 
     this.handleSliderValueChange = event => {
       const { value } = event.target;
-      console.log(value);
       this.setState({ sliderValue: value });
     };
 
     this.BETTING = bet => {
-      axios.get(`api/table/bet/${props.position}/${bet}`).then(res => {
-        console.log(res);
-      });
+      axios.get(`api/table/bet/${props.position}/${bet}`);
     };
 
     this.DEAL = event => {
@@ -82,23 +79,11 @@ class Options extends Component {
             <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
           </Grid>
           <Grid container justify="center">
-            <Button
-              disabled={position !== actionTo}
-              color="primary"
-              variant="contained"
-              className={classes.button}
-              onClick={() => this.BETTING(-1)}
-            >
+            <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(-1)}>
               Fold
             </Button>
             {minBet === 0 ? (
-              <Button
-                disabled={position !== actionTo}
-                color="primary"
-                variant="contained"
-                className={classes.button}
-                onClick={() => this.BETTING(0)}
-              >
+              <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
                 check
               </Button>
             ) : null}
@@ -115,13 +100,7 @@ class Options extends Component {
             ) : null}
 
             {minBet > 0 ? (
-              <Button
-                disabled={position !== actionTo}
-                color="primary"
-                variant="contained"
-                className={classes.button}
-                onClick={() => this.BETTING(minBet)}
-              >
+              <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(minBet)}>
                 Call
               </Button>
             ) : null}
