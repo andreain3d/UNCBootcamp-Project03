@@ -41,8 +41,6 @@ class TableView extends Component {
       dealer,
       pot,
       socket,
-      primeTable,
-      nextDeckAction,
       nextBetAction,
       flop,
       turn,
@@ -56,24 +54,25 @@ class TableView extends Component {
       availableChips,
       hands
     } = this.props;
+    // console.log("players in table view: ", players);
+
     return (
       <MuiThemeProvider theme={theme}>
         <Grid container className={classes.background}>
           <Navbar leaveTable={leaveTable} />
           <Table
+            actionTo={actionTo}
             dealer={dealer}
             pot={pot}
             players={players}
             socket={socket}
             nextBetAction={nextBetAction}
-            nextDeckAction={nextDeckAction}
-            primeTable={primeTable}
             flop={flop}
             turn={turn}
             river={river}
             position={position}
           />
-          {hands ? <EndDialog hands={hands} /> : ""}
+          {hands && hands.length > 0 ? <EndDialog hands={hands} /> : ""}
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
               <Options

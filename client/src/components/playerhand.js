@@ -31,7 +31,7 @@ class PlayerHand extends Component {
           {this.props.cards.map(card => (
             <Paper
               style={{
-                backgroundImage: `url(${card.src})`,
+                backgroundImage: `url(${card.frontImage})`,
                 backgroundSize: "contain",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center"
@@ -42,7 +42,7 @@ class PlayerHand extends Component {
           {this.props.otherCards.map(card => (
             <Paper
               style={{
-                backgroundImage: `url(${card.src})`,
+                backgroundImage: `url(${card.frontImage})`,
                 backgroundSize: "contain",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center"

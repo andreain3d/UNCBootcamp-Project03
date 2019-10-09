@@ -11,16 +11,50 @@ const styles = {
   },
   avatar: {
     border: "3px solid #424242"
+  },
+  active: {
+    border: "3px solid #00ff00",
+    padding: 10,
+    borderRadius: "5vh",
+    flexGrow: 1,
+    margin: 5
+  },
+  folded: {
+    opacity: 0.5,
+    padding: 10,
+    borderRadius: "5vh",
+    flexGrow: 1,
+    margin: 5
+  },
+  allIn: {
+    border: "3px solid #ff6600",
+    padding: 10,
+    borderRadius: "5vh",
+    flexGrow: 1,
+    margin: 5
   }
 };
 
 class Player extends Component {
+  getStyle = (playerInfo, actionTo, classes) => {
+    if (playerInfo.didFold) {
+      return classes.folded;
+    }
+    if (playerInfo.isAllIn) {
+      return classes.allIn;
+    }
+    if (playerInfo.position === actionTo) {
+      return classes.active;
+    }
+    return classes.paper;
+  };
+
   render() {
     const classes = this.props.classes;
-    const { playerInfo } = this.props;
+    const { playerInfo, actionTo } = this.props;
     return (
       <Fragment>
-        <Paper className={classes.paper}>
+        <Paper className={this.getStyle(playerInfo, actionTo, classes)}>
           <Grid container>
             <Grid item xs={4}>
               <Avatar className={classes.avatar} alt="Player Avatar" src={playerInfo.img ? playerInfo.img : "https://placehold.it/200"} />
