@@ -6,7 +6,8 @@ const styles = {
   paper: {
     height: 100,
     width: 70,
-    margin: 5
+    margin: 5,
+    background: "#1a643f"
   }
 };
 

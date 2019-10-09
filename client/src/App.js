@@ -44,7 +44,10 @@ class App extends Component {
       var players = data.players;
       players.forEach(player => {
         if (player.name === this.state.name) {
-          this.setState({ position: player.position, availableChips: player.chips });
+          this.setState({
+            position: player.position,
+            availableChips: player.chips
+          });
         }
       });
       const { players: playerInfo, dealerIndex, bigBlind } = data;
@@ -86,7 +89,13 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
+      const {
+        players: playerInfo,
+        currentBet,
+        minBet,
+        position: actionTo,
+        pot
+      } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -96,7 +105,9 @@ class App extends Component {
       this.setState({ playerInfo, currentBet, minBet, actionTo, pot });
       //if actionTo === this.state.position
       // Start the timer, activate the buttons in options
-      console.log("Next bet is " + minBet + " to the player at position " + actionTo);
+      console.log(
+        "Next bet is " + minBet + " to the player at position " + actionTo
+      );
       //at the end of a round of betting, the data received in this listener only contains the playerInfo. All other values will be undefined
       //This implies that currentBet, minBet, and actionTo will only be on the state variable during betting
       //If these values are used to render data, conditional rendering should be used
@@ -132,7 +143,7 @@ class App extends Component {
 
     this.socket.on("PAYOUT", data => {
       const { players: playerInfo, pot, hands, payouts } = data;
-      this.setState({ playerInfo, pot });
+      this.setState({ playerInfo, pot, hands });
       console.log(hands);
       console.log(payouts);
     });
@@ -146,7 +157,15 @@ class App extends Component {
 
   primeTable = async () => {
     //resets the table UI
-    this.setState({ playerCards: [], playerInfo: [], flop: [], turn: {}, river: {}, hands: [], handAction: 0 });
+    this.setState({
+      playerCards: [],
+      playerInfo: [],
+      flop: [],
+      turn: {},
+      river: {},
+      hands: [],
+      handAction: 0
+    });
     //build some dummy players
     if (this.state.playerInfo.length === 0) {
       for (var i = 0; i < 4; i++) {
@@ -211,13 +230,18 @@ class App extends Component {
               minBet={this.state.minBet}
               bigBlind={this.state.bigBlind}
               availableChips={this.state.availableChips}
+              hands={this.state.hands}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
             <ProfileView />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} />
+            <LobbyView
+              socket={this.socket}
+              setName={this.setName}
+              socketId={this.state.socketId}
+            />
           </Route>
         </Switch>
       </BrowserRouter>

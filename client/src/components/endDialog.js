@@ -3,16 +3,14 @@ import {
   Button,
   Dialog,
   DialogActions,
-  DialogContent
+  DialogContent,
+  DialogTitle
 } from "@material-ui/core";
+import Playerhand from "./playerhand.js";
 
-class HandDialog extends React.Component {
+class EndDialog extends React.Component {
   state = {
-    open: false
-  };
-
-  handleClickOpen = () => {
-    this.setState({ open: true });
+    open: true
   };
 
   handleClose = () => {
@@ -22,26 +20,25 @@ class HandDialog extends React.Component {
   render() {
     return (
       <div>
-        <Button
-          variant="contained"
-          color="inherit"
-          onClick={this.handleClickOpen}
-        >
-          Hands
-        </Button>
         <Dialog
           open={this.state.open}
           onClose={this.handleClose}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-          {/* <DialogTitle id="alert-dialog-title">
-            {"Poker Hand Rankings"}
-          </DialogTitle> */}
+          <DialogTitle id="alert-dialog-title">Results</DialogTitle>
           <DialogContent>
-            <img
-              alt="rankings"
-              src="https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/submissions/17579/versions/1/screenshot.jpg"
+            <Playerhand
+              username="Username"
+              card1="card1.jpg"
+              card2="card2.jpg"
+              rank="1"
+            />
+            <Playerhand
+              username="Username2"
+              card1="card1.jpg"
+              card2="card2.jpg"
+              rank="2"
             />
           </DialogContent>
           <DialogActions>
@@ -59,4 +56,4 @@ class HandDialog extends React.Component {
   }
 }
 
-export default HandDialog;
+export default EndDialog;

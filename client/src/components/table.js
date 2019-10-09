@@ -4,7 +4,6 @@ import { Grid, Button, Typography } from "@material-ui/core";
 import Player from "./player";
 import TableCard from "./tableCard";
 import Token from "./token";
-import HandDialog from "./hands";
 
 const styles = {
   item: {
@@ -58,13 +57,35 @@ class Table extends Component {
 
   render(props) {
     const classes = this.props.classes;
-    const { dealer, pot, players, primeTable, nextDeckAction, nextBetAction, flop, turn, river, position } = this.props;
+    const {
+      dealer,
+      pot,
+      players,
+      primeTable,
+      nextDeckAction,
+      nextBetAction,
+      flop,
+      turn,
+      river,
+      position
+    } = this.props;
     return (
       <Grid container>
         <Grid item xs={3} />
         <Grid item xs={3}>
-          <Grid container justify="center" alignItems="center" className={classes.item}>
-            {players[0] ? <Player playerInfo={players[0]} position={position} style={players[0].didFold ? { opacity: "0.5" } : {}} /> : null}
+          <Grid
+            container
+            justify="center"
+            alignItems="center"
+            className={classes.item}
+          >
+            {players[0] ? (
+              <Player
+                playerInfo={players[0]}
+                position={position}
+                style={players[0].didFold ? { opacity: "0.5" } : {}}
+              />
+            ) : null}
             <Grid item xs={12}>
               <Grid container justify="center">
                 <Token type={this.getToken(dealer, 0, players)} />
@@ -74,8 +95,19 @@ class Table extends Component {
           </Grid>
         </Grid>
         <Grid item xs={3}>
-          <Grid container justify="center" alignItems="center" className={classes.item}>
-            {players[1] ? <Player playerInfo={players[1]} position={position} style={players[1].didFold ? { opacity: "0.5" } : {}} /> : null}
+          <Grid
+            container
+            justify="center"
+            alignItems="center"
+            className={classes.item}
+          >
+            {players[1] ? (
+              <Player
+                playerInfo={players[1]}
+                position={position}
+                style={players[1].didFold ? { opacity: "0.5" } : {}}
+              />
+            ) : null}
             <Grid item xs={12}>
               <Grid container justify="center">
                 <Token type={this.getToken(dealer, 1, players)} />
@@ -86,23 +118,43 @@ class Table extends Component {
         </Grid>
         <Grid item xs={3}>
           <Grid container justify="flex-end">
-            <Button color="inherit" variant="contained" onClick={primeTable} className={classes.button}>
+            <Button
+              color="inherit"
+              variant="contained"
+              onClick={primeTable}
+              className={classes.button}
+            >
               Prime Table
             </Button>
-            <Button color="inherit" variant="contained" onClick={nextDeckAction} className={classes.button}>
+            <Button
+              color="inherit"
+              variant="contained"
+              onClick={nextDeckAction}
+              className={classes.button}
+            >
               Next Deck Action
             </Button>
-            <Button color="inherit" variant="contained" onClick={nextBetAction} className={classes.button}>
+            <Button
+              color="inherit"
+              variant="contained"
+              onClick={nextBetAction}
+              className={classes.button}
+            >
               Next Bet Action
             </Button>
-            <HandDialog />
           </Grid>
         </Grid>
         <Grid container>
           <Grid item xs={3}>
             <Grid container className={classes.item}>
               <Grid item xs={11}>
-                {players[7] ? <Player playerInfo={players[7]} position={position} style={players[7].didFold ? { opacity: "0.5" } : {}} /> : null}
+                {players[7] ? (
+                  <Player
+                    playerInfo={players[7]}
+                    position={position}
+                    style={players[7].didFold ? { opacity: "0.5" } : {}}
+                  />
+                ) : null}
               </Grid>
               <Grid item xs={1}>
                 <Token type={this.getToken(dealer, 7, players)} />
@@ -111,7 +163,13 @@ class Table extends Component {
             </Grid>
             <Grid container>
               <Grid item xs={11}>
-                {players[6] ? <Player playerInfo={players[6]} position={position} style={players[6].didFold ? { opacity: "0.5" } : {}} /> : null}
+                {players[6] ? (
+                  <Player
+                    playerInfo={players[6]}
+                    position={position}
+                    style={players[6].didFold ? { opacity: "0.5" } : {}}
+                  />
+                ) : null}
               </Grid>
               <Grid item xs={1}>
                 <Token type={this.getToken(dealer, 6, players)} />
@@ -120,15 +178,29 @@ class Table extends Component {
             </Grid>
           </Grid>
           <Grid item xs={6}>
-            <Grid container height={1} className={classes.cardContainer} justify="center" alignItems="center">
+            <Grid
+              container
+              height={1}
+              className={classes.cardContainer}
+              justify="center"
+              alignItems="center"
+            >
               <TableCard src={flop.length > 0 ? flop[0].frontImage : ""} />
               <TableCard src={flop.length > 0 ? flop[1].frontImage : ""} />
               <TableCard src={flop.length > 0 ? flop[2].frontImage : ""} />
-              <TableCard src={Object.keys(turn).length > 0 ? turn.frontImage : ""} />
-              <TableCard src={Object.keys(river).length > 0 ? river.frontImage : ""} />
+              <TableCard
+                src={Object.keys(turn).length > 0 ? turn.frontImage : ""}
+              />
+              <TableCard
+                src={Object.keys(river).length > 0 ? river.frontImage : ""}
+              />
             </Grid>
             <Grid container justify="center" alignItems="center">
-              <img className={classes.potChips} alt="Total Pot" src="./assets/img/potChips.png" />
+              <img
+                className={classes.potChips}
+                alt="Total Pot"
+                src="./assets/img/potChips.png"
+              />
               <Typography variant="h6">{`$${pot}`}</Typography>
             </Grid>
           </Grid>
@@ -139,7 +211,13 @@ class Table extends Component {
                 <Token type="C" />
               </Grid>
               <Grid item xs={11}>
-                {players[2] ? <Player playerInfo={players[2]} position={position} style={players[2].didFold ? { opacity: "0.5" } : {}} /> : null}
+                {players[2] ? (
+                  <Player
+                    playerInfo={players[2]}
+                    position={position}
+                    style={players[2].didFold ? { opacity: "0.5" } : {}}
+                  />
+                ) : null}
               </Grid>
             </Grid>
             <Grid container>
@@ -148,7 +226,13 @@ class Table extends Component {
                 <Token type="x" />
               </Grid>
               <Grid item xs={11}>
-                {players[3] ? <Player playerInfo={players[3]} position={position} style={players[3].didFold ? { opacity: "0.5" } : {}} /> : null}
+                {players[3] ? (
+                  <Player
+                    playerInfo={players[3]}
+                    position={position}
+                    style={players[3].didFold ? { opacity: "0.5" } : {}}
+                  />
+                ) : null}
 
                 <Grid item xs={12}></Grid>
               </Grid>
@@ -159,25 +243,47 @@ class Table extends Component {
           </Grid>
           <Grid item xs={3} />
           <Grid item xs={3}>
-            <Grid container justify="center" alignItems="center" className={classes.item}>
+            <Grid
+              container
+              justify="center"
+              alignItems="center"
+              className={classes.item}
+            >
               <Grid item xs={12}>
                 <Grid container justify="center">
                   <Token type={this.getToken(dealer, 5, players)} />
                   <Token type="x" />
                 </Grid>
               </Grid>
-              {players[5] ? <Player playerInfo={players[5]} position={position} style={players[5].didFold ? { opacity: "0.5" } : {}} /> : null}
+              {players[5] ? (
+                <Player
+                  playerInfo={players[5]}
+                  position={position}
+                  style={players[5].didFold ? { opacity: "0.5" } : {}}
+                />
+              ) : null}
             </Grid>
           </Grid>
           <Grid item xs={3}>
-            <Grid container justify="center" alignItems="center" className={classes.item}>
+            <Grid
+              container
+              justify="center"
+              alignItems="center"
+              className={classes.item}
+            >
               <Grid item xs={12}>
                 <Grid container justify="center">
                   <Token type={this.getToken(dealer, 4, players)} />
                   <Token type="x" />
                 </Grid>
               </Grid>
-              {players[4] ? <Player playerInfo={players[4]} position={position} style={players[4].didFold ? { opacity: "0.5" } : {}} /> : null}
+              {players[4] ? (
+                <Player
+                  playerInfo={players[4]}
+                  position={position}
+                  style={players[4].didFold ? { opacity: "0.5" } : {}}
+                />
+              ) : null}
             </Grid>
           </Grid>
           <Grid item xs={3} />
