@@ -157,11 +157,13 @@ module.exports = {
 
 //private method for handling bets
 let fold = pos => {
-  console.log("FOLD METHOD");
   serverTable.players[parseInt(pos)].didFold = true;
   serverTable.foldedPlayers++;
   serverTable.checkBets();
-
+  io.emit("RECEIVE_MESSAGE", {
+    author: "dealer",
+    message: `${serverTable.players[parseInt(pos)].name} folds`
+  });
   if (serverTable.foldedPlayers === serverTable.players.length - 1) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
@@ -199,6 +201,10 @@ let call = (amount, pos) => {
   console.log("CALL METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
+  io.emit("RECEIVE_MESSAGE", {
+    author: "dealer",
+    message: `${serverTable.players[pos].name} calls`
+  });
   serverTable.checkBets();
   const { position, players, currentBet, round } = serverTable;
   if (serverTable.betsIn) {
@@ -223,6 +229,10 @@ let bet = (amount, pos) => {
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
   serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
+  io.emit("RECEIVE_MESSAGE", {
+    author: "dealer",
+    message: `${serverTable.players[pos].name} bets ${amount}`
+  });
   serverTable.checkBets();
   const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
@@ -247,6 +257,10 @@ let raise = (amount, pos) => {
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
   serverTable.currentBet = amount;
+  io.emit("RECEIVE_MESSAGE", {
+    author: "dealer",
+    message: `${serverTable.players[pos].name} raises. The current bet is now ${serverTable.currentBet}`
+  });
   serverTable.checkBets();
   serverTable.players[pos].didBet = true;
   const { position, players, currentBet, round } = serverTable;
@@ -261,6 +275,10 @@ let raise = (amount, pos) => {
 
 let check = pos => {
   serverTable.players[pos].didBet = true;
+  io.emit("RECEIVE_MESSAGE", {
+    author: "dealer",
+    message: `${serverTable.players[pos].name} checks`
+  });
   serverTable.checkBets();
   const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
@@ -287,6 +305,10 @@ let allIn = pos => {
   if (amount > serverTable.currentBet) {
     serverTable.currentBet = amount;
   }
+  io.emit("RECEIVE_MESSAGE", {
+    author: "dealer",
+    message: `${serverTable.players[pos].name} goes all in!`
+  });
   serverTable.checkBets();
   const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
@@ -324,15 +346,31 @@ let next = async (round, force = false) => {
       break;
     case "flop":
       await doFlop();
+      io.emit("RECEIVE_MESSAGE", {
+        author: "dealer",
+        message: `the flop`
+      });
       break;
     case "turn":
       await doTurn();
+      io.emit("RECEIVE_MESSAGE", {
+        author: "dealer",
+        message: `the turn`
+      });
       break;
     case "river":
       await doRiver();
+      io.emit("RECEIVE_MESSAGE", {
+        author: "dealer",
+        message: `the river`
+      });
       break;
     case "payout":
       await payout(force);
+      io.emit("RECEIVE_MESSAGE", {
+        author: "dealer",
+        message: `the hand is over`
+      });
       break;
     default:
       console.log("NEXT DEFAULT REACHED");
@@ -350,6 +388,9 @@ let placeBet = async (pos, amt) => {
       if (serverTable.betsIn) {
         next(serverTable.round + 1);
         return;
+      }
+      if (serverTable.foldedPlayers === serverTable.players.length - 1) {
+        next(4, true);
       }
       io.emit("PLACEBET", {
         players: fetchPlayers(),
@@ -411,6 +452,7 @@ let prime = async obj => {
     serverTable.flop = [];
     serverTable.turn = undefined;
     serverTable.river = undefined;
+    serverTable.foldedPlayers = 0;
     serverTable.pot = [0];
     serverTable.betsIn = false;
     serverTable.dealerIndex++;
@@ -453,7 +495,10 @@ let prime = async obj => {
   if (serverTable.players.length === 1) {
     return;
   }
-
+  io.emit("RECEIVE_MESSAGE", {
+    author: "dealer",
+    message: `starting the next hand`
+  });
   io.emit("PRIME", {
     players: fetchPlayers(),
     dealerIndex: serverTable.dealerIndex,
@@ -531,6 +576,10 @@ let dealCards = async () => {
       });
       return resolve();
     }
+    io.emit("RECEIVE_MESSAGE", {
+      author: "dealer",
+      message: `collecting the blinds`
+    });
     //collect the blinds from players in the small blind and big blind position.
     var small = serverTable.dealerIndex + 1;
     if (serverTable.players.length === 2) {
@@ -564,6 +613,10 @@ let dealCards = async () => {
     for (var i = 0; i < amount; i++) {
       serverTable.rotate();
     }
+    io.emit("RECEIVE_MESSAGE", {
+      author: "dealer",
+      message: `dealing the cards`
+    });
     serverTable.deal();
     serverTable.restoreOrder();
     //set the stage for betting by setting the table.position value to the player after big blind
