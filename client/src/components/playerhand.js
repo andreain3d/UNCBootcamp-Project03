@@ -51,7 +51,7 @@ class PlayerHand extends Component {
             />
           ))}
         </Grid>
-        {this.props.rank === "1" ? <Typography>WINNER!</Typography> : ""}
+        {this.props.rank === 1 ? <Typography>WINNER!</Typography> : ""}
         <Divider />
       </Fragment>
     );
