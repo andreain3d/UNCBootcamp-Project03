@@ -51,10 +51,10 @@ class TableView extends Component {
       actionTo,
       minBet,
       bigBlind,
-      availableChips,
       hands
     } = this.props;
-    // console.log("players in table view: ", players);
+    console.log("bigBlind in table view: ", bigBlind);
+    console.log("availableChips in table view: ", players[position].chips);
 
     return (
       <MuiThemeProvider theme={theme}>
@@ -82,7 +82,7 @@ class TableView extends Component {
                 actionTo={actionTo}
                 minBet={minBet}
                 bigBlind={bigBlind}
-                availableChips={availableChips}
+                availableChips={players[position].chips}
               />
             </Grid>
             <Grid item xs={12} md={6}>

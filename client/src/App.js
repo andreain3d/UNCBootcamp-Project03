@@ -44,11 +44,7 @@ class App extends Component {
       console.log(players);
       players.forEach(player => {
         if (player.name === this.state.name) {
-          this.setState({
-            position: player.position,
-            availableChips: player.chips
-          });
-          console.log("availableChips from App: " + this.state.availableChips);
+          this.setState({ position: player.position });
         }
       });
 
@@ -188,7 +184,6 @@ class App extends Component {
               dealer={this.state.dealerIndex}
               minBet={this.state.minBet}
               bigBlind={this.state.bigBlind}
-              availableChips={this.state.availableChips}
               hands={this.state.hands}
             />
           </PrivateRoute>
