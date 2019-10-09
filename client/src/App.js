@@ -39,16 +39,16 @@ class App extends Component {
     // });
 
     this.socket.on("PRIME", data => {
-      console.log("PRIME");
+      //console.log("PRIME");
       var players = data.players;
-      console.log(players);
+      //console.log(players);
       players.forEach(player => {
         if (player.name === this.state.name) {
           this.setState({
             position: player.position,
             availableChips: player.chips
           });
-          console.log("availableChips from App: " + this.state.availableChips);
+          //console.log("availableChips from App: " + this.state.availableChips);
         }
       });
 
@@ -92,6 +92,8 @@ class App extends Component {
 
     this.socket.on("PLACEBET", data => {
       const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
+      console.log("Current Bet: ", currentBet);
+      console.log("Min Bet: ", minBet);
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -189,12 +191,7 @@ class App extends Component {
             <ProfileView />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView
-              socket={this.socket}
-              setName={this.setName}
-              socketId={this.state.socketId}
-              position={this.state.position}
-            />
+            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} position={this.state.position} />
           </Route>
         </Switch>
       </BrowserRouter>

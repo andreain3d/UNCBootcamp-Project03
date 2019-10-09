@@ -38,24 +38,7 @@ class TableView extends Component {
   render(props) {
     const classes = this.props.classes;
 
-    const {
-      leaveTable,
-      dealer,
-      pot,
-      socket,
-      nextBetAction,
-      flop,
-      turn,
-      river,
-      playerCards,
-      players,
-      position,
-      actionTo,
-      minBet,
-      bigBlind
-    } = this.props;
-    console.log("bigBlind in table view: ", bigBlind);
-    console.log("availableChips in table view: ", players[position].chips);
+    const { leaveTable, dealer, pot, socket, nextBetAction, flop, turn, river, playerCards, players, position, actionTo, minBet, bigBlind } = this.props;
 
     return (
       <MuiThemeProvider theme={theme}>
