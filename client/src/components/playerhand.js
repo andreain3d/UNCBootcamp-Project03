@@ -21,17 +21,35 @@ const styles = {
 class PlayerHand extends Component {
   render() {
     const classes = this.props.classes;
+
     return (
       <Fragment>
         <Typography variant="h6">
           {this.props.rank}. {this.props.username}
         </Typography>
         <Grid container justify="center" className={classes.grid}>
-          <Paper className={classes.cards} />
-          <Paper className={classes.cards} />
-          <Paper className={classes.cards} />
-          <Paper className={classes.cards} />
-          <Paper className={classes.cards} />
+          {this.props.cards.map(card => (
+            <Paper
+              style={{
+                backgroundImage: `url(${card.src})`,
+                backgroundSize: "contain",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center"
+              }}
+              className={classes.cards}
+            />
+          ))}
+          {this.props.otherCards.map(card => (
+            <Paper
+              style={{
+                backgroundImage: `url(${card.src})`,
+                backgroundSize: "contain",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center"
+              }}
+              className={classes.cards}
+            />
+          ))}
         </Grid>
         {this.props.rank === "1" ? <Typography>WINNER!</Typography> : ""}
         <Divider />

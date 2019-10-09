@@ -18,6 +18,7 @@ class EndDialog extends React.Component {
   };
 
   render() {
+    const hands = this.props.hands;
     return (
       <div>
         <Dialog
@@ -28,18 +29,14 @@ class EndDialog extends React.Component {
         >
           <DialogTitle id="alert-dialog-title">Results</DialogTitle>
           <DialogContent>
-            <Playerhand
-              username="Username"
-              card1="card1.jpg"
-              card2="card2.jpg"
-              rank="1"
-            />
-            <Playerhand
-              username="Username2"
-              card1="card1.jpg"
-              card2="card2.jpg"
-              rank="2"
-            />
+            {hands.map(hand => (
+              <Playerhand
+                username={hand.player}
+                cards={hand.cards}
+                otherCards={hand.otherCards}
+                rank={hand.rank}
+              />
+            ))}
           </DialogContent>
           <DialogActions>
             <Button
