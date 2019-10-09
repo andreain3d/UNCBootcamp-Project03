@@ -71,7 +71,6 @@ class Options extends Component {
 
     const { cards, position, actionTo, minBet, bigBlind, availableChips } = this.props;
 
-
     return (
       <Paper className={classes.grow}>
         <Typography variant="h6" align="center" className={classes.header}>
@@ -83,22 +82,39 @@ class Options extends Component {
             <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
           </Grid>
           <Grid container justify="center">
-            <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(-1)}>
+            <Button
+              disabled={position !== actionTo}
+              color="primary"
+              variant="contained"
+              className={classes.button}
+              onClick={() => this.BETTING(-1)}
+            >
               Fold
             </Button>
             {minBet === 0 ? (
-              <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              <Button
+                disabled={position !== actionTo}
+                color="primary"
+                variant="contained"
+                className={classes.button}
+                onClick={() => this.BETTING(0)}
+              >
                 check
               </Button>
             ) : null}
             {minBet === 0 ? (
-              <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              <Button
+                disabled={position !== actionTo}
+                color="primary"
+                variant="contained"
+                className={classes.button}
+                onClick={() => this.BETTING(this.state.sliderValue)}
+              >
                 Bet
               </Button>
             ) : null}
 
             {minBet > 0 ? (
-
               <Button
                 disabled={position !== actionTo}
                 color="primary"
@@ -111,7 +127,13 @@ class Options extends Component {
             ) : null}
 
             {minBet > 0 ? (
-              <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              <Button
+                disabled={position !== actionTo}
+                color="primary"
+                variant="contained"
+                className={classes.button}
+                onClick={() => this.BETTING(this.state.sliderValue)}
+              >
                 raise
               </Button>
             ) : null}
@@ -120,12 +142,12 @@ class Options extends Component {
             <input
               type="range"
               min={bigBlind}
-              max={100}
+              max={availableChips}
               // className={classes.slider}
               // id="myRange"
               name="sliderValue"
-              // value={this.state.sliderValue}
-              // onChange={this.handleSliderValueChange}
+              value={this.state.sliderValue}
+              onChange={this.handleSliderValueChange}
               step="1"
             />
             <Typography variant="h6">${this.state.sliderValue}</Typography>
