@@ -170,7 +170,6 @@ let fold = pos => {
     next(4, true);
   }
   if (serverTable.betsIn && serverTable.foldedPlayers === serverTable.players.length - 1) {
-
     io.emit("PLACEBET", {
       players: fetchPlayers(),
       pot: serverTable.pot[0]
@@ -315,6 +314,7 @@ let fetchPlayers = () => {
 };
 
 let next = async (round, force = false) => {
+  console.log("NEXT CALLED", round);
   await timer(2000);
   let deckActions = ["deal", "flop", "turn", "river", "payout"];
   switch (deckActions[round]) {
@@ -397,84 +397,79 @@ let placeBet = async (pos, amt) => {
 };
 
 let prime = async obj => {
-  return new Promise(resolve => {
-    if (!serverTable) {
-      if (obj) {
-        const { buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit } = obj;
-        serverTable = new Table(
-          buyIn,
-          bigBlind,
-          smallBlind,
-          autoIncrementBlinds,
-          limit
-        );
-      } else {
-        serverTable = new Table();
-      }
+  if (!serverTable) {
+    if (obj) {
+      const { buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit } = obj;
+      serverTable = new Table(buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit);
     } else {
-      serverTable.round = 0;
-      serverTable.currentBet = 0;
-      serverTable.deck = new Deck();
-      serverTable.flop = [];
-      serverTable.turn = undefined;
-      serverTable.river = undefined;
-      serverTable.pot = [0];
-      serverTable.betsIn = false;
-      serverTable.dealerIndex++;
-      if (serverTable.dealerIndex === serverTable.players.length) {
-        serverTable.dealerIndex = 0;
-      }
-      serverTable.players.forEach((player, index) => {
-        player.position = index;
-        player.bets = [0];
-        player.didFold = false;
-        player.isAllIn = false;
-        player.cards = [];
-        player.didBet = false;
-      });
+      serverTable = new Table();
     }
-    deque.forEach(name => {
-      serverTable.players.forEach((player, index) => {
-        if (player.name === name) {
-          if (que.length > 0) {
-            serverTable.addPlayer(que.shift(), index);
-          } else {
-            serverTable.players = serverTable.players.filter(
-              value => value.name !== name
-            );
-          }
+  } else {
+    serverTable.round = 0;
+    serverTable.currentBet = 0;
+    serverTable.deck = new Deck();
+    serverTable.flop = [];
+    serverTable.turn = undefined;
+    serverTable.river = undefined;
+    serverTable.pot = [0];
+    serverTable.betsIn = false;
+    serverTable.dealerIndex++;
+    if (serverTable.dealerIndex === serverTable.players.length) {
+      serverTable.dealerIndex = 0;
+    }
+    serverTable.players.forEach((player, index) => {
+      player.position = index;
+      player.bets = [0];
+      player.didFold = false;
+      player.isAllIn = false;
+      player.cards = [];
+      player.didBet = false;
+    });
+  }
+  deque.forEach(name => {
+    serverTable.players.forEach((player, index) => {
+      if (player.name === name) {
+        if (que.length > 0) {
+          serverTable.addPlayer(que.shift(), index);
+        } else {
+          serverTable.players = serverTable.players.filter(value => value.name !== name);
         }
-      });
-      io.emit("LEAVETABLE", { name });
-    });
-
-    while (que.length > 0) {
-      if (serverTable.players.length === 8) {
-        break;
       }
-      var player = que.shift();
-      if (player.cash < serverTable.buyIn) {
-        tooPoor.push(player);
-        continue;
-      }
-      serverTable.addPlayer(player);
-    }
-    if (serverTable.players.length === 1) {
-      return;
-    }
-    io.emit("PRIME", {
-      players: fetchPlayers(),
-      dealerIndex: serverTable.dealerIndex,
-      pot: serverTable.pot[0],
-
-      flop: serverTable.flop,
-      turn: serverTable.turn,
-      river: serverTable.river,
-
-      bigBlind: serverTable.bigBlind
     });
-    gameInProgress = true;
-    next(0);
+    io.emit("LEAVETABLE", { name });
+  });
+
+  while (que.length > 0) {
+    if (serverTable.players.length === 8) {
+      break;
+    }
+    var player = que.shift();
+    if (player.cash < serverTable.buyIn) {
+      tooPoor.push(player);
+      continue;
+    }
+    serverTable.addPlayer(player);
+  }
+  if (serverTable.players.length === 1) {
+    console.log("YOU'RE ALL ALONE");
+    return;
+  }
+
+  io.emit("PRIME", {
+    players: fetchPlayers(),
+    dealerIndex: serverTable.dealerIndex,
+    pot: serverTable.pot[0],
+
+    flop: serverTable.flop,
+    turn: serverTable.turn,
+    river: serverTable.river,
+
+    bigBlind: serverTable.bigBlind
+  });
+  gameInProgress = true;
+  console.log("PRIME CALLS NEXT");
+  next(0);
+  return new Promise(resolve => {
     resolve();
   });
 };
@@ -515,10 +510,8 @@ let addPlayer = async obj => {
     if (que.length > 1 && !gameInProgress) {
       prime();
     }
-   
 
     resolve({ quePos, que });
-
   });
 };
 
@@ -527,16 +520,14 @@ let dealCards = async () => {
     if (serverTable.deck.cards.length < 52) {
       io.emit("ERROR", {
         err: "Cards have already been dealt!",
-        next:
-          "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
+        next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
       });
       return resolve();
     }
     //make sure there is at least one player at the table
     if (serverTable.players.length === 0) {
       io.emit("ERROR", {
-        err:
-          "You need to add at least one player to the table before you deal!",
+        err: "You need to add at least one player to the table before you deal!",
         next: "GET '/api/table/join'",
         expecting: { name: "player name", chips: 200 }
       });
@@ -617,8 +608,7 @@ let doTurn = async () => {
     if (serverTable.flop.length < 3) {
       io.emit("ERROR", {
         err: "The flop has not been dealt",
-        next:
-          "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
+        next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
       });
       return resolve();
     }
@@ -752,11 +742,7 @@ let payout = async (force = false) => {
     }
     for (var i = 0; i < ranks.length; i++) {
       var currentRank = ranks[i];
-      currentRank.sort(
-        (a, b) =>
-          serverTable.players[a.playerIndex].payout -
-          serverTable.players[b.playerIndex].payout
-      );
+      currentRank.sort((a, b) => serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout);
       while (currentRank.length > 0) {
         var n = currentRank.length;
         var lowestPayout = currentRank.shift();
