@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import { Auth0Context } from "../react-auth0-wrapper";
@@ -13,7 +13,8 @@ class LobbyView extends Component {
     this.state = {
       currentPos: 999999,
       queueLength: 999999,
-      joined: false
+      joined: false,
+      prime: false
     };
     this.socket = this.props.socket;
     this.socket.on("ADDPLAYER", data => {
@@ -23,7 +24,7 @@ class LobbyView extends Component {
     });
     this.socket.on("PRIME", () => {
       if (this.state.currentPos <= 8) {
-        return (window.location.href = "http://localhost:3000/table");
+        this.setState({ prime: true });
       }
     });
     this.socket.on("LEAVEQUE", data => {
@@ -77,6 +78,10 @@ class LobbyView extends Component {
 
   render() {
     const { isAuthenticated, loginWithPopup, logout } = this.context;
+
+    if (this.state.prime) {
+      return <Redirect to="/table" />;
+    }
 
     return (
       <Fragment>
