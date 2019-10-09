@@ -6,6 +6,7 @@ import Table from "../components/table";
 import Navbar from "../components/navbar";
 import Chat from "../components/chat";
 import Options from "../components/options";
+import EndDialog from "../components/endDialog";
 
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
@@ -27,10 +28,7 @@ const theme = createMuiTheme({
     primary: {
       main: "#1C2022"
     },
-    secondary: amber,
-    tertiary: {
-      main: "#c62828"
-    }
+    secondary: amber
   }
 });
 
@@ -52,7 +50,8 @@ class TableView extends Component {
       position,
       actionTo,
       minBet,
-      bigBlind
+      bigBlind,
+      hands
     } = this.props;
     console.log("bigBlind in table view: ", bigBlind);
     console.log("availableChips in table view: ", players[position].chips);
@@ -73,6 +72,7 @@ class TableView extends Component {
             river={river}
             position={position}
           />
+          {hands && hands.length > 0 ? <EndDialog hands={hands} /> : ""}
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
               <Options
