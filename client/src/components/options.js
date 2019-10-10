@@ -30,7 +30,9 @@ class Options extends Component {
     super(props);
 
     this.state = {
-      sliderValue: props.bigBlind
+      sliderValue: props.bigBlind,
+      sliderMax: props.availableChips,
+      currentBet: props.currentBet
     };
 
     this.handleSliderValueChange = event => {
@@ -61,6 +63,16 @@ class Options extends Component {
       event.preventDefault();
       axios.get("api/table/river");
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.availableChips !== this.state.sliderMax && nextProps.currentBet !== this.state.currentBet) {
+      this.setState({ sliderMax: nextProps.availableChips, currentBet: nextProps.currentBet });
+    } else if (nextProps.availableChips !== this.state.sliderMax) {
+      this.setState({ sliderMax: nextProps.availableChips });
+    } else if (nextProps.currentBet !== this.state.currentBet) {
+      this.setState({ currentBet: nextProps.currentBet });
+    }
   }
 
   render(props) {
@@ -139,7 +151,7 @@ class Options extends Component {
             <input
               type="range"
               min={currentBet + bigBlind}
-              max={availableChips}
+              max={this.state.sliderMax}
               name="sliderValue"
               value={this.state.sliderValue}
               onChange={this.handleSliderValueChange}
