@@ -9,6 +9,15 @@ import {
 import Playerhand from "./playerhand.js";
 
 class EndDialog extends React.Component {
+  constructor(props) {
+    super(props);
+    this.props.socket.on("PRIME", data => {
+      {
+        this.setstate({ open: true });
+      }
+    });
+  }
+
   state = {
     open: true
   };
