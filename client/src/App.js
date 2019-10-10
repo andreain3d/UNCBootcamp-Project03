@@ -184,6 +184,7 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
+              username={this.state.name}
               actionTo={this.state.actionTo}
               leaveTable={this.leaveTable}
               pot={this.state.pot}

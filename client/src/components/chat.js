@@ -35,7 +35,7 @@ class Chat extends Component {
     this.state = {
       allMessages: [],
       message: "",
-      username: ""
+      username: props.username
     };
 
     this.socket = this.props.socket;
@@ -48,18 +48,6 @@ class Chat extends Component {
       console.log(data);
       this.setState({ allMessages: [...this.state.allMessages, data] });
     };
-
-    // this.typing method containing socket emitter goes here
-    this.sendTypingMessage = () => {
-      this.socket.emit("typing", this.state.username);
-    };
-
-    this.socket.on("isTyping", username => {
-      if (!this.state.allMessages.includes(`${username} is typing...`)) {
-        console.log("SOCKET IS TYPING");
-        addMessage(`${username} is typing...`);
-      }
-    });
 
     this.socket.on("FLASH", data => {
       console.log(data);
@@ -79,8 +67,6 @@ class Chat extends Component {
   handleInputChange = event => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
-    // "on typing" function call here
-    this.sendTypingMessage();
   };
 
   sendMessage = event => {
@@ -91,9 +77,7 @@ class Chat extends Component {
       message: this.state.message
     });
     this.setState({
-      message: "",
-      //`${this.state.username} is typing...` needs to be changed to find any message that includes " is typing..."
-      allMessages: this.state.allMessages.filter(value => value !== `${this.state.username} is typing...`)
+      message: ""
     });
   };
 
@@ -122,7 +106,7 @@ class Chat extends Component {
               }}
             />
           </Paper>
-          <form className={classes.container} noValidate autoComplete="off">
+          <div className={classes.container} noValidate autoComplete="off">
             <TextField
               key="message"
               name="message"
@@ -134,7 +118,7 @@ class Chat extends Component {
               margin="normal"
             />
             <Button onClick={this.sendMessage}>Post</Button>
-          </form>
+          </div>
         </Paper>
       </Paper>
     );
