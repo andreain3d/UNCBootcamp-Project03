@@ -108,7 +108,7 @@ class Chat extends Component {
           <Paper className={classes.msgDisplay} ref={this.myRef}>
             {this.state.allMessages.map(message => {
               if (isEmpty(message.author)) {
-                return <div>{message}</div>;
+                return <div>{message.message}</div>;
               }
               return (
                 <div>
