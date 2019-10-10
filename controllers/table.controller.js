@@ -446,6 +446,7 @@ let prime = async obj => {
       serverTable = new Table();
     }
   } else {
+    gameInProgress = false;
     serverTable.round = 0;
     serverTable.currentBet = 0;
     serverTable.deck = new Deck();
