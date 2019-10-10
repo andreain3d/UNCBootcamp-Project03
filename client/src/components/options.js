@@ -30,7 +30,7 @@ class Options extends Component {
     super(props);
 
     this.state = {
-      sliderValue: props.bigBlind
+      sliderValue: props.currentBet + props.bigBlind
     };
 
     this.handleSliderValueChange = event => {
@@ -138,7 +138,7 @@ class Options extends Component {
           <Grid container justify="center">
             <input
               type="range"
-              min={currentBet === 0 ? bigBlind : currentBet + bigBlind}
+              min={currentBet + bigBlind}
               max={availableChips}
               name="sliderValue"
               value={this.state.sliderValue}
