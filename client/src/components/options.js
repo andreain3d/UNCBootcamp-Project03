@@ -67,6 +67,9 @@ class Options extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.availableChips === 0) {
+      this.setState({ sliderMax: 0, sliderValue: 0 });
+    }
     if (nextProps.availableChips !== this.state.sliderMax && nextProps.minBet !== this.state.minBet) {
       this.setState({
         sliderMax: nextProps.availableChips,
@@ -77,6 +80,8 @@ class Options extends Component {
       this.setState({ sliderMax: nextProps.availableChips });
     } else if (nextProps.minBet !== this.state.minBet) {
       this.setState({ minBet: nextProps.minBet, sliderValue: nextProps.minBet + this.props.bigBlind });
+    } else if (nextProps.minBet > nextProps.availableChips) {
+      this.setState({ sliderMax: nextProps.availableChips, sliderValue: nextProps.availableChips });
     }
   }
 
