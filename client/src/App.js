@@ -197,7 +197,7 @@ class App extends Component {
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
-            <ProfileView />
+            <ProfileView leaveTable={this.leaveTable} />
           </PrivateRoute>
           <Route path="/">
             <LobbyView
