@@ -244,8 +244,8 @@ class LobbyView extends Component {
               </Grid>
               <Grid item xs={12}>
                 <Paper className={classes.footer} />
+                {/* <Chat /> */}
               </Grid>
-              {/* <Chat /> */}
             </Grid>
           </Fragment>
         )}
