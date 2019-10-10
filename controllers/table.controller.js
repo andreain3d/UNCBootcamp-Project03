@@ -85,64 +85,20 @@ module.exports = {
     res.send();
   },
 
-  //dealCards will update the player object for each player stored in the players array. Because player cards are private,
-  //this route will not return any data.
-  dealCards: async (req, res) => {
-    await dealCards();
-    res.send();
-  },
-
   //To get a players card, do a get request to "/player/:position/cards". This route expects the player position on req.params.position
   getPlayerCards: (req, res) => {
+    console.log("getPlayerCards Called *********");
+    if (parseInt(req.params.position) < 0) {
+      io.emit("ERROR", {
+        err: "a player not on the table attempted to retreive their cards",
+        req: req.params.position
+      });
+      return res.send();
+    }
     var playerCards = serverTable.players[parseInt(req.params.position)].cards;
     res.json({ playerCards });
   },
 
-  //doFlop will burn a card from the deck and then return the next three cards. These cards are store in the flop key of the table object
-  doFlop: async (req, res) => {
-    await doFlop();
-    res.send();
-  },
-
-  //doTurn will burn a card from the deck and return a single card. This card is stored in the turn key of the table object.
-  doTurn: async (req, res) => {
-    await doTurn();
-    res.send();
-  },
-
-  //doRiver will burn a card from the deck and return a single card. This card is stored in the river key of the table object.
-  doRiver: async (req, res) => {
-    await doRiver();
-    res.send();
-  },
-
-  //getTableCards will return all cards from the flop, turn, and river keys of the table object
-  getTableCards: (req, res) => {
-    var tableCards = [];
-    serverTable.flop.forEach(card => {
-      tableCards.push(card);
-    });
-    if (serverTable.turn) {
-      tableCards.push(serverTable.turn);
-    }
-    if (serverTable.river) {
-      tableCards.push(serverTable.river);
-    }
-    io.emit("TABLECARDS", { tableCards });
-    res.send();
-  },
-
-  //calculateHands uses the findBestHands method on the table object to determine the hand rankings. The entire hands array is returned.
-  calculateHands: (req, res) => {
-    var hands = serverTable.findBestHand();
-    io.emit("CALCULATEHANDS", { hands });
-    res.send();
-  },
-  //payout is a method that pays out a player based on the hand ranking
-  payout: async (req, res) => {
-    await payout();
-    res.send();
-  },
   //placeBet adds player money to the pool and updates the player object stored in the players array.
   //this route expects the player.position value on req.params.position and the player bet amount on req.params.amount
   // amounts can be -1 (or any value less than 0 -> this is a fold), 0 (this is a check), amount (any number greater than 0 -> this is a bet or raise)
@@ -355,7 +311,7 @@ let next = async (round, force = false) => {
       await doTurn();
       io.emit("RECEIVE_MESSAGE", {
         author: "dealer",
-        message: `the turn`
+        message: `the turn ${round}`
       });
       break;
     case "river":
@@ -371,70 +327,71 @@ let next = async (round, force = false) => {
         author: "dealer",
         message: `the hand is over`
       });
+      prime();
       break;
     default:
       console.log("NEXT DEFAULT REACHED");
   }
+  return new Promise(resolve);
 };
 
 let placeBet = async (pos, amt) => {
-  return new Promise(resolve => {
-    const { position: tablePos, round, currentBet, players, betsIn, pot } = serverTable;
-    let position = parseInt(pos);
-    let amount = parseInt(amt);
-    if (position < 0) {
-      //check to see if all bets are in
-      serverTable.checkBetState();
-      if (serverTable.betsIn) {
-        next(serverTable.round + 1);
-        return;
-      }
-      if (serverTable.foldedPlayers === serverTable.players.length - 1) {
-        next(4, true);
-      }
-      io.emit("PLACEBET", {
-        players: fetchPlayers(),
-        minBet: currentBet - players[tablePos].bets[round],
-        currentBet,
-        position: tablePos,
-        pot: pot[0]
-      });
-      return resolve();
+  const { position: tablePos, round, currentBet, players, betsIn, pot } = serverTable;
+  let position = parseInt(pos);
+  let amount = parseInt(amt);
+  if (position < 0) {
+    //check to see if all bets are in
+    serverTable.checkBetState();
+    if (serverTable.betsIn) {
+      await next(serverTable.round + 1);
+      return new Promise(resolve => resolve());
     }
-    if (betsIn) {
-      io.emit("ERROR", {
-        err: "All bets are in for the current round."
-      });
-      return resolve();
+    if (serverTable.foldedPlayers === serverTable.players.length - 1) {
+      next(4, true);
+      return new Promise(resolve => resolve());
     }
-    var parAmount = currentBet - players[position].bets[round];
-    console.log("PAR: ", parAmount);
-    if (amount === players[position].chips) {
-      allIn(position);
-    } else if (amount < 0) {
-      fold(position);
-    } else if (amount === 0 && parAmount === 0) {
-      check(position);
-    } else if (parAmount > amount) {
-      //the player bet is too small. throw err
-      io.emit("ERROR", {
-        err: `Your bet of ${amount} is too low. The action (the minimum to bet) is ${parAmount}`
-      });
-      return res.send();
-    } else if (amount === parAmount) {
-      //the player calls
-      call(amount, position);
-    } else if (amount > parAmount && parAmount === 0) {
-      //this is a bet (because parAmount is 0)
-      bet(amount, position);
-    } else if (amount > parAmount) {
-      //or a raise (because parAmount > 0 and amount > parAmount)
-      raise(amount, position);
-    } else {
-      console.log("FALLOUT", amount, position);
-    }
-    resolve();
-  });
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      minBet: currentBet - players[tablePos].bets[round],
+      currentBet,
+      position: tablePos,
+      pot: pot[0]
+    });
+    return new Promise(resolve => resolve());
+  }
+  if (betsIn) {
+    io.emit("ERROR", {
+      err: "All bets are in for the current round."
+    });
+    return new Promise(resolve => resolve());
+  }
+  var parAmount = currentBet - players[position].bets[round];
+  console.log("PAR: ", parAmount);
+  if (amount === players[position].chips) {
+    allIn(position);
+  } else if (amount < 0) {
+    fold(position);
+  } else if (amount === 0 && parAmount === 0) {
+    check(position);
+  } else if (parAmount > amount) {
+    //the player bet is too small. throw err
+    io.emit("ERROR", {
+      err: `Your bet of ${amount} is too low. The action (the minimum to bet) is ${parAmount}`
+    });
+    return res.send();
+  } else if (amount === parAmount) {
+    //the player calls
+    call(amount, position);
+  } else if (amount > parAmount && parAmount === 0) {
+    //this is a bet (because parAmount is 0)
+    bet(amount, position);
+  } else if (amount > parAmount) {
+    //or a raise (because parAmount > 0 and amount > parAmount)
+    raise(amount, position);
+  } else {
+    console.log("FALLOUT", amount, position);
+  }
+  new Promise(resolve => resolve());
 };
 
 let prime = async obj => {
@@ -495,15 +452,14 @@ let prime = async obj => {
     serverTable.addPlayer(player);
   }
   if (serverTable.players.length === 1) {
-    //send exisiting player back to the lobby but keep them in the que.
-    var player = serverTable.players.shift();
-    io.emit("LEAVETABLE", { name: player.name });
-    serverTable = undefined;
+    console.log("you're all alone. aborting....");
+    io.emit("RECEIVE_MESSAGE", {
+      message: "waiting for another player to join..."
+    });
     return;
   }
   io.emit("RECEIVE_MESSAGE", {
-    author: "dealer",
-    message: `starting the next hand`
+    message: `starting the next hand...`
   });
   io.emit("PRIME", {
     players: fetchPlayers(),
@@ -517,7 +473,7 @@ let prime = async obj => {
     bigBlind: serverTable.bigBlind
   });
   gameInProgress = true;
-  next(0);
+  await next(0);
   return new Promise(resolve => {
     resolve();
   });
@@ -555,7 +511,10 @@ let addPlayer = async obj => {
       player,
       que
     });
-
+    if (serverTable && serverTable.players.length > 0 && !gameInProgress) {
+      prime();
+      return resolve({ que });
+    }
     if (que.length > 1 && !gameInProgress) {
       prime();
     }
@@ -583,7 +542,6 @@ let dealCards = async () => {
       return resolve();
     }
     io.emit("RECEIVE_MESSAGE", {
-      author: "dealer",
       message: `collecting the blinds`
     });
     //collect the blinds from players in the small blind and big blind position.
@@ -620,7 +578,6 @@ let dealCards = async () => {
       serverTable.rotate();
     }
     io.emit("RECEIVE_MESSAGE", {
-      author: "dealer",
       message: `dealing the cards`
     });
     serverTable.deal();
@@ -833,7 +790,6 @@ let payout = async (force = false) => {
       hands,
       pot
     });
-    prime();
     resolve();
   });
 };
