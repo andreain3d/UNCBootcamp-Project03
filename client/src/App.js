@@ -203,6 +203,7 @@ class App extends Component {
           <Route path="/">
             <LobbyView
               socket={this.socket}
+              username={this.state.name}
               setName={this.setName}
               socketId={this.state.socketId}
               position={this.state.position}
