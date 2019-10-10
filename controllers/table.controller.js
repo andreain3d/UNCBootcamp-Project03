@@ -299,11 +299,11 @@ let check = pos => {
 };
 
 let allIn = pos => {
-  var amount = serverTable.players[pos].bet(serverTable.players[pos].chips);
+  var amount = serverTable.players[pos].bet(serverTable.players[pos].chips, serverTable.round);
   serverTable.collect(amount);
   //check the amount against the current bet
   if (amount > serverTable.currentBet) {
-    serverTable.currentBet = amount;
+    serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
   }
   io.emit("RECEIVE_MESSAGE", {
     author: "dealer",
