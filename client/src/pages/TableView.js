@@ -72,7 +72,7 @@ class TableView extends Component {
             river={river}
             position={position}
           />
-          {hands && hands.length > 0 ? <EndDialog hands={hands} /> : ""}
+          {hands && hands.length > 0 ? <EndDialog hands={hands} socket={socket} /> : ""}
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
               <Options
