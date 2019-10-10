@@ -22,6 +22,10 @@ const styles = {
     padding: 10,
     background: "#D5D5D5",
     height: "25vh"
+  },
+  msgDisplay: {
+    overflowY: "scroll",
+    height: "6rem"
   }
 };
 
@@ -62,6 +66,16 @@ class Chat extends Component {
     });
   }
 
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+  componentDidUpdate() {
+    this.scrollToBottom();
+  }
+  scrollToBottom = () => {
+    this.el.scrollIntoView({ behavior: "smooth" });
+  };
+
   handleInputChange = event => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
@@ -91,7 +105,7 @@ class Chat extends Component {
           Chat
         </Typography>
         <Paper className={classes.inner}>
-          <Paper>
+          <Paper className={classes.msgDisplay} ref={this.myRef}>
             {this.state.allMessages.map(message => {
               if (isEmpty(message.author)) {
                 return <div>{message}</div>;
@@ -102,18 +116,13 @@ class Chat extends Component {
                 </div>
               );
             })}
+            <div
+              ref={el => {
+                this.el = el;
+              }}
+            />
           </Paper>
           <form className={classes.container} noValidate autoComplete="off">
-            <TextField
-              key="username"
-              name="username"
-              placeholder="username"
-              value={this.state.username}
-              onChange={this.handleInputChange}
-              label="Name"
-              className={classes.textField}
-              margin="normal"
-            />
             <TextField
               key="message"
               name="message"

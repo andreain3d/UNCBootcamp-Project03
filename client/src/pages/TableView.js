@@ -51,7 +51,8 @@ class TableView extends Component {
       actionTo,
       minBet,
       bigBlind,
-      hands
+      hands,
+      currentBet
     } = this.props;
 
     return (
@@ -80,7 +81,8 @@ class TableView extends Component {
                 actionTo={actionTo}
                 minBet={minBet}
                 bigBlind={bigBlind}
-                availableChips={players[position].chips}
+                availableChips={players[position] ? players[position].chips : 0}
+                currentBet={currentBet}
               />
             </Grid>
             <Grid item xs={12} md={6}>

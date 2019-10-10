@@ -66,7 +66,7 @@ class Options extends Component {
   render(props) {
     const classes = this.props.classes;
 
-    const { cards, position, actionTo, minBet, bigBlind, availableChips } = this.props;
+    const { cards, position, actionTo, minBet, bigBlind, availableChips, currentBet } = this.props;
 
     return (
       <Paper className={classes.grow}>
@@ -79,11 +79,23 @@ class Options extends Component {
             <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
           </Grid>
           <Grid container justify="center">
-            <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(-1)}>
+            <Button
+              disabled={position !== actionTo}
+              color="primary"
+              variant="contained"
+              className={classes.button}
+              onClick={() => this.BETTING(-1)}
+            >
               Fold
             </Button>
             {minBet === 0 ? (
-              <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(0)}>
+              <Button
+                disabled={position !== actionTo}
+                color="primary"
+                variant="contained"
+                className={classes.button}
+                onClick={() => this.BETTING(0)}
+              >
                 check
               </Button>
             ) : null}
@@ -100,7 +112,13 @@ class Options extends Component {
             ) : null}
 
             {minBet > 0 ? (
-              <Button disabled={position !== actionTo} color="primary" variant="contained" className={classes.button} onClick={() => this.BETTING(minBet)}>
+              <Button
+                disabled={position !== actionTo}
+                color="primary"
+                variant="contained"
+                className={classes.button}
+                onClick={() => this.BETTING(minBet)}
+              >
                 Call
               </Button>
             ) : null}
@@ -120,10 +138,8 @@ class Options extends Component {
           <Grid container justify="center">
             <input
               type="range"
-              min={bigBlind}
+              min={currentBet + bigBlind}
               max={availableChips}
-              // className={classes.slider}
-              // id="myRange"
               name="sliderValue"
               value={this.state.sliderValue}
               onChange={this.handleSliderValueChange}
