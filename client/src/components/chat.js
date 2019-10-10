@@ -106,12 +106,12 @@ class Chat extends Component {
         </Typography>
         <Paper className={classes.inner}>
           <Paper className={classes.msgDisplay} ref={this.myRef}>
-            {this.state.allMessages.map(message => {
+            {this.state.allMessages.map((message, index) => {
               if (isEmpty(message.author)) {
-                return <div>{message.message}</div>;
+                return <div key={index}>{message.message}</div>;
               }
               return (
-                <div>
+                <div key={index}>
                   {message.author}: {message.message}
                 </div>
               );
