@@ -32,7 +32,8 @@ class Options extends Component {
     this.state = {
       sliderValue: props.bigBlind,
       sliderMax: props.availableChips,
-      minBet: props.minBet
+      minBet: props.minBet,
+      showSlider: false
     };
 
     this.handleSliderValueChange = event => {
@@ -42,7 +43,7 @@ class Options extends Component {
 
     this.BETTING = bet => {
       axios.get(`api/table/bet/${props.position}/${bet}`);
-      this.setState({ sliderValue: this.props.minBet + this.props.bigBlind });
+      this.setState({ sliderValue: this.props.minBet + this.props.bigBlind, showSlider: false });
     };
 
     this.DEAL = event => {
@@ -65,6 +66,10 @@ class Options extends Component {
       axios.get("api/table/river");
     };
   }
+
+  toggleViewSliderDiv = () => {
+    this.setState({ showSlider: true });
+  };
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.availableChips === 0) {
@@ -127,7 +132,7 @@ class Options extends Component {
                 color="primary"
                 variant="contained"
                 className={classes.button}
-                onClick={() => this.BETTING(this.state.sliderValue)}
+                onClick={this.toggleViewSliderDiv}
               >
                 Bet
               </Button>
@@ -151,24 +156,38 @@ class Options extends Component {
                 color="primary"
                 variant="contained"
                 className={classes.button}
-                onClick={() => this.BETTING(this.state.sliderValue)}
+                onClick={this.toggleViewSliderDiv}
               >
                 raise
               </Button>
             ) : null}
           </Grid>
-          <Grid container justify="center">
-            <input
-              type="range"
-              min={minBet + bigBlind}
-              max={this.state.sliderMax}
-              name="sliderValue"
-              value={this.state.sliderValue}
-              onChange={this.handleSliderValueChange}
-              step="1"
-            />
-            <Typography variant="h6">${this.state.sliderValue}</Typography>
-          </Grid>
+          {this.state.showSlider ? (
+            <div>
+              <Grid container justify="center">
+                <Typography variant="h6">${this.state.sliderValue} </Typography>
+                <input
+                  type="range"
+                  min={minBet + bigBlind}
+                  max={this.state.sliderMax}
+                  name="sliderValue"
+                  value={this.state.sliderValue}
+                  onChange={this.handleSliderValueChange}
+                  step="1"
+                />
+
+                <Button
+                  disabled={position !== actionTo}
+                  color="primary"
+                  variant="contained"
+                  className={classes.button}
+                  onClick={() => this.BETTING(this.state.sliderValue)}
+                >
+                  Confirm
+                </Button>
+              </Grid>
+            </div>
+          ) : null}
         </Paper>
       </Paper>
     );

@@ -73,6 +73,7 @@ class Chat extends Component {
     this.scrollToBottom();
   }
   scrollToBottom = () => {
+    console.log("this: ", this);
     this.el.scrollIntoView({ behavior: "smooth" });
   };
 
