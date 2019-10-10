@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Auth0Context } from "../react-auth0-wrapper";
 import { withStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Typography, Button } from "@material-ui/core";
-import { ExitToApp, MeetingRoom } from "@material-ui/icons";
+import { ExitToApp, MeetingRoom, AccountBox } from "@material-ui/icons";
 
 const styles = {
   grow: {
@@ -32,24 +32,45 @@ class Navbar extends Component {
           <Typography variant="h6" color="inherit" className={classes.grow}>
             Poker
           </Typography>
-          <Button
-            color="secondary"
-            variant="contained"
-            className={classes.button}
-            onClick={leaveTable}
-          >
-            <MeetingRoom />
-            Return to Lobby
-          </Button>
-          <Button
-            color="secondary"
-            variant="contained"
-            className={classes.button}
-            onClick={() => logout()}
-          >
-            <ExitToApp />
-            Logout
-          </Button>
+          {this.props.return ? (
+            <Button
+              color="secondary"
+              variant="contained"
+              className={classes.button}
+              onClick={leaveTable}
+            >
+              <MeetingRoom />
+              Return to Lobby
+            </Button>
+          ) : (
+            ""
+          )}
+          {this.props.profile ? (
+            <Button
+              color="secondary"
+              variant="contained"
+              className={classes.button}
+              href="/profile"
+            >
+              <AccountBox />
+              Your Profile
+            </Button>
+          ) : (
+            ""
+          )}
+          {this.props.logout ? (
+            <Button
+              color="secondary"
+              variant="contained"
+              className={classes.button}
+              onClick={() => logout()}
+            >
+              <ExitToApp />
+              Logout
+            </Button>
+          ) : (
+            ""
+          )}
         </Toolbar>
       </AppBar>
     );
