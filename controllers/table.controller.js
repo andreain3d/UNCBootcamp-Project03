@@ -459,7 +459,12 @@ let prime = async obj => {
     if (serverTable.dealerIndex === serverTable.players.length) {
       serverTable.dealerIndex = 0;
     }
+    var count = 0;
     serverTable.players.forEach((player, index) => {
+      if (player.chips === 0) {
+        deque.push(player.name);
+        count++;
+      }
       player.position = index;
       player.bets = [0];
       player.didFold = false;
@@ -486,13 +491,13 @@ let prime = async obj => {
       break;
     }
     var player = que.shift();
-    if (player.cash < serverTable.buyIn) {
-      tooPoor.push(player);
-      continue;
-    }
     serverTable.addPlayer(player);
   }
   if (serverTable.players.length === 1) {
+    //send exisiting player back to the lobby but keep them in the que.
+    var player = serverTable.players.shift();
+    io.emit("LEAVETABLE", { name: player.name });
+    serverTable = undefined;
     return;
   }
   io.emit("RECEIVE_MESSAGE", {
