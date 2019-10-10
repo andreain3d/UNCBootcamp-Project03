@@ -16,10 +16,7 @@ if (process.env.NODE_ENV === "production") {
 // Define API routes here
 app.use(routes);
 
-mongoose.connect(
-  process.env.MONGODB_URI ||
-    "mongodb://admin:password1@ds333098.mlab.com:33098/heroku_jr3hf4cw"
-);
+mongoose.connect(process.env.MONGODB_URI || "mongodb://admin:password1@ds333098.mlab.com:33098/heroku_jr3hf4cw");
 
 //asigned listener to a variable
 const server = app.listen(PORT, () => {
@@ -40,10 +37,6 @@ io.on("connection", socket => {
 
   socket.on("SEND_MESSAGE", data => {
     io.emit("RECEIVE_MESSAGE", data);
-  });
-
-  socket.on("typing", username => {
-    socket.broadcast.emit("isTyping", username);
   });
 });
 
