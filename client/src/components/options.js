@@ -32,7 +32,7 @@ class Options extends Component {
     this.state = {
       sliderValue: props.bigBlind,
       sliderMax: props.availableChips,
-      currentBet: props.currentBet
+      minBet: props.minBet
     };
 
     this.handleSliderValueChange = event => {
@@ -42,6 +42,7 @@ class Options extends Component {
 
     this.BETTING = bet => {
       axios.get(`api/table/bet/${props.position}/${bet}`);
+      this.setState({ sliderValue: this.props.minBet + this.props.bigBlind });
     };
 
     this.DEAL = event => {
@@ -66,12 +67,16 @@ class Options extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.availableChips !== this.state.sliderMax && nextProps.currentBet !== this.state.currentBet) {
-      this.setState({ sliderMax: nextProps.availableChips, currentBet: nextProps.currentBet });
+    if (nextProps.availableChips !== this.state.sliderMax && nextProps.minBet !== this.state.minBet) {
+      this.setState({
+        sliderMax: nextProps.availableChips,
+        minBet: nextProps.minBet,
+        sliderValue: nextProps.minBet + this.props.bigBlind
+      });
     } else if (nextProps.availableChips !== this.state.sliderMax) {
       this.setState({ sliderMax: nextProps.availableChips });
-    } else if (nextProps.currentBet !== this.state.currentBet) {
-      this.setState({ currentBet: nextProps.currentBet });
+    } else if (nextProps.minBet !== this.state.minBet) {
+      this.setState({ minBet: nextProps.minBet, sliderValue: nextProps.minBet + this.props.bigBlind });
     }
   }
 
@@ -150,7 +155,7 @@ class Options extends Component {
           <Grid container justify="center">
             <input
               type="range"
-              min={currentBet + bigBlind}
+              min={minBet + bigBlind}
               max={this.state.sliderMax}
               name="sliderValue"
               value={this.state.sliderValue}
