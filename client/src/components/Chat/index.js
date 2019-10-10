@@ -84,16 +84,6 @@ class ChatWindow extends Component {
         <form id="messageInput">
           <div className="messageDiv">
             <input
-              key="username"
-              type="text"
-              name="username"
-              id="chat-message"
-              placeholder="username"
-              value={this.state.username}
-              onChange={this.handleInputChange}
-            />
-
-            <input
               key="message"
               type="text"
               name="message"

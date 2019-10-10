@@ -1,5 +1,5 @@
 #chat-area {
-  overflow-y: scroll;
+  overflow: scroll;
   height: 8rem;
   padding: 0px 25px;
 }
