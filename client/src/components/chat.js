@@ -22,6 +22,9 @@ const styles = {
     padding: 10,
     background: "#D5D5D5",
     height: "25vh"
+  },
+  msgDisplay: {
+    overflow: "scroll"
   }
 };
 
@@ -91,7 +94,7 @@ class Chat extends Component {
           Chat
         </Typography>
         <Paper className={classes.inner}>
-          <Paper>
+          <Paper className={classes.msgDisplay}>
             {this.state.allMessages.map(message => {
               if (isEmpty(message.author)) {
                 return <div>{message}</div>;
@@ -104,16 +107,6 @@ class Chat extends Component {
             })}
           </Paper>
           <form className={classes.container} noValidate autoComplete="off">
-            <TextField
-              key="username"
-              name="username"
-              placeholder="username"
-              value={this.state.username}
-              onChange={this.handleInputChange}
-              label="Name"
-              className={classes.textField}
-              margin="normal"
-            />
             <TextField
               key="message"
               name="message"

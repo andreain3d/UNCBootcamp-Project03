@@ -30,7 +30,7 @@ class Options extends Component {
     super(props);
 
     this.state = {
-      sliderValue: props.currentBet + props.bigBlind
+      sliderValue: props.bigBlind
     };
 
     this.handleSliderValueChange = event => {
