@@ -106,7 +106,7 @@ class Chat extends Component {
               }}
             />
           </Paper>
-          <form className={classes.container} noValidate autoComplete="off">
+          <div className={classes.container} noValidate autoComplete="off">
             <TextField
               key="message"
               name="message"
@@ -118,7 +118,7 @@ class Chat extends Component {
               margin="normal"
             />
             <Button onClick={this.sendMessage}>Post</Button>
-          </form>
+          </div>
         </Paper>
       </Paper>
     );
