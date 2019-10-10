@@ -256,7 +256,7 @@ let raise = (amount, pos) => {
   console.log("RAISE METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
-  serverTable.currentBet = amount;
+  serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
   io.emit("RECEIVE_MESSAGE", {
     author: "dealer",
     message: `${serverTable.players[pos].name} raises. The current bet is now ${serverTable.currentBet}`
