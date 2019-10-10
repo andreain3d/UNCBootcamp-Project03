@@ -66,12 +66,19 @@ class App extends Component {
     });
 
     this.socket.on("DEALCARDS", data => {
-      axios.get(`/api/player/${this.state.position}/cards`).then(res => {
-        this.setState({ playerCards: res.data.playerCards });
-        //a call to the bet route to return player and betting data
-        //this call triggers the betting actions on the front end
-        axios.get("/api/table/bet/-1/0");
-      });
+      if (this.state.position >= 0) {
+        console.log("*******getting player cards for " + this.state.name + " at position " + this.state.position);
+        axios.get(`/api/player/${this.state.position}/cards`).then(res => {
+          console.log(res.data);
+          if (!res.data) {
+            console.log("it was me. whoops!");
+          }
+          this.setState({ playerCards: res.data.playerCards });
+          //a call to the bet route to return player and betting data
+          //this call triggers the betting actions on the front end
+          axios.get("/api/table/bet/-1/0");
+        });
+      }
     });
 
     this.socket.on("DOFLOP", data => {
@@ -140,7 +147,6 @@ class App extends Component {
     this.socket.on("LEAVEQUE", data => {
       console.log(data);
       //compare data.name to this.state.name
-      //if same, re-activate join table button
     });
 
     this.socket.on("PAYOUT", data => {
@@ -200,12 +206,7 @@ class App extends Component {
             <ProfileView leaveTable={this.leaveTable} />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView
-              socket={this.socket}
-              setName={this.setName}
-              socketId={this.state.socketId}
-              position={this.state.position}
-            />
+            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} position={this.state.position} />
           </Route>
         </Switch>
       </BrowserRouter>
