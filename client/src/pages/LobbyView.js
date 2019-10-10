@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { Grid, Button, withStyles, Typography, Paper } from "@material-ui/core";
 import { amber } from "@material-ui/core/colors";
 import { Auth0Context } from "../react-auth0-wrapper";
