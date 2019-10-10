@@ -24,7 +24,8 @@ const styles = {
     height: "25vh"
   },
   msgDisplay: {
-    overflow: "scroll"
+    overflowY: "scroll",
+    height: "6rem"
   }
 };
 
@@ -65,6 +66,16 @@ class Chat extends Component {
     });
   }
 
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+  componentDidUpdate() {
+    this.scrollToBottom();
+  }
+  scrollToBottom = () => {
+    this.el.scrollIntoView({ behavior: "smooth" });
+  };
+
   handleInputChange = event => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
@@ -94,7 +105,7 @@ class Chat extends Component {
           Chat
         </Typography>
         <Paper className={classes.inner}>
-          <Paper className={classes.msgDisplay}>
+          <Paper className={classes.msgDisplay} ref={this.myRef}>
             {this.state.allMessages.map(message => {
               if (isEmpty(message.author)) {
                 return <div>{message}</div>;
@@ -105,6 +116,11 @@ class Chat extends Component {
                 </div>
               );
             })}
+            <div
+              ref={el => {
+                this.el = el;
+              }}
+            />
           </Paper>
           <form className={classes.container} noValidate autoComplete="off">
             <TextField

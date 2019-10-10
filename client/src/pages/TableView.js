@@ -81,7 +81,7 @@ class TableView extends Component {
                 actionTo={actionTo}
                 minBet={minBet}
                 bigBlind={bigBlind}
-                availableChips={players[position].chips}
+                availableChips={players[position] ? players[position].chips : 0}
                 currentBet={currentBet}
               />
             </Grid>
