@@ -207,7 +207,15 @@ class App extends Component {
             <ProfileView leaveTable={this.leaveTable} />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} position={this.state.position} />
+
+            <LobbyView
+              socket={this.socket}
+              username={this.state.name}
+              setName={this.setName}
+              socketId={this.state.socketId}
+              position={this.state.position}
+            />
+
           </Route>
         </Switch>
       </BrowserRouter>
