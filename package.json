@@ -11,6 +11,7 @@
     "client": "cd client && npm run start",
     "install": "cd client && npm install",
     "build": "cd client && npm run build",
+    "heroku-prebuild": "npm i -f",
     "heroku-postbuild": "npm run build"
   },
   "author": "",
