@@ -174,6 +174,7 @@ class App extends Component {
     axios.get("/api/table/leave/" + this.state.name);
   };
 
+  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
   setName = name => {
     this.setState({ name: name });
   };
@@ -207,7 +208,6 @@ class App extends Component {
             <ProfileView leaveTable={this.leaveTable} />
           </PrivateRoute>
           <Route path="/">
-
             <LobbyView
               socket={this.socket}
               username={this.state.name}
@@ -215,7 +215,6 @@ class App extends Component {
               socketId={this.state.socketId}
               position={this.state.position}
             />
-
           </Route>
         </Switch>
       </BrowserRouter>

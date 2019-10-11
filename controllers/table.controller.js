@@ -117,7 +117,6 @@ let fold = pos => {
   serverTable.foldedPlayers++;
   serverTable.checkBets();
   io.emit("RECEIVE_MESSAGE", {
-    author: "dealer",
     message: `${serverTable.players[parseInt(pos)].name} folds`
   });
   if (serverTable.foldedPlayers === serverTable.players.length - 1) {
@@ -158,8 +157,7 @@ let call = (amount, pos) => {
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
   io.emit("RECEIVE_MESSAGE", {
-    author: "dealer",
-    message: `${serverTable.players[pos].name} calls`
+    message: `${serverTable.players[pos].name} calls ${currentBet}`
   });
   serverTable.checkBets();
   const { position, players, currentBet, round } = serverTable;
@@ -186,7 +184,6 @@ let bet = (amount, pos) => {
   serverTable.collect(amount);
   serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
   io.emit("RECEIVE_MESSAGE", {
-    author: "dealer",
     message: `${serverTable.players[pos].name} bets ${amount}`
   });
   serverTable.checkBets();
@@ -214,7 +211,6 @@ let raise = (amount, pos) => {
   serverTable.collect(amount);
   serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
   io.emit("RECEIVE_MESSAGE", {
-    author: "dealer",
     message: `${serverTable.players[pos].name} raises. The current bet is now ${serverTable.currentBet}`
   });
   serverTable.checkBets();
@@ -232,7 +228,6 @@ let raise = (amount, pos) => {
 let check = pos => {
   serverTable.players[pos].didBet = true;
   io.emit("RECEIVE_MESSAGE", {
-    author: "dealer",
     message: `${serverTable.players[pos].name} checks`
   });
   serverTable.checkBets();
@@ -262,7 +257,6 @@ let allIn = pos => {
     serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
   }
   io.emit("RECEIVE_MESSAGE", {
-    author: "dealer",
     message: `${serverTable.players[pos].name} goes all in!`
   });
   serverTable.checkBets();
@@ -600,7 +594,8 @@ let doFlop = async () => {
     if (serverTable.flop.length === 3) {
       io.emit("ERROR", {
         err: "The flop has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return resolve();
     }
@@ -633,7 +628,8 @@ let doTurn = async () => {
       console.log("Error Turn");
       io.emit("ERROR", {
         err: "The turn has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
       });
       return resolve();
     }
@@ -658,14 +654,16 @@ let doRiver = async () => {
     if (!serverTable.turn) {
       io.emit("ERROR", {
         err: "The turn has not been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
       return resolve();
     }
     if (serverTable.river) {
       io.emit("ERROR", {
         err: "The river has already been dealt",
-        next: "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
+        next:
+          "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
       });
       return resolve();
     }
