@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
+
 import LobbyView from "./pages/LobbyView";
 import TableView from "./pages/TableView";
 import ProfileView from "./pages/ProfileView";
@@ -175,6 +176,7 @@ class App extends Component {
     axios.get("/api/table/leave/" + this.state.name);
   };
 
+  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
   setName = name => {
     this.setState({ name: name });
   };
@@ -208,7 +210,12 @@ class App extends Component {
             <ProfileView leaveTable={this.leaveTable} />
           </PrivateRoute>
           <Route path="/">
-            <LobbyView socket={this.socket} setName={this.setName} socketId={this.state.socketId} position={this.state.position} />
+            <LobbyView
+              socket={this.socket}
+              setName={this.setName}
+              socketId={this.state.socketId}
+              position={this.state.position}
+            />
           </Route>
         </Switch>
       </BrowserRouter>
