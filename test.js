@@ -1,7 +1,6 @@
-import Table from "./classes/table";
-import Player from "./classes/player";
-import Deck from "./classes/deck";
-import { cloneDeep } from "lodash";
+var Table = require("./classes/table");
+var Player = require("./classes/player");
+var Deck = require("./classes/deck");
 
 var serverTable = new Table();
 var deck = new Deck();

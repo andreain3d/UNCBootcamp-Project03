@@ -16,12 +16,7 @@ if (process.env.NODE_ENV === "production") {
 // Define API routes here
 app.use(routes);
 
-
-mongoose.connect(
-  process.env.MONGODB_URI ||
-    "mongodb://admin:password1@ds233278.mlab.com:33278/heroku_lx2tkzkv"
-);
-
+mongoose.connect(process.env.MONGODB_URI || "mongodb://admin:password1@ds233278.mlab.com:33278/heroku_lx2tkzkv");
 
 //asigned listener to a variable
 const server = app.listen(PORT, () => {
@@ -33,7 +28,7 @@ let io = socket(server);
 
 io.on("connection", socket => {
   console.log(`Connection made on socket ${socket.id}`);
-
+  require("./controllers/table.controller").init();
   socket.on("disconnect", () => {
     console.log(`user ${socket.id} disconnected`);
     const { check } = require("./controllers/table.controller");
@@ -45,4 +40,4 @@ io.on("connection", socket => {
   });
 });
 
-export default io;
+module.exports = io;

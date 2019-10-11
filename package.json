@@ -4,30 +4,21 @@
   "description": "Mern Demo",
   "main": "server.js",
   "scripts": {
-    "clean": "rm -rf build && mkdir build",
-    "build-babel": "babel -d ./build ./server -s",
-    "build": "npm run clean && npm run build-babel",
-    "start": "npm run build && node ./build/server.js",
-    "client-install": "npm install --prefix client",
-    "server": "nodemon server/server.js --exec babel-node --presets es2015,stage-2",
-    "client": "npm start --prefix client",
+    "start": "concurrently \"nodemon server.js\" \"npm run client\"",
     "start:prod": "babel-node server.js",
-    "start:dev": "concurrently \"babel-node server.js\" \"npm run client\"",
-    "start:babel": "babel-node server.js",
-    "start:test": "babel-node test.js",
+    "start:dev": "concurrently \"nodemon server.js\" \"npm run client\"",
+    "start:test": "node test.js",
     "seed": "node scripts/seedDB.js",
+    "heroku-postbuild": "npm run build",
+    "client": "cd client && npm run start",
     "install": "cd client && npm install",
-    "heroku-postbuild": "npm run build"
+    "build": "cd client && npm run build"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^4.1.0",
-    "nodemon": "^1.18.7",
-    "@babel/cli": "7.6.0",
-    "@babel/core": "7.6.0",
-    "@babel/node": "7.6.1",
-    "@babel/preset-env": "7.6.0"
+    "nodemon": "^1.18.7"
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.2.4",
