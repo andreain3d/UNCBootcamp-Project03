@@ -123,12 +123,16 @@ class LobbyView extends Component {
   };
 
   render() {
-    const { isAuthenticated, loginWithPopup, logout } = this.context;
+    const { isAuthenticated, loginWithPopup, logout, loading, user } = this.context;
     const classes = this.props.classes;
-    const { socket, username } = this.props;
+    const { socket } = this.props;
 
     if (this.state.prime) {
       return <Redirect to="/table" />;
+    }
+
+    if (loading) {
+      return <div>Loading...</div>;
     }
 
     return (
@@ -217,7 +221,7 @@ class LobbyView extends Component {
               </Grid>
               <Grid item xs={12}>
                 <Paper className={classes.footer} />
-                <Chat socket={socket} username={username} />
+                <Chat socket={socket} username={user.nickname} />
               </Grid>
             </Grid>
           </Fragment>
