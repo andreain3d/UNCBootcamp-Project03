@@ -18,7 +18,7 @@ app.use(routes);
 
 mongoose.connect(
   process.env.MONGODB_URI ||
-    "mongodb://admin:password1@ds233268.mlab.com:33268/heroku_5p44tjmh"
+    "mongodb://admin-user:password1@ds333248.mlab.com:33248/heroku_n82s3tgn"
 );
 
 //asigned listener to a variable
