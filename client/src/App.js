@@ -30,6 +30,7 @@ class App extends Component {
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
     this.socket.on("connect", () => {
+      console.log("connected");
       this.setState({ socketId: this.socket.id });
       //update the user object
     });
@@ -40,7 +41,7 @@ class App extends Component {
     // });
 
     this.socket.on("PRIME", data => {
-      //console.log("PRIME");
+      console.log("PRIME");
       var players = data.players;
       //console.log(players);
       players.forEach(player => {

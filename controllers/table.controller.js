@@ -1,9 +1,9 @@
 const db = require("../models");
-import Table from "../classes/table";
-import Player from "../classes/player";
-import Deck from "../classes/Deck";
-import io from "../server";
-import { cloneDeep } from "lodash";
+var Table = require("../classes/table");
+var Player = require("../classes/player");
+var Deck = require("../classes/Deck");
+var io;
+const { cloneDeep } = require("lodash");
 
 var serverTable;
 var que = [];
@@ -11,6 +11,10 @@ var deque = [];
 var gameInProgress = false;
 
 module.exports = {
+  init: () => {
+    io = require("../server");
+    console.log(io);
+  },
   // These routes will operate on a virtual table that lives on the server.
   check: socketId => {
     //check is a function called from the server side on user disconnect
@@ -317,12 +321,12 @@ let next = async (round, force = false) => {
       io.emit("RECEIVE_MESSAGE", {
         message: `THE HAND IS OVER`
       });
-      prime();
+      await prime();
       break;
     default:
       console.log("NEXT DEFAULT REACHED");
   }
-  return new Promise(resolve);
+  return new Promise(resolve => resolve());
 };
 
 let placeBet = async (pos, amt) => {
@@ -446,7 +450,7 @@ let prime = async obj => {
     io.emit("RECEIVE_MESSAGE", {
       message: "waiting for another player to join..."
     });
-    return;
+    return new Promise(resolve => resolve());
   }
   io.emit("RECEIVE_MESSAGE", {
     message: `starting the next hand...`
