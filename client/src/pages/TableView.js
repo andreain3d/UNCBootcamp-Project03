@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import { amber } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
@@ -53,8 +54,13 @@ class TableView extends Component {
       minBet,
       bigBlind,
       hands,
-      currentBet
+      currentBet,
+      playerLeaveTable
     } = this.props;
+
+    if (playerLeaveTable) {
+      return <Redirect to="/" />;
+    }
 
     return (
       <MuiThemeProvider theme={theme}>
@@ -72,7 +78,11 @@ class TableView extends Component {
             river={river}
             position={position}
           />
-          {hands && hands.length > 0 ? <EndDialog hands={hands} socket={socket} /> : ""}
+          {hands && hands.length > 0 ? (
+            <EndDialog hands={hands} socket={socket} />
+          ) : (
+            ""
+          )}
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
               <Options
