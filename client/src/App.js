@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
+
 import LobbyView from "./pages/LobbyView";
 import TableView from "./pages/TableView";
 import ProfileView from "./pages/ProfileView";
@@ -210,7 +211,6 @@ class App extends Component {
           <Route path="/">
             <LobbyView
               socket={this.socket}
-              username={this.state.name}
               setName={this.setName}
               socketId={this.state.socketId}
               position={this.state.position}
