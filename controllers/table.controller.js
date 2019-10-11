@@ -1,7 +1,7 @@
 const db = require("../models");
 var Table = require("../classes/table");
 var Player = require("../classes/player");
-var Deck = require("../classes/Deck");
+var Deck = require("../classes/deck");
 var io;
 const { cloneDeep } = require("lodash");
 
