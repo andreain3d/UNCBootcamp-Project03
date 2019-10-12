@@ -79,7 +79,9 @@ class Chat extends Component {
     this.setState({
       message: "",
       //`${this.state.username} is typing...` needs to be changed to find any message that includes " is typing..."
-      allMessages: this.state.allMessages.filter(value => value !== `${this.state.username} is typing...`)
+      allMessages: this.state.allMessages.filter(
+        value => value !== `${this.state.username} is typing...`
+      )
     });
   };
 
@@ -94,11 +96,17 @@ class Chat extends Component {
           <Paper>
             {this.state.allMessages.map(message => {
               if (isEmpty(message.author)) {
-                return <div>{message}</div>;
+                return (
+                  <div>
+                    <Typography variant="body1">{message}</Typography>
+                  </div>
+                );
               }
               return (
                 <div>
-                  {message.author}: {message.message}
+                  <Typography variant="body1">
+                    {message.author}: {message.message}
+                  </Typography>
                 </div>
               );
             })}
