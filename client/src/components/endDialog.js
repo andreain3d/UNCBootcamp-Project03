@@ -6,9 +6,18 @@ class EndDialog extends React.Component {
   constructor(props) {
     super(props);
     this.props.socket.on("PRIME", data => {
+<<<<<<< HEAD
+      {
+        this.setstate({ open: true });
+      }
+    });
+  }
+
+=======
       this.setState({ open: true });
     });
   }
+>>>>>>> 39a2cdddc50956089072352cdf977a9fbf800b4a
   state = {
     open: true
   };

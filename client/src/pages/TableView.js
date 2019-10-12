@@ -79,7 +79,11 @@ class TableView extends Component {
             position={position}
           />
           {hands && hands.length > 0 ? (
+<<<<<<< HEAD
+            <EndDialog socket={socket} hands={hands} />
+=======
             <EndDialog hands={hands} socket={socket} />
+>>>>>>> 39a2cdddc50956089072352cdf977a9fbf800b4a
           ) : (
             ""
           )}
