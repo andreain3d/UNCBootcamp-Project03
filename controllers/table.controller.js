@@ -125,7 +125,8 @@ let fold = pos => {
   serverTable.foldedPlayers++;
   serverTable.checkBets();
   io.emit("RECEIVE_MESSAGE", {
-    message: `${serverTable.players[parseInt(pos)].name} folds`
+    message: `${serverTable.players[parseInt(pos)].name} folds`,
+    style: "#373c77"
   });
   if (serverTable.foldedPlayers === serverTable.players.length - 1) {
     io.emit("PLACEBET", {
@@ -168,7 +169,8 @@ let call = (amount, pos) => {
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
   io.emit("RECEIVE_MESSAGE", {
-    message: `${serverTable.players[pos].name} calls $${amount}`
+    message: `${serverTable.players[pos].name} calls $${amount}`,
+    style: "#373c77"
   });
   serverTable.checkBets();
   const { position, players, currentBet, round } = serverTable;
@@ -195,7 +197,8 @@ let bet = (amount, pos) => {
   serverTable.collect(amount);
   serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
   io.emit("RECEIVE_MESSAGE", {
-    message: `${serverTable.players[pos].name} bets $${amount}`
+    message: `${serverTable.players[pos].name} bets $${amount}`,
+    style: "#373c77"
   });
   serverTable.checkBets();
   const { position, players, currentBet, round, betsIn } = serverTable;
@@ -222,7 +225,8 @@ let raise = (amount, pos) => {
   serverTable.collect(amount);
   serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
   io.emit("RECEIVE_MESSAGE", {
-    message: `${serverTable.players[pos].name} raises the bet to $${serverTable.currentBet}`
+    message: `${serverTable.players[pos].name} raises the bet to $${serverTable.currentBet}`,
+    style: "#373c77"
   });
   serverTable.checkBets();
   serverTable.players[pos].didBet = true;
@@ -239,7 +243,8 @@ let raise = (amount, pos) => {
 let check = pos => {
   serverTable.players[pos].didBet = true;
   io.emit("RECEIVE_MESSAGE", {
-    message: `${serverTable.players[pos].name} checks`
+    message: `${serverTable.players[pos].name} checks`,
+    style: "#373c77"
   });
   serverTable.checkBets();
   const { position, players, currentBet, round, betsIn } = serverTable;
@@ -271,7 +276,8 @@ let allIn = pos => {
     serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
   }
   io.emit("RECEIVE_MESSAGE", {
-    message: `${serverTable.players[pos].name} goes all in!`
+    message: `${serverTable.players[pos].name} goes all in!`,
+    style: "#373c77"
   });
   serverTable.checkBets();
   const { position, players, currentBet, round, betsIn } = serverTable;
@@ -312,7 +318,8 @@ let next = async (round, force = false) => {
         await doFlop();
         flopOut = true;
         io.emit("RECEIVE_MESSAGE", {
-          message: `THE FLOP HAS BEEN DEALT`
+          message: `THE FLOP HAS BEEN DEALT`,
+          style: "#1a643f"
         });
       }
       break;
@@ -321,7 +328,8 @@ let next = async (round, force = false) => {
         await doTurn();
         turnOut = true;
         io.emit("RECEIVE_MESSAGE", {
-          message: `THE TURN HAS BEEN DEALT`
+          message: `THE TURN HAS BEEN DEALT`,
+          style: "#1a643f"
         });
       }
       break;
@@ -330,14 +338,16 @@ let next = async (round, force = false) => {
         await doRiver();
         riverOut = true;
         io.emit("RECEIVE_MESSAGE", {
-          message: `THE RIVER HAS BEEN DEALT`
+          message: `THE RIVER HAS BEEN DEALT`,
+          style: "#1a643f"
         });
       }
       break;
     case "payout":
       await payout(force);
       io.emit("RECEIVE_MESSAGE", {
-        message: `THE HAND IS OVER`
+        message: `THE HAND IS OVER`,
+        style: "#1a643f"
       });
       await prime();
       break;
@@ -485,7 +495,8 @@ let prime = async obj => {
 
   if (serverTable.players.length === 1) {
     io.emit("RECEIVE_MESSAGE", {
-      message: "waiting for another player to join..."
+      message: "waiting for another player to join...",
+      style: "#1a643f"
     });
     io.emit("PRIME", {
       players: fetchPlayers(),
@@ -504,7 +515,8 @@ let prime = async obj => {
   }
 
   io.emit("RECEIVE_MESSAGE", {
-    message: `starting the next hand...`
+    message: `starting the next hand...`,
+    style: "#1a643f"
   });
 
   io.emit("PRIME", {
@@ -590,7 +602,8 @@ let dealCards = async () => {
       return resolve();
     }
     io.emit("RECEIVE_MESSAGE", {
-      message: `COLLECTING THE BLINDS`
+      message: `COLLECTING THE BLINDS`,
+      style: "#1a643f"
     });
     //collect the blinds from players in the small blind and big blind position.
     var small = serverTable.dealerIndex + 1;
@@ -626,7 +639,8 @@ let dealCards = async () => {
       serverTable.rotate();
     }
     io.emit("RECEIVE_MESSAGE", {
-      message: `DEALING CARDS...`
+      message: `DEALING CARDS...`,
+      style: "#1a643f"
     });
     serverTable.deal();
     serverTable.restoreOrder();
