@@ -46,7 +46,6 @@ class Navbar extends Component {
     const { leaveTable } = this.props;
     return (
       <AppBar position="static" className={classes.grow}>
-        {console.log(this.state.userObj)}
         <Toolbar>
           <img
             className={classes.logo}
