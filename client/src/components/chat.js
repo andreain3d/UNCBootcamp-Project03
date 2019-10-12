@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
-import { Paper, Typography, Button, TextField } from "@material-ui/core";
+import { Grid, Paper, Typography, Button, TextField } from "@material-ui/core";
 import { isEmpty } from "lodash";
 
 const styles = {
@@ -26,6 +26,9 @@ const styles = {
   msgDisplay: {
     overflowY: "scroll",
     height: "6rem"
+  },
+  button: {
+    marginLeft: 10
   }
 };
 
@@ -112,7 +115,7 @@ class Chat extends Component {
               }}
             />
           </Paper>
-          <div className={classes.container} noValidate autoComplete="off">
+          <Grid container justify="center" alignItems="flex-end">
             <TextField
               key="message"
               name="message"
@@ -123,8 +126,15 @@ class Chat extends Component {
               className={classes.textField}
               margin="normal"
             />
-            <Button onClick={this.sendMessage}>Post</Button>
-          </div>
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="secondary"
+              onClick={this.sendMessage}
+            >
+              Post
+            </Button>
+          </Grid>
         </Paper>
       </Paper>
     );

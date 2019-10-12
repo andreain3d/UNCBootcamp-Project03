@@ -48,6 +48,11 @@ const styles = {
     background: "#1c2022",
     flexGrow: 1,
     height: "10vh"
+  },
+  paper: {
+    flexGrow: 1,
+    height: "35vh",
+    background: "#1c2022"
   }
 };
 
@@ -253,9 +258,12 @@ class LobbyView extends Component {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} md={6}>
                 {/* <Paper className={classes.footer} /> */}
                 <Chat socket={socket} username={user.nickname} />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Paper className={classes.paper}></Paper>
               </Grid>
             </Grid>
           </Fragment>
