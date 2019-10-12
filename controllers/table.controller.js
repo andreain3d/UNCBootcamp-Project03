@@ -480,7 +480,6 @@ let prime = async obj => {
         }
       }
     });
-    io.emit("LEAVETABLE", { name });
   });
   deque = [];
   while (que.length > 0) {
