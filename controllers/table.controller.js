@@ -439,7 +439,7 @@ let prime = async obj => {
     });
     io.emit("LEAVETABLE", { name });
   });
-
+  deque = [];
   while (que.length > 0) {
     if (serverTable.players.length === 8) {
       break;
