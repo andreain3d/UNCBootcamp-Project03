@@ -3,6 +3,7 @@ import { Auth0Context } from "../react-auth0-wrapper";
 import { withStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Typography, Button } from "@material-ui/core";
 import { ExitToApp, MeetingRoom, AccountBox } from "@material-ui/icons";
+import API from "../utils/API";
 
 const styles = {
   grow: {
@@ -12,17 +13,40 @@ const styles = {
   logo: {
     height: "50px",
     filter: "invert(1)"
-  }
+  },
+  userInfo: { marginRight: 25 }
 };
 
 class Navbar extends Component {
   static contextType = Auth0Context;
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      userObj: ""
+    };
+  }
+
+  componentDidMount() {
+    this.getUser();
+  }
+
+  getUser = () => {
+    const { isAuthenticated, user } = this.context;
+    if (isAuthenticated) {
+      API.getUser(user.email).then(res => {
+        this.setState({ userObj: res.data });
+      });
+    }
+  };
+
   render(props) {
-    const { logout } = this.context;
+    const { logout, user } = this.context;
     const classes = this.props.classes;
     const { leaveTable } = this.props;
     return (
       <AppBar position="static" className={classes.grow}>
+        {console.log(this.state.userObj)}
         <Toolbar>
           <img
             className={classes.logo}
@@ -32,6 +56,17 @@ class Navbar extends Component {
           <Typography variant="h6" color="inherit" className={classes.grow}>
             Poker
           </Typography>
+          {user ? (
+            <Typography
+              variant="h6"
+              color="inherit"
+              className={classes.userInfo}
+            >
+              {user.nickname} : ${this.state.userObj.cash}
+            </Typography>
+          ) : (
+            ""
+          )}
           {this.props.return ? (
             <Button
               color="secondary"
