@@ -13,6 +13,9 @@ export default {
   saveUser: function(userData) {
     return axios.post("/api/users", userData);
   },
+  updateUser: function(email, userData) {
+    return axios.put("/api/users/" + email, userData);
+  },
   createPlayer: function(playerData) {
     return axios.post("/api/table/join", playerData);
   },

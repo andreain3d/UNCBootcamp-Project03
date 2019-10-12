@@ -31,6 +31,10 @@ class Navbar extends Component {
     this.getUser();
   }
 
+  componentDidUpdate() {
+    this.getUser();
+  }
+
   getUser = () => {
     const { isAuthenticated, user } = this.context;
     if (isAuthenticated) {
