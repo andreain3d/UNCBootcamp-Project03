@@ -656,11 +656,12 @@ function Table(buyIn = 200, bigBlind = 12, smallBlind = 6, autoIncrementBlinds =
       if (player.didFold) {
         return;
       }
-      var cards = [];
-      cards.push.apply(cards, player.cards);
-      cards.push.apply(cards, this.flop);
-      cards.push(this.turn);
-      cards.push(this.river);
+      var cards = [...player.cards, ...this.flop, this.turn, this.river];
+      console.log(`FINDBESTHAND CARDS ARRAY FOR ${player.name} IN POSITION ${index}: `, cards.length)
+      // cards.push.apply(cards, player.cards);
+      // cards.push.apply(cards, this.flop);
+      // cards.push(this.turn);
+      // cards.push(this.river);
       //sort the cards sequentially, smallest to largest
       cards.sort((a, b) => a.value - b.value);
       var hand = bestHand(cards);
@@ -702,9 +703,7 @@ function Table(buyIn = 200, bigBlind = 12, smallBlind = 6, autoIncrementBlinds =
   };
 }
 
-const bestHand = (cards = []) => {
-  cards.sort((a, b) => a.value - b.value);
-
+const bestHand = (cards) => {
   var straight = [];
   var flush = [];
   var groupings = 0;

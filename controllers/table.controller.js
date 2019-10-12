@@ -12,8 +12,10 @@ var gameInProgress = false;
 
 module.exports = {
   init: () => {
+    if(io && Object.keys(io).length > 0){
+      return;
+    }
     io = require("../server");
-    console.log(io);
   },
   // These routes will operate on a virtual table that lives on the server.
   check: socketId => {
@@ -291,8 +293,7 @@ let fetchPlayers = () => {
 };
 
 let next = async (round, force = false) => {
-  console.log("NEXT CALLED", round);
-  await timer(1000);
+  await timer(2000);
   let deckActions = ["deal", "flop", "turn", "river", "payout"];
   switch (deckActions[round]) {
     case "deal":
@@ -389,7 +390,9 @@ let placeBet = async (pos, amt) => {
 };
 
 let prime = async obj => {
+  //check to see that the table exists
   if (!serverTable) {
+    //if an object is passed, create a custom table, otherwise create a default table
     if (obj) {
       const { buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit } = obj;
       serverTable = new Table(buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit);
@@ -397,6 +400,7 @@ let prime = async obj => {
       serverTable = new Table();
     }
   } else {
+    //the table exists. reset the table for the next round.
     gameInProgress = false;
     serverTable.round = 0;
     serverTable.currentBet = 0;
@@ -411,11 +415,9 @@ let prime = async obj => {
     if (serverTable.dealerIndex === serverTable.players.length) {
       serverTable.dealerIndex = 0;
     }
-    var count = 0;
     serverTable.players.forEach((player, index) => {
       if (player.chips === 0) {
         deque.push(player.name);
-        count++;
       }
       player.position = index;
       player.bets = [0];
@@ -445,16 +447,27 @@ let prime = async obj => {
     var player = que.shift();
     serverTable.addPlayer(player);
   }
+
   if (serverTable.players.length === 1) {
-    console.log("you're all alone. aborting....");
     io.emit("RECEIVE_MESSAGE", {
       message: "waiting for another player to join..."
     });
+    io.emit("PRIME", {
+      players: fetchPlayers(),
+    dealerIndex: serverTable.dealerIndex,
+    pot: serverTable.pot[0],
+    flop: serverTable.flop,
+    turn: serverTable.turn,
+    river: serverTable.river,
+    bigBlind: serverTable.bigBlind
+    });
     return new Promise(resolve => resolve());
   }
+
   io.emit("RECEIVE_MESSAGE", {
     message: `starting the next hand...`
   });
+
   io.emit("PRIME", {
     players: fetchPlayers(),
     dealerIndex: serverTable.dealerIndex,
