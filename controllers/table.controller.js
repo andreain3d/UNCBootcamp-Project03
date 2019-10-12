@@ -314,7 +314,6 @@ let next = async (round, force = false) => {
       await dealCards();
       break;
     case "flop":
-
       if (!flopOut) {
         await doFlop();
         flopOut = true;
@@ -533,7 +532,7 @@ let prime = async obj => {
     bigBlind: serverTable.bigBlind
   });
   gameInProgress = true;
-  await next(0);
+  next(0);
   return new Promise(resolve => {
     resolve();
   });
@@ -584,8 +583,8 @@ let addPlayer = async obj => {
 };
 
 let dealCards = async () => {
-  let nextPlayer;
   return new Promise(resolve => {
+    let nextPlayer;
     if (serverTable.deck.cards.length < 52) {
       io.emit("ERROR", {
         err: "Cards have already been dealt!",
@@ -620,6 +619,9 @@ let dealCards = async () => {
     if (big === serverTable.players.length) {
       big = 0;
     }
+    io.emit("ERROR", {
+      big,small
+    });
     if (serverTable.players.length === 2) {
       //the dealer is also the small blind
       serverTable.players[small].chips -= serverTable.smallBlind;
@@ -637,6 +639,10 @@ let dealCards = async () => {
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
       nextPlayer = serverTable.players[big + 1].name;
     }
+    io.emit("ERROR", {
+      check: "LINE 640",
+      nextPlayer
+    });
     serverTable.currentBet = serverTable.bigBlind;
     io.emit("RECEIVE_MESSAGE", {
       style: "#1a643f",
@@ -700,10 +706,9 @@ let doTurn = async () => {
   return new Promise(resolve => {
     if (serverTable.flop.length < 3) {
       io.emit("ERROR", {
-
         err: "** The flop has not been dealt",
-        next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
-
+        next:
+          "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
       });
       return resolve();
     }
