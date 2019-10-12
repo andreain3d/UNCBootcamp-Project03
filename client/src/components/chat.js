@@ -77,15 +77,7 @@ class Chat extends Component {
       message: this.state.message
     });
     this.setState({
-<<<<<<< HEAD
-      message: "",
-      //`${this.state.username} is typing...` needs to be changed to find any message that includes " is typing..."
-      allMessages: this.state.allMessages.filter(
-        value => value !== `${this.state.username} is typing...`
-      )
-=======
       message: ""
->>>>>>> 39a2cdddc50956089072352cdf977a9fbf800b4a
     });
   };
 
@@ -100,25 +92,17 @@ class Chat extends Component {
           <Paper className={classes.msgDisplay} ref={this.myRef}>
             {this.state.allMessages.map((message, index) => {
               if (isEmpty(message.author)) {
-<<<<<<< HEAD
                 return (
-                  <div>
-                    <Typography variant="body1">{message}</Typography>
+                  <div key={index}>
+                    <Typography variant="body1">{message.message}</Typography>
                   </div>
                 );
               }
               return (
-                <div>
+                <div key={index}>
                   <Typography variant="body1">
                     {message.author}: {message.message}
                   </Typography>
-=======
-                return <div key={index}>{message.message}</div>;
-              }
-              return (
-                <div key={index}>
-                  {message.author}: {message.message}
->>>>>>> 39a2cdddc50956089072352cdf977a9fbf800b4a
                 </div>
               );
             })}

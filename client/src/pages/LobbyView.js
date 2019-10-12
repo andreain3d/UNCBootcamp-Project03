@@ -123,7 +123,13 @@ class LobbyView extends Component {
   };
 
   render() {
-    const { isAuthenticated, loginWithPopup, logout, loading, user } = this.context;
+    const {
+      isAuthenticated,
+      loginWithPopup,
+      logout,
+      loading,
+      user
+    } = this.context;
     const classes = this.props.classes;
     const { socket } = this.props;
 
@@ -140,8 +146,17 @@ class LobbyView extends Component {
         {!isAuthenticated && (
           <Fragment>
             <Navbar />
-            <Grid container alignItems="flex-end" className={classes.background}>
-              <Grid className={classes.landingContainer} container alignItems="center" justify="center">
+            <Grid
+              container
+              alignItems="flex-end"
+              className={classes.background}
+            >
+              <Grid
+                className={classes.landingContainer}
+                container
+                alignItems="center"
+                justify="center"
+              >
                 <Button
                   variant="contained"
                   color="secondary"
@@ -164,11 +179,25 @@ class LobbyView extends Component {
         {isAuthenticated && (
           <Fragment>
             <Navbar profile="true" logout="true" />
-            <Grid className={classes.background} container alignItems="flex-end" justify="center">
+            <Grid
+              className={classes.background}
+              container
+              alignItems="flex-end"
+              justify="center"
+            >
               <Grid item xs={12}>
-                <Grid container className={classes.container} justify="center" alignItems="center">
+                <Grid
+                  container
+                  className={classes.container}
+                  justify="center"
+                  alignItems="center"
+                >
                   <Grid item xs={12}>
-                    <Typography className={classes.welcome} align="center" variant="h4">
+                    <Typography
+                      className={classes.welcome}
+                      align="center"
+                      variant="h4"
+                    >
                       <strong>Welcome to the Lobby!</strong>
                     </Typography>
                   </Grid>
@@ -206,11 +235,16 @@ class LobbyView extends Component {
                           <Grid item xs={12}>
                             <Typography align="center" variant="h6">
                               <strong>
-                                Current Queue Position: {this.state.currentPos} out of {this.state.queueLength}
+                                Current Queue Position: {this.state.currentPos}{" "}
+                                out of {this.state.queueLength}
                               </strong>
                             </Typography>
                           </Grid>
-                          <Button onClick={this.leaveQueue} color="secondary" variant="contained">
+                          <Button
+                            onClick={this.leaveQueue}
+                            color="secondary"
+                            variant="contained"
+                          >
                             Leave Queue
                           </Button>
                         </Fragment>
@@ -220,7 +254,7 @@ class LobbyView extends Component {
                 </Grid>
               </Grid>
               <Grid item xs={12}>
-                <Paper className={classes.footer} />
+                {/* <Paper className={classes.footer} /> */}
                 <Chat socket={socket} username={user.nickname} />
               </Grid>
             </Grid>
