@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
+
 import LobbyView from "./pages/LobbyView";
 import TableView from "./pages/TableView";
 import ProfileView from "./pages/ProfileView";
@@ -23,12 +24,14 @@ class App extends Component {
       index: 0,
       dealerIndex: 0,
       socketId: "",
-      availableChips: 0
+      availableChips: 0,
+      playerLeaveTable: false
       //Does bigBlind need to be added here if it's set up in the PRIME listener setState function?
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
     this.socket.on("connect", () => {
+      console.log("connected");
       this.setState({ socketId: this.socket.id });
       //update the user object
     });
@@ -39,7 +42,7 @@ class App extends Component {
     // });
 
     this.socket.on("PRIME", data => {
-      //console.log("PRIME");
+      console.log("PRIME");
       var players = data.players;
       //console.log(players);
       players.forEach(player => {
@@ -66,12 +69,24 @@ class App extends Component {
     });
 
     this.socket.on("DEALCARDS", data => {
-      axios.get(`/api/player/${this.state.position}/cards`).then(res => {
-        this.setState({ playerCards: res.data.playerCards });
-        //a call to the bet route to return player and betting data
-        //this call triggers the betting actions on the front end
-        axios.get("/api/table/bet/-1/0");
-      });
+      if (this.state.position >= 0) {
+        console.log(
+          "*******getting player cards for " +
+            this.state.name +
+            " at position " +
+            this.state.position
+        );
+        axios.get(`/api/player/${this.state.position}/cards`).then(res => {
+          console.log(res.data);
+          if (!res.data) {
+            console.log("it was me. whoops!");
+          }
+          this.setState({ playerCards: res.data.playerCards });
+          //a call to the bet route to return player and betting data
+          //this call triggers the betting actions on the front end
+          axios.get("/api/table/bet/-1/0");
+        });
+      }
     });
 
     this.socket.on("DOFLOP", data => {
@@ -141,14 +156,13 @@ class App extends Component {
       //compare data.name to this.state.name
       //if the same, send to lobby and save data
       if (data.name === this.state.name) {
-        window.location.href = "/";
+        this.setState({ playerLeaveTable: true });
       }
     });
 
     this.socket.on("LEAVEQUE", data => {
       console.log(data);
       //compare data.name to this.state.name
-      //if same, re-activate join table button
     });
 
     this.socket.on("PAYOUT", data => {
@@ -176,6 +190,7 @@ class App extends Component {
     axios.get("/api/table/leave/" + this.state.name);
   };
 
+  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
   setName = name => {
     this.setState({ name: name });
   };
@@ -186,6 +201,7 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
+              username={this.state.name}
               actionTo={this.state.actionTo}
               leaveTable={this.leaveTable}
               pot={this.state.pot}
@@ -201,6 +217,8 @@ class App extends Component {
               minBet={this.state.minBet}
               bigBlind={this.state.bigBlind}
               hands={this.state.hands}
+              currentBet={this.state.currentBet}
+              playerLeaveTable={this.state.playerLeaveTable}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">

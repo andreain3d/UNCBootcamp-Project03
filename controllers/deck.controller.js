@@ -1,5 +1,5 @@
 const db = require("../models");
-import Deck from "../classes/deck";
+var Deck = require("../classes/deck");
 /**
  * The table model contains the following keys and value types
  * buyIn: Number,  =>The minimum of player cash required to join the table

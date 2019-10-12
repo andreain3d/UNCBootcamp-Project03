@@ -22,6 +22,10 @@ const styles = {
     padding: 10,
     background: "#D5D5D5",
     height: "25vh"
+  },
+  msgDisplay: {
+    overflowY: "scroll",
+    height: "6rem"
   }
 };
 
@@ -31,7 +35,7 @@ class Chat extends Component {
     this.state = {
       allMessages: [],
       message: "",
-      username: ""
+      username: props.username
     };
 
     this.socket = this.props.socket;
@@ -45,28 +49,24 @@ class Chat extends Component {
       this.setState({ allMessages: [...this.state.allMessages, data] });
     };
 
-    // this.typing method containing socket emitter goes here
-    this.sendTypingMessage = () => {
-      this.socket.emit("typing", this.state.username);
-    };
-
-    this.socket.on("isTyping", username => {
-      if (!this.state.allMessages.includes(`${username} is typing...`)) {
-        console.log("SOCKET IS TYPING");
-        addMessage(`${username} is typing...`);
-      }
-    });
-
     this.socket.on("FLASH", data => {
       console.log(data);
     });
   }
 
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+  componentDidUpdate() {
+    this.scrollToBottom();
+  }
+  scrollToBottom = () => {
+    this.el.scrollIntoView({ behavior: "smooth" });
+  };
+
   handleInputChange = event => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
-    // "on typing" function call here
-    this.sendTypingMessage();
   };
 
   sendMessage = event => {
@@ -77,11 +77,15 @@ class Chat extends Component {
       message: this.state.message
     });
     this.setState({
+<<<<<<< HEAD
       message: "",
       //`${this.state.username} is typing...` needs to be changed to find any message that includes " is typing..."
       allMessages: this.state.allMessages.filter(
         value => value !== `${this.state.username} is typing...`
       )
+=======
+      message: ""
+>>>>>>> 39a2cdddc50956089072352cdf977a9fbf800b4a
     });
   };
 
@@ -93,9 +97,10 @@ class Chat extends Component {
           Chat
         </Typography>
         <Paper className={classes.inner}>
-          <Paper>
-            {this.state.allMessages.map(message => {
+          <Paper className={classes.msgDisplay} ref={this.myRef}>
+            {this.state.allMessages.map((message, index) => {
               if (isEmpty(message.author)) {
+<<<<<<< HEAD
                 return (
                   <div>
                     <Typography variant="body1">{message}</Typography>
@@ -107,21 +112,23 @@ class Chat extends Component {
                   <Typography variant="body1">
                     {message.author}: {message.message}
                   </Typography>
+=======
+                return <div key={index}>{message.message}</div>;
+              }
+              return (
+                <div key={index}>
+                  {message.author}: {message.message}
+>>>>>>> 39a2cdddc50956089072352cdf977a9fbf800b4a
                 </div>
               );
             })}
-          </Paper>
-          <form className={classes.container} noValidate autoComplete="off">
-            <TextField
-              key="username"
-              name="username"
-              placeholder="username"
-              value={this.state.username}
-              onChange={this.handleInputChange}
-              label="Name"
-              className={classes.textField}
-              margin="normal"
+            <div
+              ref={el => {
+                this.el = el;
+              }}
             />
+          </Paper>
+          <div className={classes.container} noValidate autoComplete="off">
             <TextField
               key="message"
               name="message"
@@ -133,7 +140,7 @@ class Chat extends Component {
               margin="normal"
             />
             <Button onClick={this.sendMessage}>Post</Button>
-          </form>
+          </div>
         </Paper>
       </Paper>
     );

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import { amber } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
@@ -37,6 +38,7 @@ class TableView extends Component {
     const classes = this.props.classes;
 
     const {
+      username,
       leaveTable,
       dealer,
       pot,
@@ -51,8 +53,14 @@ class TableView extends Component {
       actionTo,
       minBet,
       bigBlind,
-      hands
+      hands,
+      currentBet,
+      playerLeaveTable
     } = this.props;
+
+    if (playerLeaveTable) {
+      return <Redirect to="/" />;
+    }
 
     return (
       <MuiThemeProvider theme={theme}>
@@ -71,7 +79,11 @@ class TableView extends Component {
             position={position}
           />
           {hands && hands.length > 0 ? (
+<<<<<<< HEAD
             <EndDialog socket={socket} hands={hands} />
+=======
+            <EndDialog hands={hands} socket={socket} />
+>>>>>>> 39a2cdddc50956089072352cdf977a9fbf800b4a
           ) : (
             ""
           )}
@@ -84,11 +96,12 @@ class TableView extends Component {
                 actionTo={actionTo}
                 minBet={minBet}
                 bigBlind={bigBlind}
-                availableChips={players[position].chips}
+                availableChips={players[position] ? players[position].chips : 0}
+                currentBet={currentBet}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <Chat socket={socket} />
+              <Chat socket={socket} username={username} />
             </Grid>
           </Grid>
         </Grid>

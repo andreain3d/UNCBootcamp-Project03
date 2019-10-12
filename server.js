@@ -18,7 +18,7 @@ app.use(routes);
 
 mongoose.connect(
   process.env.MONGODB_URI ||
-    "mongodb://admin:password1@ds333098.mlab.com:33098/heroku_jr3hf4cw"
+    "mongodb://admin-user:password1@ds333248.mlab.com:33248/heroku_n82s3tgn"
 );
 
 //asigned listener to a variable
@@ -31,7 +31,7 @@ let io = socket(server);
 
 io.on("connection", socket => {
   console.log(`Connection made on socket ${socket.id}`);
-
+  require("./controllers/table.controller").init();
   socket.on("disconnect", () => {
     console.log(`user ${socket.id} disconnected`);
     const { check } = require("./controllers/table.controller");
@@ -41,10 +41,6 @@ io.on("connection", socket => {
   socket.on("SEND_MESSAGE", data => {
     io.emit("RECEIVE_MESSAGE", data);
   });
-
-  socket.on("typing", username => {
-    socket.broadcast.emit("isTyping", username);
-  });
 });
 
-export default io;
+module.exports = io;
