@@ -69,20 +69,17 @@ module.exports = {
 
   //leaveTable will automatically cause a player to fold their current hand and flag the player for removal at the end of the hand
   leaveTable: (req, res) => {
+    //the player name, taken from the state object in app.js, is sent on req.params
+    //add that name to the deque array
     deque.push(req.params.name);
-    if (serverTable && gameInProgress) {
-      serverTable.players.forEach((player, index) => {
-        if (player.name === req.params.name) {
-          placeBet(index, -1);
-        }
-      });
-    } else if (serverTable && serverTable.players.length === 1) {
-      prime();
-    } else {
-      que = que.filter(player => player.name !== req.params.name);
-      deque = deque.filter(name => name !== req.params.name);
-      io.emit("LEAVETABLE", { name: req.params.name, que, deque });
-    }
+    var players = fetchPlayers();
+    players.forEach(player => {
+      if (player.name === req.params.name) {
+        io.emit("LEAVETABLE", {
+          player
+        });
+      }
+    });
 
     res.send();
   },
@@ -584,7 +581,6 @@ let addPlayer = async obj => {
 
 let dealCards = async () => {
   return new Promise(resolve => {
-    
     if (serverTable.deck.cards.length < 52) {
       io.emit("ERROR", {
         err: "Cards have already been dealt!",
@@ -621,7 +617,8 @@ let dealCards = async () => {
       big = 0;
     }
     io.emit("ERROR", {
-      big,small
+      big,
+      small
     });
     if (serverTable.players.length === 2) {
       io.emit("ERROR", {
@@ -645,13 +642,13 @@ let dealCards = async () => {
       serverTable.players[big].bets[0] += serverTable.bigBlind;
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
       var nxt = big + 1;
-      if(nxt === serverTable.players.length){
+      if (nxt === serverTable.players.length) {
         nxt = 0;
       }
       nextPlayer = serverTable.players[nxt].name;
     }
     io.emit("ERROR", {
-      check: "LINE 640",
+      check: "LINE 640"
     });
     serverTable.currentBet = serverTable.bigBlind;
     io.emit("RECEIVE_MESSAGE", {
@@ -671,7 +668,7 @@ let dealCards = async () => {
     serverTable.restoreOrder();
     io.emit("ERROR", {
       msg: "cards dealt."
-    })
+    });
     //set the stage for betting by setting the table.position value to the player after big blind
     var after = big + 1;
     if (after === serverTable.players.length) {

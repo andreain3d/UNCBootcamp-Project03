@@ -26,7 +26,6 @@ class App extends Component {
       socketId: "",
       availableChips: 0,
       playerLeaveTable: false
-      //Does bigBlind need to be added here if it's set up in the PRIME listener setState function?
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
@@ -140,23 +139,27 @@ class App extends Component {
     });
 
     this.socket.on("LEAVETABLE", data => {
-      console.log(data);
-      //reset all data that only exists on the table
-      this.setState({
-        playerCards: [],
-        playerInfo: [],
-        flop: [],
-        hands: [],
-        pot: 0,
-        handAction: 0,
-        position: -1,
-        dealerIndex: 0,
-        availableChips: 0
-      });
+      //data contains the player object keys from the table
       //compare data.name to this.state.name
       //if the same, send to lobby and save data
       if (data.name === this.state.name) {
-        this.setState({ playerLeaveTable: true });
+        this.setState({
+          playerCards: [],
+          playerInfo: [],
+          flop: [],
+          hands: [],
+          pot: 0,
+          handAction: 0,
+          position: -1,
+          dealerIndex: 0,
+          availableChips: 0,
+          playerLeaveTable: true
+        });
+        //convert the player chips back to cash
+        console.log(data.chips, data.cash);
+        data.cash += data.chips;
+        data.chips = 0;
+        //call a function to update the player object in the db here!
       }
     });
 
@@ -168,8 +171,6 @@ class App extends Component {
     this.socket.on("PAYOUT", data => {
       const { players: playerInfo, pot, hands, payouts } = data;
       this.setState({ playerInfo, pot, hands });
-      console.log(hands);
-      console.log(payouts);
     });
 
     this.socket.on("ERROR", data => {
@@ -178,15 +179,8 @@ class App extends Component {
       console.log("==============END==============");
     });
   }
-  nextBetAction = () => {
-    if (this.state.actionTo === undefined) {
-      return;
-    }
-    axios.get(`/api/table/bet/${this.state.actionTo}/${this.state.minBet}`);
-  };
 
   leaveTable = () => {
-    console.log("LEAVE");
     axios.get("/api/table/leave/" + this.state.name);
   };
 
