@@ -314,12 +314,13 @@ let next = async (round, force = false) => {
       await dealCards();
       break;
     case "flop":
+
       if (!flopOut) {
         await doFlop();
         flopOut = true;
         io.emit("RECEIVE_MESSAGE", {
-          message: `THE FLOP HAS BEEN DEALT`,
-          style: "#1a643f"
+          style: "#1a643f",
+          message: `The Flop has been dealt`
         });
       }
       break;
@@ -328,8 +329,8 @@ let next = async (round, force = false) => {
         await doTurn();
         turnOut = true;
         io.emit("RECEIVE_MESSAGE", {
-          message: `THE TURN HAS BEEN DEALT`,
-          style: "#1a643f"
+          style: "#1a643f",
+          message: `The Turn has been dealt`
         });
       }
       break;
@@ -338,16 +339,17 @@ let next = async (round, force = false) => {
         await doRiver();
         riverOut = true;
         io.emit("RECEIVE_MESSAGE", {
-          message: `THE RIVER HAS BEEN DEALT`,
-          style: "#1a643f"
+          style: "#1a643f",
+          message: `The River has been dealt`
         });
       }
+
       break;
     case "payout":
       await payout(force);
       io.emit("RECEIVE_MESSAGE", {
-        message: `THE HAND IS OVER`,
-        style: "#1a643f"
+        style: "#1a643f",
+        message: `The hand is over`
       });
       await prime();
       break;
@@ -495,8 +497,8 @@ let prime = async obj => {
 
   if (serverTable.players.length === 1) {
     io.emit("RECEIVE_MESSAGE", {
-      message: "waiting for another player to join...",
-      style: "#1a643f"
+      style: "#1a643f",
+      message: "Waiting for another player to join..."
     });
     io.emit("PRIME", {
       players: fetchPlayers(),
@@ -515,8 +517,8 @@ let prime = async obj => {
   }
 
   io.emit("RECEIVE_MESSAGE", {
-    message: `starting the next hand...`,
-    style: "#1a643f"
+    style: "#1a643f",
+    message: `Starting the next hand...`
   });
 
   io.emit("PRIME", {
@@ -582,6 +584,7 @@ let addPlayer = async obj => {
 };
 
 let dealCards = async () => {
+  let nextPlayer;
   return new Promise(resolve => {
     if (serverTable.deck.cards.length < 52) {
       io.emit("ERROR", {
@@ -602,8 +605,8 @@ let dealCards = async () => {
       return resolve();
     }
     io.emit("RECEIVE_MESSAGE", {
-      message: `COLLECTING THE BLINDS`,
-      style: "#1a643f"
+      style: "#1a643f",
+      message: `Collecting the blinds...`
     });
     //collect the blinds from players in the small blind and big blind position.
     var small = serverTable.dealerIndex + 1;
@@ -624,6 +627,7 @@ let dealCards = async () => {
       serverTable.players[big].chips -= serverTable.bigBlind;
       serverTable.players[big].bets[0] += serverTable.bigBlind;
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
+      nextPlayer = serverTable.players[small].name;
     } else {
       //there are more than 2 players
       serverTable.players[small].chips -= serverTable.smallBlind;
@@ -631,16 +635,21 @@ let dealCards = async () => {
       serverTable.players[big].chips -= serverTable.bigBlind;
       serverTable.players[big].bets[0] += serverTable.bigBlind;
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
+      nextPlayer = serverTable.players[big + 1].name;
     }
     serverTable.currentBet = serverTable.bigBlind;
+    io.emit("RECEIVE_MESSAGE", {
+      style: "#1a643f",
+      message: `$${serverTable.smallBlind} from ${serverTable.players[small].name}, $${serverTable.bigBlind} from ${serverTable.players[big].name}`
+    });
     //rotate past the dealer.
     var amount = serverTable.dealerIndex + 1;
     for (var i = 0; i < amount; i++) {
       serverTable.rotate();
     }
     io.emit("RECEIVE_MESSAGE", {
-      message: `DEALING CARDS...`,
-      style: "#1a643f"
+      style: "#1a643f",
+      message: `Dealing cards...`
     });
     serverTable.deal();
     serverTable.restoreOrder();
@@ -653,6 +662,10 @@ let dealCards = async () => {
     io.emit("DEALCARDS", {
       players: fetchPlayers()
     });
+    io.emit("RECEIVE_MESSAGE", {
+      style: "#1a643f",
+      message: `Bet is $${serverTable.currentBet} to ${nextPlayer}`
+    });
     resolve();
   });
 };
@@ -661,7 +674,7 @@ let doFlop = async () => {
   return new Promise(resolve => {
     if (serverTable.flop.length === 3) {
       io.emit("ERROR", {
-        err: "The flop has already been dealt",
+        err: "** The flop has already been dealt",
         next:
           "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
@@ -687,16 +700,17 @@ let doTurn = async () => {
   return new Promise(resolve => {
     if (serverTable.flop.length < 3) {
       io.emit("ERROR", {
-        err: "The flop has not been dealt",
-        next:
-          "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
+
+        err: "** The flop has not been dealt",
+        next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
+
       });
       return resolve();
     }
     if (serverTable.turn) {
       console.log("Error Turn");
       io.emit("ERROR", {
-        err: "The turn has already been dealt",
+        err: "** The turn has already been dealt",
         next:
           "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/river'"
       });
@@ -722,7 +736,7 @@ let doRiver = async () => {
   return new Promise(resolve => {
     if (!serverTable.turn) {
       io.emit("ERROR", {
-        err: "The turn has not been dealt",
+        err: "** The turn has not been dealt",
         next:
           "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/turn'"
       });
@@ -730,7 +744,7 @@ let doRiver = async () => {
     }
     if (serverTable.river) {
       io.emit("ERROR", {
-        err: "The river has already been dealt",
+        err: "** The river has already been dealt",
         next:
           "GET '/api/table/cards' OR '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/hands'"
       });
