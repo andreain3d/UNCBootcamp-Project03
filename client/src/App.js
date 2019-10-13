@@ -27,7 +27,8 @@ class App extends Component {
       dealerIndex: 0,
       socketId: "",
       availableChips: 0,
-      playerLeaveTable: false
+      playerLeaveTable: false,
+      allMessages: []
       //Does bigBlind need to be added here if it's set up in the PRIME listener setState function?
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
@@ -72,12 +73,7 @@ class App extends Component {
 
     this.socket.on("DEALCARDS", data => {
       if (this.state.position >= 0) {
-        console.log(
-          "*******getting player cards for " +
-            this.state.name +
-            " at position " +
-            this.state.position
-        );
+        console.log("*******getting player cards for " + this.state.name + " at position " + this.state.position);
         axios.get(`/api/player/${this.state.position}/cards`).then(res => {
           console.log(res.data);
           if (!res.data) {
@@ -117,13 +113,7 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const {
-        players: playerInfo,
-        currentBet,
-        minBet,
-        position: actionTo,
-        pot
-      } = data;
+      const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -133,9 +123,7 @@ class App extends Component {
       this.setState({ playerInfo, currentBet, minBet, actionTo, pot });
       //if actionTo === this.state.position
       // Start the timer, activate the buttons in options
-      console.log(
-        "Next bet is " + minBet + " to the player at position " + actionTo
-      );
+      console.log("Next bet is " + minBet + " to the player at position " + actionTo);
       //at the end of a round of betting, the data received in this listener only contains the playerInfo. All other values will be undefined
       //This implies that currentBet, minBet, and actionTo will only be on the state variable during betting
       //If these values are used to render data, conditional rendering should be used
@@ -185,6 +173,12 @@ class App extends Component {
       console.log("==============END==============");
     });
   }
+
+  addMessage = data => {
+    console.log(data);
+    this.setState({ allMessages: [...this.state.allMessages, data] });
+  };
+
   nextBetAction = () => {
     if (this.state.actionTo === undefined) {
       return;
@@ -226,6 +220,8 @@ class App extends Component {
               hands={this.state.hands}
               currentBet={this.state.currentBet}
               playerLeaveTable={this.state.playerLeaveTable}
+              allMessages={this.state.allMessages}
+              addMessage={this.addMessage}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
@@ -237,6 +233,8 @@ class App extends Component {
               setName={this.setName}
               socketId={this.state.socketId}
               position={this.state.position}
+              allMessages={this.state.allMessages}
+              addMessage={this.addMessage}
             />
           </Route>
         </Switch>

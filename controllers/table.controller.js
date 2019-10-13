@@ -584,7 +584,7 @@ let addPlayer = async obj => {
 
 let dealCards = async () => {
   return new Promise(resolve => {
-    let nextPlayer;
+    
     if (serverTable.deck.cards.length < 52) {
       io.emit("ERROR", {
         err: "Cards have already been dealt!",
@@ -608,6 +608,7 @@ let dealCards = async () => {
       message: `Collecting the blinds...`
     });
     //collect the blinds from players in the small blind and big blind position.
+    var nextPlayer;
     var small = serverTable.dealerIndex + 1;
     if (serverTable.players.length === 2) {
       small = serverTable.dealerIndex;
@@ -624,6 +625,9 @@ let dealCards = async () => {
       small
     });
     if (serverTable.players.length === 2) {
+      io.emit("ERROR", {
+        msg: "inside at 625"
+      });
       //the dealer is also the small blind
       serverTable.players[small].chips -= serverTable.smallBlind;
       serverTable.players[small].bets[0] += serverTable.smallBlind;
@@ -632,17 +636,23 @@ let dealCards = async () => {
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
       nextPlayer = serverTable.players[small].name;
     } else {
+      io.emit("ERROR", {
+        msg: "inside at 634"
+      });
       //there are more than 2 players
       serverTable.players[small].chips -= serverTable.smallBlind;
       serverTable.players[small].bets[0] += serverTable.smallBlind;
       serverTable.players[big].chips -= serverTable.bigBlind;
       serverTable.players[big].bets[0] += serverTable.bigBlind;
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
-      nextPlayer = serverTable.players[big + 1].name;
+      var nxt = big + 1;
+      if(nxt === serverTable.players.length){
+        nxt = 0;
+      }
+      nextPlayer = serverTable.players[nxt].name;
     }
     io.emit("ERROR", {
       check: "LINE 640",
-      nextPlayer
     });
     serverTable.currentBet = serverTable.bigBlind;
     io.emit("RECEIVE_MESSAGE", {
@@ -660,6 +670,9 @@ let dealCards = async () => {
     });
     serverTable.deal();
     serverTable.restoreOrder();
+    io.emit("ERROR", {
+      msg: "cards dealt."
+    })
     //set the stage for betting by setting the table.position value to the player after big blind
     var after = big + 1;
     if (after === serverTable.players.length) {
