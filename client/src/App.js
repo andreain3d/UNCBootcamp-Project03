@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
-
+import API from "./utils/API";
+import { Auth0Context } from "./react-auth0-wrapper";
 import LobbyView from "./pages/LobbyView";
 import TableView from "./pages/TableView";
 import ProfileView from "./pages/ProfileView";
@@ -9,6 +10,7 @@ import io from "socket.io-client";
 import axios from "axios";
 
 class App extends Component {
+  static contextType = Auth0Context;
   constructor(props) {
     super(props);
 
@@ -128,7 +130,6 @@ class App extends Component {
     });
 
     this.socket.on("LEAVETABLE", data => {
-      console.log(data);
       //reset all data that only exists on the table
       this.setState({
         playerCards: [],
@@ -144,7 +145,13 @@ class App extends Component {
       //compare data.name to this.state.name
       //if the same, send to lobby and save data
       if (data.name === this.state.name) {
+        const { user } = this.context;
         this.setState({ playerLeaveTable: true });
+        API.getUser(user.email).then(res => {
+          API.updateUser(res.data.email, {
+            cash: res.data.cash + data.player.chips
+          });
+        });
       }
     });
 

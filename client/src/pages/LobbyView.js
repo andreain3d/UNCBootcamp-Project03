@@ -95,6 +95,8 @@ class LobbyView extends Component {
     this.socket = this.props.socket;
     API.getUser(user.email).then(res => {
       this.props.setName(res.data.username);
+      const playerEmail = res.data.email;
+      const playerCash = res.data.cash;
       API.createPlayer({
         name: res.data.username,
         cash: res.data.cash,
@@ -106,6 +108,7 @@ class LobbyView extends Component {
           queueLength: res.data.que.length,
           joined: true
         });
+        API.updateUser(playerEmail, { cash: playerCash - 200 });
       });
     });
   };
@@ -119,11 +122,14 @@ class LobbyView extends Component {
         queueLength: 999999,
         joined: false
       });
+      API.getUser(user.email).then(res => {
+        API.updateUser(res.data.email, { cash: res.data.cash + 200 });
+      });
     });
   };
 
   render() {
-    const { isAuthenticated, loginWithPopup, logout, loading, user } = this.context;
+    const { isAuthenticated, loginWithPopup, loading, user } = this.context;
     const classes = this.props.classes;
     const { socket, allMessages, addMessage } = this.props;
 
