@@ -162,8 +162,6 @@ class App extends Component {
         API.getUser(user.email).then(res => {
           API.updateUser(res.data.email, {
             cash: res.data.cash + data.player.chips
-          }).then(() => {
-            this.forceUpdate();
           });
         });
       }

@@ -108,9 +108,7 @@ class LobbyView extends Component {
           queueLength: res.data.que.length,
           joined: true
         });
-        API.updateUser(playerEmail, { cash: playerCash - 200 }).then(() => {
-          this.forceUpdate();
-        });
+        API.updateUser(playerEmail, { cash: playerCash - 200 });
       });
     });
   };
@@ -125,11 +123,7 @@ class LobbyView extends Component {
         joined: false
       });
       API.getUser(user.email).then(res => {
-        API.updateUser(res.data.email, { cash: res.data.cash + 200 }).then(
-          () => {
-            this.forceUpdate();
-          }
-        );
+        API.updateUser(res.data.email, { cash: res.data.cash + 200 });
       });
     });
   };
