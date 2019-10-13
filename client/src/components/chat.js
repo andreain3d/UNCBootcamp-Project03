@@ -33,21 +33,15 @@ class Chat extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      allMessages: [],
       message: "",
       username: props.username
     };
 
     this.socket = this.props.socket;
     this.socket.on("RECEIVE_MESSAGE", function(data) {
-      //console.log("RECEIVING MESSAGE SOCKET");
-      addMessage(data);
+      console.log("RECEIVING MESSAGE SOCKET");
+      props.addMessage(data);
     });
-
-    const addMessage = data => {
-      //console.log(data);
-      this.setState({ allMessages: [...this.state.allMessages, data] });
-    };
 
     this.socket.on("FLASH", data => {
       //console.log(data);
@@ -90,7 +84,7 @@ class Chat extends Component {
         </Typography>
         <Paper className={classes.inner}>
           <Paper className={classes.msgDisplay} ref={this.myRef}>
-            {this.state.allMessages.map((message, index) => {
+            {this.props.allMessages.map((message, index) => {
               if (isEmpty(message.author)) {
                 return (
                   <div key={index}>

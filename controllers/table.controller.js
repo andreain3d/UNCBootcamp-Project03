@@ -465,6 +465,7 @@ let prime = async obj => {
           );
         }
       }
+      io.emit("LEAVETABLE", { name, player });
     });
   });
   deque = [];

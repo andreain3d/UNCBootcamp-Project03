@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
-
+import API from "./utils/API";
+import { Auth0Context } from "./react-auth0-wrapper";
 import LobbyView from "./pages/LobbyView";
 import TableView from "./pages/TableView";
 import ProfileView from "./pages/ProfileView";
@@ -9,6 +10,7 @@ import io from "socket.io-client";
 import axios from "axios";
 
 class App extends Component {
+  static contextType = Auth0Context;
   constructor(props) {
     super(props);
 
@@ -25,7 +27,9 @@ class App extends Component {
       dealerIndex: 0,
       socketId: "",
       availableChips: 0,
-      playerLeaveTable: false
+      playerLeaveTable: false,
+      allMessages: []
+      //Does bigBlind need to be added here if it's set up in the PRIME listener setState function?
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
@@ -162,6 +166,12 @@ class App extends Component {
         player.cash += player.chips;
         player.chips = 0;
         //call a function to update the player object in the db here!
+        const { user } = this.context;
+        API.getUser(user.email).then(res => {
+          API.updateUser(res.data.email, {
+            cash: res.data.cash + data.player.chips
+          });
+        });
       }
     });
 
@@ -182,6 +192,18 @@ class App extends Component {
       // console.log("==============END==============");
     });
   }
+
+  addMessage = data => {
+    console.log(data);
+    this.setState({ allMessages: [...this.state.allMessages, data] });
+  };
+
+  nextBetAction = () => {
+    if (this.state.actionTo === undefined) {
+      return;
+    }
+    axios.get(`/api/table/bet/${this.state.actionTo}/${this.state.minBet}`);
+  };
 
   leaveTable = () => {
     // console.log("leave table clicked by " + this.state.name);
@@ -223,6 +245,8 @@ class App extends Component {
               hands={this.state.hands}
               currentBet={this.state.currentBet}
               playerLeaveTable={this.state.playerLeaveTable}
+              allMessages={this.state.allMessages}
+              addMessage={this.addMessage}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
@@ -235,6 +259,8 @@ class App extends Component {
               socketId={this.state.socketId}
               position={this.state.position}
               resetRedirect={this.resetRedirect}
+              allMessages={this.state.allMessages}
+              addMessage={this.addMessage}
             />
           </Route>
         </Switch>
