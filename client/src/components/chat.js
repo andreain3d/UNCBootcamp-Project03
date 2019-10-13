@@ -44,7 +44,7 @@ class Chat extends Component {
     });
 
     this.socket.on("FLASH", data => {
-      console.log(data);
+      //console.log(data);
     });
   }
 
@@ -65,7 +65,7 @@ class Chat extends Component {
 
   sendMessage = event => {
     event.preventDefault();
-    console.log(this.state.message);
+    //console.log(this.state.message);
     this.socket.emit("SEND_MESSAGE", {
       author: this.state.username,
       message: this.state.message
@@ -88,7 +88,10 @@ class Chat extends Component {
               if (isEmpty(message.author)) {
                 return (
                   <div key={index}>
-                    <Typography variant="body1" style={{ color: message.style }}>
+                    <Typography
+                      variant="body1"
+                      style={{ color: message.style }}
+                    >
                       {message.message}
                     </Typography>
                   </div>

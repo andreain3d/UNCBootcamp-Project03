@@ -89,10 +89,15 @@ class LobbyView extends Component {
     });
   }
 
+  componentDidMount() {
+    //when the lobbyview mounts on the dom, toggle the playerLeaveTable key in state on app.js
+    this.props.resetRedirect();
+  }
+
   joinGame = event => {
+    // console.log("joined game");
     event.preventDefault();
     const { user } = this.context;
-    this.socket = this.props.socket;
     API.getUser(user.email).then(res => {
       this.props.setName(res.data.username);
       const playerEmail = res.data.email;
