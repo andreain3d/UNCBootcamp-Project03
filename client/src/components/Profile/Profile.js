@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Button, Grid } from "@material-ui/core";
 import { useAuth0 } from "../../react-auth0-wrapper";
 
@@ -28,9 +29,11 @@ const Profile = () => {
       </Grid>
       <Grid item xs={12}>
         <Grid container justify="center">
-          <Button variant="contained" color="secondary" href="/">
-            Back
-          </Button>
+          <Link to="/">
+            <Button variant="contained" color="secondary">
+              Back
+            </Button>
+          </Link>
         </Grid>
       </Grid>
     </Grid>

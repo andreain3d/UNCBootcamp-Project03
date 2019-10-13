@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import { Auth0Context } from "../react-auth0-wrapper";
 import { withStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Typography, Button } from "@material-ui/core";
@@ -84,15 +85,16 @@ class Navbar extends Component {
             ""
           )}
           {this.props.profile ? (
-            <Button
-              color="secondary"
-              variant="contained"
-              className={classes.button}
-              href="/profile"
-            >
-              <AccountBox />
-              Your Profile
-            </Button>
+            <Link to="/profile">
+              <Button
+                color="secondary"
+                variant="contained"
+                className={classes.button}
+              >
+                <AccountBox />
+                Your Profile
+              </Button>
+            </Link>
           ) : (
             ""
           )}

@@ -135,13 +135,7 @@ class LobbyView extends Component {
   };
 
   render() {
-    const {
-      isAuthenticated,
-      loginWithPopup,
-      logout,
-      loading,
-      user
-    } = this.context;
+    const { isAuthenticated, loginWithPopup, loading, user } = this.context;
     const classes = this.props.classes;
     const { socket } = this.props;
 

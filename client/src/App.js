@@ -163,6 +163,7 @@ class App extends Component {
         API.getUser(user.email).then(res => {
           API.updateUser(res.data.email, { cash: res.data.cash + 200 }).then(
             () => {
+              console.log("Hello World!");
               this.forceUpdate();
             }
           );
