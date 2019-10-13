@@ -184,7 +184,6 @@ class App extends Component {
     axios.get("/api/table/leave/" + this.state.name);
   };
 
-  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
   setName = name => {
     this.setState({ name: name });
   };
