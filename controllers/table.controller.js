@@ -482,8 +482,8 @@ let prime = async obj => {
           );
         }
       }
+      io.emit("LEAVETABLE", { name, player });
     });
-    io.emit("LEAVETABLE", { name });
   });
   deque = [];
   while (que.length > 0) {
@@ -620,7 +620,8 @@ let dealCards = async () => {
       big = 0;
     }
     io.emit("ERROR", {
-      big,small
+      big,
+      small
     });
     if (serverTable.players.length === 2) {
       //the dealer is also the small blind

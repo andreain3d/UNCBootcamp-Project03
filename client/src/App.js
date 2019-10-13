@@ -142,7 +142,6 @@ class App extends Component {
     });
 
     this.socket.on("LEAVETABLE", data => {
-      console.log(data);
       //reset all data that only exists on the table
       this.setState({
         playerCards: [],
@@ -161,12 +160,11 @@ class App extends Component {
         const { user } = this.context;
         this.setState({ playerLeaveTable: true });
         API.getUser(user.email).then(res => {
-          API.updateUser(res.data.email, { cash: res.data.cash + 200 }).then(
-            () => {
-              console.log("Hello World!");
-              this.forceUpdate();
-            }
-          );
+          API.updateUser(res.data.email, {
+            cash: res.data.cash + data.player.chips
+          }).then(() => {
+            this.forceUpdate();
+          });
         });
       }
     });
