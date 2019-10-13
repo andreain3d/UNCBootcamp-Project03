@@ -40,17 +40,17 @@ class Chat extends Component {
 
     this.socket = this.props.socket;
     this.socket.on("RECEIVE_MESSAGE", function(data) {
-      console.log("RECEIVING MESSAGE SOCKET");
+      //console.log("RECEIVING MESSAGE SOCKET");
       addMessage(data);
     });
 
     const addMessage = data => {
-      console.log(data);
+      //console.log(data);
       this.setState({ allMessages: [...this.state.allMessages, data] });
     };
 
     this.socket.on("FLASH", data => {
-      console.log(data);
+      //console.log(data);
     });
   }
 
@@ -71,7 +71,7 @@ class Chat extends Component {
 
   sendMessage = event => {
     event.preventDefault();
-    console.log(this.state.message);
+    //console.log(this.state.message);
     this.socket.emit("SEND_MESSAGE", {
       author: this.state.username,
       message: this.state.message

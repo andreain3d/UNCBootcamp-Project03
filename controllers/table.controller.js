@@ -23,24 +23,21 @@ module.exports = {
   // These routes will operate on a virtual table that lives on the server.
   check: socketId => {
     //check is a function called from the server side on user disconnect
-    //look on the table for a user with the given socketId. If you find them...do something?
+    //look on the table for a user with the given socketId. If you find them
     if (serverTable) {
       var name = "";
       serverTable.players.forEach(player => {
         if (player.id === socketId) {
-          console.log("PLAYER ON TABLE");
           name = player.name;
         }
       });
       deque.forEach(playerName => {
         if (playerName === name) {
-          console.log("PLAYER IN THE DEQUE ARRAY");
         }
       });
     }
     que.forEach(player => {
       if (player.id === socketId) {
-        console.log("PLAYER IN QUEUE");
       }
     });
   },
@@ -72,12 +69,10 @@ module.exports = {
     //the player name, taken from the state object in app.js, is sent on req.params
     //add that name to the deque array
     deque.push(req.params.name);
-    var players = fetchPlayers();
-    players.forEach(player => {
+    serverTable.players.forEach((player, index) => {
       if (player.name === req.params.name) {
-        io.emit("LEAVETABLE", {
-          player
-        });
+        io.emit("LEAVETABLE", player);
+        placeBet(index, -1);
       }
     });
 
@@ -92,7 +87,6 @@ module.exports = {
 
   //To get a players card, do a get request to "/player/:position/cards". This route expects the player position on req.params.position
   getPlayerCards: (req, res) => {
-    console.log("getPlayerCards Called *********");
     if (parseInt(req.params.position) < 0) {
       io.emit("ERROR", {
         err: "a player not on the table attempted to retreive their cards",
@@ -119,19 +113,11 @@ module.exports = {
 //private method for handling bets
 let fold = pos => {
   serverTable.players[parseInt(pos)].didFold = true;
-  serverTable.foldedPlayers++;
   serverTable.checkBets();
   io.emit("RECEIVE_MESSAGE", {
     message: `${serverTable.players[parseInt(pos)].name} folds`,
     style: "#373c77"
   });
-  if (serverTable.foldedPlayers === serverTable.players.length - 1) {
-    io.emit("PLACEBET", {
-      players: fetchPlayers(),
-      pot: serverTable.pot[0]
-    });
-    next(4, true);
-  }
   if (
     serverTable.betsIn &&
     serverTable.foldedPlayers === serverTable.players.length - 1
@@ -141,7 +127,17 @@ let fold = pos => {
       pot: serverTable.pot[0]
     });
     next(4);
+    return;
   }
+  if (serverTable.foldedPlayers === serverTable.players.length - 1) {
+    io.emit("PLACEBET", {
+      players: fetchPlayers(),
+      pot: serverTable.pot[0]
+    });
+    next(4, true);
+    return;
+  }
+
   const { position, players, currentBet, round, betsIn } = serverTable;
   if (betsIn) {
     io.emit("PLACEBET", {
@@ -162,7 +158,6 @@ let fold = pos => {
 };
 
 let call = (amount, pos) => {
-  console.log("CALL METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
   io.emit("RECEIVE_MESSAGE", {
@@ -170,8 +165,8 @@ let call = (amount, pos) => {
     style: "#373c77"
   });
   serverTable.checkBets();
-  const { position, players, currentBet, round } = serverTable;
-  if (serverTable.betsIn) {
+  const { position, players, currentBet, round, betsIn } = serverTable;
+  if (betsIn) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
       pot: serverTable.pot[0]
@@ -189,7 +184,6 @@ let call = (amount, pos) => {
 };
 
 let bet = (amount, pos) => {
-  console.log("BET METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
   serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
@@ -217,7 +211,6 @@ let bet = (amount, pos) => {
 };
 
 let raise = (amount, pos) => {
-  console.log("RAISE METHOD");
   serverTable.players[pos].bet(amount, serverTable.round);
   serverTable.collect(amount);
   serverTable.currentBet = serverTable.players[pos].bets[serverTable.round];
@@ -393,7 +386,6 @@ let placeBet = async (pos, amt) => {
     return new Promise(resolve => resolve());
   }
   var parAmount = currentBet - players[position].bets[round];
-  console.log("PAR: ", parAmount);
   if (amount === players[position].chips) {
     allIn(position);
   } else if (amount < 0) {
@@ -415,8 +407,6 @@ let placeBet = async (pos, amt) => {
   } else if (amount > parAmount) {
     //or a raise (because parAmount > 0 and amount > parAmount)
     raise(amount, position);
-  } else {
-    console.log("FALLOUT", amount, position);
   }
   new Promise(resolve => resolve());
 };
@@ -452,10 +442,6 @@ let prime = async obj => {
     serverTable.foldedPlayers = 0;
     serverTable.pot = [0];
     serverTable.betsIn = false;
-    serverTable.dealerIndex++;
-    if (serverTable.dealerIndex === serverTable.players.length) {
-      serverTable.dealerIndex = 0;
-    }
     serverTable.players.forEach((player, index) => {
       if (player.chips === 0) {
         deque.push(player.name);
@@ -489,7 +475,12 @@ let prime = async obj => {
     var player = que.shift();
     serverTable.addPlayer(player);
   }
-
+  serverTable.dealerIndex++;
+    if (serverTable.dealerIndex === serverTable.players.length) {
+      serverTable.dealerIndex = 0;
+    } else if(serverTable.dealerIndex > serverTable.players.length){
+      serverTable.dealerIndex = serverTable.dealerIndex - serverTable.players.length;
+    }
   if (serverTable.players.length === 1) {
     io.emit("RECEIVE_MESSAGE", {
       style: "#1a643f",
@@ -539,25 +530,25 @@ let addPlayer = async obj => {
     const { name, cash, img, id } = obj;
     var player = new Player(name, parseInt(cash), img, id);
     //check to see if the player name exists on the table
-    var isAtTable = false;
-    var tableIndex = -1;
-    if (serverTable) {
-      serverTable.players.forEach((p, index) => {
-        if (player.name === p.name) {
-          isAtTable = true;
-          tableIndex = index;
-        }
-      });
-    }
-    if (isAtTable) {
-      serverTable.players[tableIndex].id = player.id;
-      io.emit("PRIME", {
-        players: fetchPlayers(),
-        dealerIndex: serverTable.dealerIndex,
-        pot: serverTable.pot[0]
-      });
-      return resolve({ que });
-    }
+    // var isAtTable = false;
+    // var tableIndex = -1;
+    // if (serverTable) {
+    //   serverTable.players.forEach((p, index) => {
+    //     if (player.name === p.name) {
+    //       isAtTable = true;
+    //       tableIndex = index;
+    //     }
+    //   });
+    // }
+    // if (isAtTable) {
+    //   serverTable.players[tableIndex].id = player.id;
+    //   io.emit("PRIME", {
+    //     players: fetchPlayers(),
+    //     dealerIndex: serverTable.dealerIndex,
+    //     pot: serverTable.pot[0]
+    //   });
+    //   return resolve({ que });
+    // }
     var quePos = que.length;
     que.push(player);
 
@@ -567,11 +558,13 @@ let addPlayer = async obj => {
       que
     });
     if (serverTable && serverTable.players.length > 0 && !gameInProgress) {
+      console.log("THIS BLOCK")
       prime();
-      return resolve({ que });
+      return resolve({quePos, que});
     }
     if (que.length > 1 && !gameInProgress) {
       prime();
+      return resolve({quePos, que});
     }
 
     resolve({ quePos, que });
@@ -605,12 +598,13 @@ let dealCards = async () => {
     //collect the blinds from players in the small blind and big blind position.
     var nextPlayer;
     var small = serverTable.dealerIndex + 1;
+    if (small >= serverTable.players.length) {
+      small = 0;
+    }
     if (serverTable.players.length === 2) {
       small = serverTable.dealerIndex;
     }
-    if (small === serverTable.players.length) {
-      small = 0;
-    }
+    
     var big = small + 1;
     if (big === serverTable.players.length) {
       big = 0;
@@ -620,9 +614,6 @@ let dealCards = async () => {
       small
     });
     if (serverTable.players.length === 2) {
-      io.emit("ERROR", {
-        msg: "inside at 625"
-      });
       //the dealer is also the small blind
       serverTable.players[small].chips -= serverTable.smallBlind;
       serverTable.players[small].bets[0] += serverTable.smallBlind;
@@ -631,9 +622,6 @@ let dealCards = async () => {
       serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
       nextPlayer = serverTable.players[small].name;
     } else {
-      io.emit("ERROR", {
-        msg: "inside at 634"
-      });
       //there are more than 2 players
       serverTable.players[small].chips -= serverTable.smallBlind;
       serverTable.players[small].bets[0] += serverTable.smallBlind;
@@ -646,9 +634,7 @@ let dealCards = async () => {
       }
       nextPlayer = serverTable.players[nxt].name;
     }
-    io.emit("ERROR", {
-      check: "LINE 640"
-    });
+
     serverTable.currentBet = serverTable.bigBlind;
     io.emit("RECEIVE_MESSAGE", {
       style: "#1a643f",
@@ -665,9 +651,7 @@ let dealCards = async () => {
     });
     serverTable.deal();
     serverTable.restoreOrder();
-    io.emit("ERROR", {
-      msg: "cards dealt."
-    });
+
     //set the stage for betting by setting the table.position value to the player after big blind
     var after = big + 1;
     if (after === serverTable.players.length) {
@@ -722,7 +706,6 @@ let doTurn = async () => {
       return resolve();
     }
     if (serverTable.turn) {
-      console.log("Error Turn");
       io.emit("ERROR", {
         err: "** The turn has already been dealt",
         next:

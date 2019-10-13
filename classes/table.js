@@ -63,6 +63,7 @@ function Table(
       }
     });
     this.allInPlayers = allIns;
+    this.foldedPlayers = folds;
     if (count + folds === this.players.length) {
       this.betsIn = true;
       //reset the betting position to the small blind
@@ -87,8 +88,8 @@ function Table(
     var folds = 0;
     var allIns = 0;
     this.players.forEach(player => {
-      console.log(...player.bets);
-      console.log(player.didBet);
+      // console.log(...player.bets);
+      // console.log(player.didBet);
       if (player.didFold) {
         return folds++;
       }
@@ -116,7 +117,7 @@ function Table(
   };
 
   this.shift = () => {
-    console.log("shifting...");
+    // console.log("shifting...");
     this.position++;
     if (this.position === this.players.length) {
       this.position = 0;
@@ -135,7 +136,7 @@ function Table(
 
   this.addPlayer = (player, pos) => {
     if (player.cash < this.buyIn) {
-      console.log("you don't have enough chips to join this table");
+      // console.log("you don't have enough chips to join this table");
       return -1;
     }
     player.cash -= this.buyIn;
@@ -203,10 +204,10 @@ function Table(
         return;
       }
       var cards = [...player.cards, ...this.flop, this.turn, this.river];
-      console.log(
-        `FINDBESTHAND CARDS ARRAY FOR ${player.name} IN POSITION ${index}: `,
-        cards.length
-      );
+      // console.log(
+      //   `FINDBESTHAND CARDS ARRAY FOR ${player.name} IN POSITION ${index}: `,
+      //   cards.length
+      // );
       // cards.push.apply(cards, player.cards);
       // cards.push.apply(cards, this.flop);
       // cards.push(this.turn);

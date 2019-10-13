@@ -289,7 +289,7 @@ function Deck() {
 
   this.print = () => {
     this.cards.forEach(card => {
-      console.log(card.print());
+      // console.log(card.print());
     });
   };
 }

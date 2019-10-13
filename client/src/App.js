@@ -30,7 +30,7 @@ class App extends Component {
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
     this.socket.on("connect", () => {
-      console.log("connected");
+      // console.log("connected");
       this.setState({ socketId: this.socket.id });
       //update the user object
     });
@@ -41,7 +41,7 @@ class App extends Component {
     // });
 
     this.socket.on("PRIME", data => {
-      console.log("PRIME");
+      // console.log("PRIME");
       var players = data.players;
       //console.log(players);
       players.forEach(player => {
@@ -69,16 +69,16 @@ class App extends Component {
 
     this.socket.on("DEALCARDS", data => {
       if (this.state.position >= 0) {
-        console.log(
-          "*******getting player cards for " +
-            this.state.name +
-            " at position " +
-            this.state.position
-        );
+        // console.log(
+        //   "*******getting player cards for " +
+        //     this.state.name +
+        //     " at position " +
+        //     this.state.position
+        // );
         axios.get(`/api/player/${this.state.position}/cards`).then(res => {
-          console.log(res.data);
+          // console.log(res.data);
           if (!res.data) {
-            console.log("it was me. whoops!");
+            // console.log("it was me. whoops!");
           }
           this.setState({ playerCards: res.data.playerCards });
           //a call to the bet route to return player and betting data
@@ -130,19 +130,21 @@ class App extends Component {
       this.setState({ playerInfo, currentBet, minBet, actionTo, pot });
       //if actionTo === this.state.position
       // Start the timer, activate the buttons in options
-      console.log(
-        "Next bet is " + minBet + " to the player at position " + actionTo
-      );
+      // console.log(
+      //   "Next bet is " + minBet + " to the player at position " + actionTo
+      // );
       //at the end of a round of betting, the data received in this listener only contains the playerInfo. All other values will be undefined
       //This implies that currentBet, minBet, and actionTo will only be on the state variable during betting
       //If these values are used to render data, conditional rendering should be used
     });
 
-    this.socket.on("LEAVETABLE", data => {
-      //data contains the player object keys from the table
-      //compare data.name to this.state.name
-      //if the same, send to lobby and save data
-      if (data.name === this.state.name) {
+    this.socket.on("LEAVETABLE", player => {
+      // console.log("SOCKET LEAVE TABLE");
+      // console.log(player);
+      //player contains the player object keys from the table
+      //compare player.name to this.state.name
+      //if the same, send to lobby and save player
+      if (player.name === this.state.name) {
         this.setState({
           playerCards: [],
           playerInfo: [],
@@ -156,32 +158,40 @@ class App extends Component {
           playerLeaveTable: true
         });
         //convert the player chips back to cash
-        console.log(data.chips, data.cash);
-        data.cash += data.chips;
-        data.chips = 0;
+        // console.log(player.chips, player.cash);
+        player.cash += player.chips;
+        player.chips = 0;
         //call a function to update the player object in the db here!
       }
     });
 
     this.socket.on("LEAVEQUE", data => {
-      console.log(data);
+      // console.log(data);
       //compare data.name to this.state.name
     });
 
     this.socket.on("PAYOUT", data => {
-      const { players: playerInfo, pot, hands, payouts } = data;
+      //payouts removed from data deconstruction
+      const { players: playerInfo, pot, hands } = data;
       this.setState({ playerInfo, pot, hands });
     });
 
     this.socket.on("ERROR", data => {
-      console.log("=============ERROR=============");
-      console.log(data);
-      console.log("==============END==============");
+      // console.log("=============ERROR=============");
+      // console.log(data);
+      // console.log("==============END==============");
     });
   }
 
   leaveTable = () => {
+    // console.log("leave table clicked by " + this.state.name);
     axios.get("/api/table/leave/" + this.state.name);
+  };
+
+  resetRedirect = () => {
+    if (this.state.playerLeaveTable) {
+      this.setState({ playerLeaveTable: false });
+    }
   };
 
   // {Nick Prather} - this is being passed to Lobby View; what's it doing?
@@ -224,6 +234,7 @@ class App extends Component {
               setName={this.setName}
               socketId={this.state.socketId}
               position={this.state.position}
+              resetRedirect={this.resetRedirect}
             />
           </Route>
         </Switch>
