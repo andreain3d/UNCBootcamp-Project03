@@ -29,7 +29,6 @@ class App extends Component {
       availableChips: 0,
       playerLeaveTable: false,
       allMessages: []
-      //Does bigBlind need to be added here if it's set up in the PRIME listener setState function?
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
@@ -118,13 +117,7 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const {
-        players: playerInfo,
-        currentBet,
-        minBet,
-        position: actionTo,
-        pot
-      } = data;
+      const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -169,7 +162,7 @@ class App extends Component {
         const { user } = this.context;
         API.getUser(user.email).then(res => {
           API.updateUser(res.data.email, {
-            cash: res.data.cash + data.player.chips
+            cash: res.data.cash + res.data.player.chips
           });
         });
       }
