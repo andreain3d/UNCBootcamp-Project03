@@ -28,6 +28,7 @@ class App extends Component {
       socketId: "",
       availableChips: 0,
       playerLeaveTable: false,
+      message: "",
       allMessages: []
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
@@ -184,11 +185,31 @@ class App extends Component {
       // console.log(data);
       // console.log("==============END==============");
     });
+
+    this.socket.on("RECEIVE_MESSAGE", data => {
+      this.addMessage(data);
+    });
   }
 
   addMessage = data => {
-    console.log(data);
     this.setState({ allMessages: [...this.state.allMessages, data] });
+  };
+
+  sendMessage = event => {
+    event.preventDefault();
+    //console.log(this.state.message);
+    this.socket.emit("SEND_MESSAGE", {
+      author: this.state.name,
+      message: this.state.message
+    });
+    this.setState({
+      message: ""
+    });
+  };
+
+  handleInputChange = event => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
   };
 
   nextBetAction = () => {
@@ -209,7 +230,6 @@ class App extends Component {
     }
   };
 
-  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
   setName = name => {
     this.setState({ name: name });
   };
@@ -220,7 +240,6 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
-              username={this.state.name}
               actionTo={this.state.actionTo}
               leaveTable={this.leaveTable}
               pot={this.state.pot}
@@ -238,8 +257,11 @@ class App extends Component {
               hands={this.state.hands}
               currentBet={this.state.currentBet}
               playerLeaveTable={this.state.playerLeaveTable}
+              message={this.state.message}
               allMessages={this.state.allMessages}
               addMessage={this.addMessage}
+              sendMessage={this.sendMessage}
+              handleInputChange={this.handleInputChange}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
