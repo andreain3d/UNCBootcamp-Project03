@@ -106,7 +106,8 @@ class LobbyView extends Component {
         name: res.data.username,
         cash: res.data.cash,
         img: res.data.image,
-        socketId: this.props.socketId
+        socketId: this.props.socketId,
+        id: this.props.socketId
       }).then(res => {
         this.setState({
           currentPos: res.data.quePos + 1,
