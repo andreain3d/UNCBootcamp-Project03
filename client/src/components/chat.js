@@ -24,6 +24,7 @@ const styles = {
     height: "25vh"
   },
   msgDisplay: {
+    padding: 5,
     overflowY: "scroll",
     height: "6rem"
   },
@@ -115,26 +116,30 @@ class Chat extends Component {
               }}
             />
           </Paper>
-          <Grid container justify="center" alignItems="flex-end">
-            <TextField
-              key="message"
-              name="message"
-              placeholder="message"
-              value={this.state.message}
-              onChange={this.handleInputChange}
-              label="Message"
-              className={classes.textField}
-              margin="normal"
-            />
-            <Button
-              className={classes.button}
-              variant="contained"
-              color="secondary"
-              onClick={this.sendMessage}
-            >
-              Post
-            </Button>
-          </Grid>
+          {this.props.position >= 0 ? (
+            <Grid container justify="center" alignItems="flex-end">
+              <TextField
+                key="message"
+                name="message"
+                placeholder="message"
+                value={this.state.message}
+                onChange={this.handleInputChange}
+                label="Message"
+                className={classes.textField}
+                margin="normal"
+              />
+              <Button
+                className={classes.button}
+                variant="contained"
+                color="secondary"
+                onClick={this.sendMessage}
+              >
+                Post
+              </Button>
+            </Grid>
+          ) : (
+            ""
+          )}
         </Paper>
       </Paper>
     );

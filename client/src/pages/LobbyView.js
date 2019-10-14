@@ -260,7 +260,11 @@ class LobbyView extends Component {
               </Grid>
               <Grid item xs={12} md={6}>
                 {/* <Paper className={classes.footer} /> */}
-                <Chat socket={socket} username={user.nickname} />
+                <Chat
+                  position={this.props.position}
+                  socket={socket}
+                  username={user.nickname}
+                />
               </Grid>
               <Grid item xs={12} md={6}>
                 <Paper className={classes.paper}></Paper>
