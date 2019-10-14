@@ -28,8 +28,8 @@ class App extends Component {
       socketId: "",
       availableChips: 0,
       playerLeaveTable: false,
+      message: "",
       allMessages: []
-      //Does bigBlind need to be added here if it's set up in the PRIME listener setState function?
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
@@ -118,13 +118,7 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const {
-        players: playerInfo,
-        currentBet,
-        minBet,
-        position: actionTo,
-        pot
-      } = data;
+      const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -169,7 +163,7 @@ class App extends Component {
         const { user } = this.context;
         API.getUser(user.email).then(res => {
           API.updateUser(res.data.email, {
-            cash: res.data.cash + data.player.chips
+            cash: res.data.cash + res.data.player.chips
           });
         });
       }
@@ -191,11 +185,31 @@ class App extends Component {
       // console.log(data);
       // console.log("==============END==============");
     });
+
+    this.socket.on("RECEIVE_MESSAGE", data => {
+      this.addMessage(data);
+    });
   }
 
   addMessage = data => {
-    console.log(data);
     this.setState({ allMessages: [...this.state.allMessages, data] });
+  };
+
+  sendMessage = event => {
+    event.preventDefault();
+    //console.log(this.state.message);
+    this.socket.emit("SEND_MESSAGE", {
+      author: this.state.name,
+      message: this.state.message
+    });
+    this.setState({
+      message: ""
+    });
+  };
+
+  handleInputChange = event => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
   };
 
   nextBetAction = () => {
@@ -216,7 +230,6 @@ class App extends Component {
     }
   };
 
-  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
   setName = name => {
     this.setState({ name: name });
   };
@@ -227,7 +240,6 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
-              username={this.state.name}
               actionTo={this.state.actionTo}
               leaveTable={this.leaveTable}
               pot={this.state.pot}
@@ -245,8 +257,11 @@ class App extends Component {
               hands={this.state.hands}
               currentBet={this.state.currentBet}
               playerLeaveTable={this.state.playerLeaveTable}
+              message={this.state.message}
               allMessages={this.state.allMessages}
               addMessage={this.addMessage}
+              sendMessage={this.sendMessage}
+              handleInputChange={this.handleInputChange}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
