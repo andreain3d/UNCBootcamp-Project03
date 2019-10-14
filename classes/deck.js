@@ -1,37 +1,3 @@
-// import Card from "./Card";
-// import cardArt from "../cardArt.json";
-
-// export default class Deck {
-//   constructor() {
-//     this.cards = [];
-
-//     cardArt.forEach(card => this.cards.push(new Card(card.value, card.suit, card.art)));
-//   }
-
-//   shuffle(iter = 1) {
-//     for (var i = 0; i < iter; i++) {
-//       this.cards.sort((a, b) => Math.random() <= 0.5);
-//     }
-//   }
-
-//   draw() {
-//     if (this.cards.length === 0) {
-//       throw new Error("Empty Deck!");
-//     }
-//     return this.cards.shift();
-//   }
-
-//   discard(card) {
-//     this.cards.push(card);
-//   }
-
-//   print() {
-//     this.cards.forEach(card => {
-//       console.log(card.print());
-//     });
-//   }
-// }
-
 //as a constructor
 var Card = require("./card");
 const cardData = [
@@ -300,7 +266,9 @@ const cardData = [
 function Deck() {
   this.cards = [];
 
-  cardData.forEach(card => this.cards.push(new Card(card.value, card.suit, card.art)));
+  cardData.forEach(card =>
+    this.cards.push(new Card(card.value, card.suit, card.art))
+  );
 
   this.shuffle = (iter = 1) => {
     for (var i = 0; i < iter; i++) {
@@ -321,7 +289,7 @@ function Deck() {
 
   this.print = () => {
     this.cards.forEach(card => {
-      console.log(card.print());
+      // console.log(card.print());
     });
   };
 }

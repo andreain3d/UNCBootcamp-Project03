@@ -38,7 +38,6 @@ class TableView extends Component {
     const classes = this.props.classes;
 
     const {
-      username,
       leaveTable,
       dealer,
       pot,
@@ -55,7 +54,12 @@ class TableView extends Component {
       bigBlind,
       hands,
       currentBet,
-      playerLeaveTable
+      playerLeaveTable,
+      message,
+      allMessages,
+      addMessage,
+      sendMessage,
+      handleInputChange
     } = this.props;
 
     if (playerLeaveTable) {
@@ -78,11 +82,15 @@ class TableView extends Component {
             river={river}
             position={position}
           />
+<<<<<<< HEAD
           {hands && hands.length > 0 ? (
             <EndDialog hands={hands} socket={socket} />
           ) : (
             ""
           )}
+=======
+          {hands && hands.length > 0 ? <EndDialog socket={socket} hands={hands} /> : ""}
+>>>>>>> 140e71eeffcb0180abb87bd6255afc41f437d7bf
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
               <Options
@@ -97,7 +105,13 @@ class TableView extends Component {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <Chat socket={socket} username={username} />
+              <Chat
+                message={message}
+                allMessages={allMessages}
+                addMessage={addMessage}
+                sendMessage={sendMessage}
+                handleInputChange={handleInputChange}
+              />
             </Grid>
           </Grid>
         </Grid>

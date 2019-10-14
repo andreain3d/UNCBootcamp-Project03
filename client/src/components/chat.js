@@ -36,26 +36,6 @@ const styles = {
 class Chat extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      allMessages: [],
-      message: "",
-      username: props.username
-    };
-
-    this.socket = this.props.socket;
-    this.socket.on("RECEIVE_MESSAGE", function(data) {
-      console.log("RECEIVING MESSAGE SOCKET");
-      addMessage(data);
-    });
-
-    const addMessage = data => {
-      console.log(data);
-      this.setState({ allMessages: [...this.state.allMessages, data] });
-    };
-
-    this.socket.on("FLASH", data => {
-      console.log(data);
-    });
   }
 
   componentDidMount() {
@@ -68,23 +48,6 @@ class Chat extends Component {
     this.el.scrollIntoView({ behavior: "smooth" });
   };
 
-  handleInputChange = event => {
-    const { name, value } = event.target;
-    this.setState({ [name]: value });
-  };
-
-  sendMessage = event => {
-    event.preventDefault();
-    console.log(this.state.message);
-    this.socket.emit("SEND_MESSAGE", {
-      author: this.state.username,
-      message: this.state.message
-    });
-    this.setState({
-      message: ""
-    });
-  };
-
   render(props) {
     const classes = this.props.classes;
     return (
@@ -93,12 +56,14 @@ class Chat extends Component {
           Chat
         </Typography>
         <Paper className={classes.inner}>
-          <Paper className={classes.msgDisplay} ref={this.myRef}>
-            {this.state.allMessages.map((message, index) => {
+          <Paper className={classes.msgDisplay}>
+            {this.props.allMessages.map((message, index) => {
               if (isEmpty(message.author)) {
                 return (
                   <div key={index}>
-                    <Typography variant="body1">{message.message}</Typography>
+                    <Typography variant="body1" style={{ color: message.style }}>
+                      {message.message}
+                    </Typography>
                   </div>
                 );
               }
@@ -116,6 +81,7 @@ class Chat extends Component {
               }}
             />
           </Paper>
+<<<<<<< HEAD
           {this.props.position >= 0 ? (
             <Grid container justify="center" alignItems="flex-end">
               <TextField
@@ -140,6 +106,21 @@ class Chat extends Component {
           ) : (
             ""
           )}
+=======
+          <div className={classes.container} noValidate autoComplete="off">
+            <TextField
+              key="message"
+              name="message"
+              placeholder="message"
+              value={this.props.message}
+              onChange={this.props.handleInputChange}
+              label="Message"
+              className={classes.textField}
+              margin="normal"
+            />
+            <Button onClick={this.props.sendMessage}>Post</Button>
+          </div>
+>>>>>>> 140e71eeffcb0180abb87bd6255afc41f437d7bf
         </Paper>
       </Paper>
     );

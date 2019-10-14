@@ -2,11 +2,16 @@ import React, { useState, useEffect, useContext } from "react";
 import createAuth0Client from "@auth0/auth0-spa-js";
 import API from "./utils/API";
 
-const DEFAULT_REDIRECT_CALLBACK = () => window.history.replaceState({}, document.title, window.location.pathname);
+const DEFAULT_REDIRECT_CALLBACK = () =>
+  window.history.replaceState({}, document.title, window.location.pathname);
 
 export const Auth0Context = React.createContext();
 export const useAuth0 = () => useContext(Auth0Context);
-export const Auth0Provider = ({ children, onRedirectCallback = DEFAULT_REDIRECT_CALLBACK, ...initOptions }) => {
+export const Auth0Provider = ({
+  children,
+  onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
+  ...initOptions
+}) => {
   const [isAuthenticated, setIsAuthenticated] = useState();
   const [user, setUser] = useState();
   const [auth0Client, setAuth0] = useState();
@@ -48,7 +53,7 @@ export const Auth0Provider = ({ children, onRedirectCallback = DEFAULT_REDIRECT_
       setPopupOpen(false);
     }
     const user = await auth0Client.getUser();
-    console.log(user);
+    // console.log(user);
     setUser(user);
     setIsAuthenticated(true);
     API.getUser(user.email)
@@ -60,12 +65,12 @@ export const Auth0Provider = ({ children, onRedirectCallback = DEFAULT_REDIRECT_
             image: user.picture
           })
             .then(res => {
-              console.log(res);
-              console.log("User has been added!");
+              // console.log(res);
+              // console.log("User has been added!");
             })
             .catch(err => console.log(err));
         } else {
-          console.log("User already exists!");
+          // console.log("User already exists!");
         }
       })
       .catch(err => console.log(err));

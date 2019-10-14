@@ -1,8 +1,10 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import { Auth0Context } from "../react-auth0-wrapper";
 import { withStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Typography, Button } from "@material-ui/core";
 import { ExitToApp, MeetingRoom, AccountBox } from "@material-ui/icons";
+import API from "../utils/API";
 
 const styles = {
   grow: {
@@ -12,13 +14,39 @@ const styles = {
   logo: {
     height: "50px",
     filter: "invert(1)"
-  }
+  },
+  userInfo: { marginRight: 25 }
 };
 
 class Navbar extends Component {
   static contextType = Auth0Context;
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      userObj: ""
+    };
+  }
+
+  componentDidMount() {
+    this.getUser();
+  }
+
+  componentDidUpdate() {
+    this.getUser();
+  }
+
+  getUser = () => {
+    const { isAuthenticated, user } = this.context;
+    if (isAuthenticated) {
+      API.getUser(user.email).then(res => {
+        this.setState({ userObj: res.data });
+      });
+    }
+  };
+
   render(props) {
-    const { logout } = this.context;
+    const { logout, user } = this.context;
     const classes = this.props.classes;
     const { leaveTable } = this.props;
     return (
@@ -32,6 +60,17 @@ class Navbar extends Component {
           <Typography variant="h6" color="inherit" className={classes.grow}>
             Poker
           </Typography>
+          {user ? (
+            <Typography
+              variant="h6"
+              color="inherit"
+              className={classes.userInfo}
+            >
+              {user.nickname} : ${this.state.userObj.cash}
+            </Typography>
+          ) : (
+            ""
+          )}
           {this.props.return ? (
             <Button
               color="secondary"
@@ -46,15 +85,16 @@ class Navbar extends Component {
             ""
           )}
           {this.props.profile ? (
-            <Button
-              color="secondary"
-              variant="contained"
-              className={classes.button}
-              href="/profile"
-            >
-              <AccountBox />
-              Your Profile
-            </Button>
+            <Link to="/profile">
+              <Button
+                color="secondary"
+                variant="contained"
+                className={classes.button}
+              >
+                <AccountBox />
+                Your Profile
+              </Button>
+            </Link>
           ) : (
             ""
           )}

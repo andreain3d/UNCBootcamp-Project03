@@ -43,7 +43,10 @@ class Options extends Component {
 
     this.BETTING = bet => {
       axios.get(`api/table/bet/${props.position}/${bet}`);
-      this.setState({ sliderValue: this.props.minBet + this.props.bigBlind, showSlider: false });
+      this.setState({
+        sliderValue: this.props.minBet + this.props.bigBlind,
+        showSlider: false
+      });
     };
 
     this.DEAL = event => {
@@ -75,7 +78,10 @@ class Options extends Component {
     if (nextProps.availableChips === 0) {
       this.setState({ sliderMax: 0, sliderValue: 0 });
     }
-    if (nextProps.availableChips !== this.state.sliderMax && nextProps.minBet !== this.state.minBet) {
+    if (
+      nextProps.availableChips !== this.state.sliderMax &&
+      nextProps.minBet !== this.state.minBet
+    ) {
       this.setState({
         sliderMax: nextProps.availableChips,
         minBet: nextProps.minBet,
@@ -84,16 +90,22 @@ class Options extends Component {
     } else if (nextProps.availableChips !== this.state.sliderMax) {
       this.setState({ sliderMax: nextProps.availableChips });
     } else if (nextProps.minBet !== this.state.minBet) {
-      this.setState({ minBet: nextProps.minBet, sliderValue: nextProps.minBet + this.props.bigBlind });
+      this.setState({
+        minBet: nextProps.minBet,
+        sliderValue: nextProps.minBet + this.props.bigBlind
+      });
     } else if (nextProps.minBet > nextProps.availableChips) {
-      this.setState({ sliderMax: nextProps.availableChips, sliderValue: nextProps.availableChips });
+      this.setState({
+        sliderMax: nextProps.availableChips,
+        sliderValue: nextProps.availableChips
+      });
     }
   }
 
   render(props) {
     const classes = this.props.classes;
-
-    const { cards, position, actionTo, minBet, bigBlind, availableChips, currentBet } = this.props;
+    //availableChips, currentBet removed from props deconstruction
+    const { cards, position, actionTo, minBet, bigBlind } = this.props;
 
     return (
       <Paper className={classes.grow}>
