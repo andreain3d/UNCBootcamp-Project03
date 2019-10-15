@@ -40,6 +40,7 @@ class App extends Component {
       this.setState({ socketId: this.socket.id });
       //update the user object
     });
+
     // this.socket.on("ADDPLAYER", data => {
     //   const { que, quePos } = data;
     //   console.log(que, quePos);
@@ -174,6 +175,7 @@ class App extends Component {
             cash: res.data.cash + res.data.player.chips
           });
         });
+        this.leaveTable();
       }
     });
 

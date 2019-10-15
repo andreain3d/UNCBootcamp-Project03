@@ -27,21 +27,18 @@ module.exports = {
     //force a fold, add them to the deque (if they aren't there already), and update their database entry
     console.log(socketId);
     if (serverTable) {
-      var email;
-      var user = {
-        cash: 0
-      };
+      var name = "";
       serverTable.players.forEach((player, index) => {
         if (player.id === socketId) {
-          email = player.email;
-          fold(index);
-          if (!deque.includes(player.name)) {
-            deque.push(player.name);
-          }
-          user.cash = player.cash + player.chips;
-          db.User.findOneAndUpdate({ email: email }, user)
-            .then(dbModel => console.log(dbModel))
-            .catch(err => console.log(err));
+          name = player.name;
+          deque.push(name);
+
+          io.emit("LEAVETABLE", player);
+          placeBet(index, -1);
+        }
+      });
+      deque.forEach(playerName => {
+        if (playerName === name) {
         }
       });
     }
@@ -76,6 +73,7 @@ module.exports = {
     deque.push(req.params.name);
     serverTable.players.forEach((player, index) => {
       if (player.name === req.params.name) {
+        console.log("player leaving: ", player);
         io.emit("LEAVETABLE", player);
         placeBet(index, -1);
       }
@@ -122,10 +120,7 @@ let fold = pos => {
     message: `${serverTable.players[parseInt(pos)].name} folds`,
     style: "#373c77"
   });
-  if (
-    serverTable.betsIn &&
-    serverTable.foldedPlayers === serverTable.players.length - 1
-  ) {
+  if (serverTable.betsIn && serverTable.foldedPlayers === serverTable.players.length - 1) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
       pot: serverTable.pot[0]
@@ -260,10 +255,7 @@ let check = pos => {
 };
 
 let allIn = pos => {
-  var amount = serverTable.players[pos].bet(
-    serverTable.players[pos].chips,
-    serverTable.round
-  );
+  var amount = serverTable.players[pos].bet(serverTable.players[pos].chips, serverTable.round);
   serverTable.collect(amount);
   //check the amount against the current bet
   if (amount > serverTable.currentBet) {
@@ -353,14 +345,7 @@ let next = async (round, force = false) => {
 };
 
 let placeBet = async (pos, amt) => {
-  const {
-    position: tablePos,
-    round,
-    currentBet,
-    players,
-    betsIn,
-    pot
-  } = serverTable;
+  const { position: tablePos, round, currentBet, players, betsIn, pot } = serverTable;
   let position = parseInt(pos);
   let amount = parseInt(amt);
   if (position < 0) {
@@ -421,13 +406,7 @@ let prime = async obj => {
     //if an object is passed, create a custom table, otherwise create a default table
     if (obj) {
       const { buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit } = obj;
-      serverTable = new Table(
-        buyIn,
-        bigBlind,
-        smallBlind,
-        autoIncrementBlinds,
-        limit
-      );
+      serverTable = new Table(buyIn, bigBlind, smallBlind, autoIncrementBlinds, limit);
     } else {
       serverTable = new Table();
     }
@@ -464,9 +443,7 @@ let prime = async obj => {
         if (que.length > 0) {
           serverTable.addPlayer(que.shift(), index);
         } else {
-          serverTable.players = serverTable.players.filter(
-            value => value.name !== name
-          );
+          serverTable.players = serverTable.players.filter(value => value.name !== name);
         }
       }
       io.emit("LEAVETABLE", { name, player });
@@ -484,8 +461,7 @@ let prime = async obj => {
   if (serverTable.dealerIndex === serverTable.players.length) {
     serverTable.dealerIndex = 0;
   } else if (serverTable.dealerIndex > serverTable.players.length) {
-    serverTable.dealerIndex =
-      serverTable.dealerIndex - serverTable.players.length;
+    serverTable.dealerIndex = serverTable.dealerIndex - serverTable.players.length;
   }
   if (serverTable.players.length === 1) {
     io.emit("RECEIVE_MESSAGE", {
@@ -533,7 +509,7 @@ let prime = async obj => {
 
 let addPlayer = async obj => {
   return new Promise(resolve => {
-    const { name, cash, img, id, email } = obj;
+    const { name, cash, img, id } = obj;
     var player = new Player(name, parseInt(cash), img, id);
     //check to see if the player name exists on the table
     // var isAtTable = false;
@@ -582,16 +558,14 @@ let dealCards = async () => {
     if (serverTable.deck.cards.length < 52) {
       io.emit("ERROR", {
         err: "Cards have already been dealt!",
-        next:
-          "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
+        next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
       });
       return resolve();
     }
     //make sure there is at least one player at the table
     if (serverTable.players.length === 0) {
       io.emit("ERROR", {
-        err:
-          "You need to add at least one player to the table before you deal!",
+        err: "You need to add at least one player to the table before you deal!",
         next: "GET '/api/table/join'",
         expecting: { name: "player name", chips: 200 }
       });
@@ -706,8 +680,7 @@ let doTurn = async () => {
     if (serverTable.flop.length < 3) {
       io.emit("ERROR", {
         err: "** The flop has not been dealt",
-        next:
-          "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
+        next: "GET '/api/player/<position>/cards' OR '/api/table/bet/<amount>' OR '/api/table/flop'"
       });
       return resolve();
     }
@@ -843,11 +816,7 @@ let payout = async (force = false) => {
     }
     for (var i = 0; i < ranks.length; i++) {
       var currentRank = ranks[i];
-      currentRank.sort(
-        (a, b) =>
-          serverTable.players[a.playerIndex].payout -
-          serverTable.players[b.playerIndex].payout
-      );
+      currentRank.sort((a, b) => serverTable.players[a.playerIndex].payout - serverTable.players[b.playerIndex].payout);
       while (currentRank.length > 0) {
         var n = currentRank.length;
         var lowestPayout = currentRank.shift();
