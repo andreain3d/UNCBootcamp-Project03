@@ -169,7 +169,7 @@ class App extends Component {
             cash: res.data.cash + res.data.player.chips
           });
         });
-        this.leaveTable();
+        // this.leaveTable();
       }
     });
 
