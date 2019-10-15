@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
-
+import API from "./utils/API";
+import { Auth0Context } from "./react-auth0-wrapper";
 import LobbyView from "./pages/LobbyView";
 import TableView from "./pages/TableView";
 import ProfileView from "./pages/ProfileView";
@@ -9,6 +10,7 @@ import io from "socket.io-client";
 import axios from "axios";
 
 class App extends Component {
+  static contextType = Auth0Context;
   constructor(props) {
     super(props);
 
@@ -21,21 +23,24 @@ class App extends Component {
       handAction: 0,
       position: -1,
       name: "",
+      email: "",
+      img: "",
       index: 0,
       dealerIndex: 0,
       socketId: "",
       availableChips: 0,
       playerLeaveTable: false,
+      message: "",
       allMessages: []
-      //Does bigBlind need to be added here if it's set up in the PRIME listener setState function?
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
     this.socket.on("connect", () => {
-      console.log("connected");
+      // console.log("connected");
       this.setState({ socketId: this.socket.id });
       //update the user object
     });
+
     // this.socket.on("ADDPLAYER", data => {
     //   const { que, quePos } = data;
     //   console.log(que, quePos);
@@ -43,7 +48,7 @@ class App extends Component {
     // });
 
     this.socket.on("PRIME", data => {
-      console.log("PRIME");
+      // console.log("PRIME");
       var players = data.players;
       //console.log(players);
       players.forEach(player => {
@@ -71,11 +76,16 @@ class App extends Component {
 
     this.socket.on("DEALCARDS", data => {
       if (this.state.position >= 0) {
-        console.log("*******getting player cards for " + this.state.name + " at position " + this.state.position);
+        // console.log(
+        //   "*******getting player cards for " +
+        //     this.state.name +
+        //     " at position " +
+        //     this.state.position
+        // );
         axios.get(`/api/player/${this.state.position}/cards`).then(res => {
-          console.log(res.data);
+          // console.log(res.data);
           if (!res.data) {
-            console.log("it was me. whoops!");
+            // console.log("it was me. whoops!");
           }
           this.setState({ playerCards: res.data.playerCards });
           //a call to the bet route to return player and betting data
@@ -121,55 +131,89 @@ class App extends Component {
       this.setState({ playerInfo, currentBet, minBet, actionTo, pot });
       //if actionTo === this.state.position
       // Start the timer, activate the buttons in options
-      console.log("Next bet is " + minBet + " to the player at position " + actionTo);
+      // console.log(
+      //   "Next bet is " + minBet + " to the player at position " + actionTo
+      // );
       //at the end of a round of betting, the data received in this listener only contains the playerInfo. All other values will be undefined
       //This implies that currentBet, minBet, and actionTo will only be on the state variable during betting
       //If these values are used to render data, conditional rendering should be used
     });
 
-    this.socket.on("LEAVETABLE", data => {
-      console.log(data);
-      //reset all data that only exists on the table
-      this.setState({
-        playerCards: [],
-        playerInfo: [],
-        flop: [],
-        hands: [],
-        pot: 0,
-        handAction: 0,
-        position: -1,
-        dealerIndex: 0,
-        availableChips: 0
-      });
-      //compare data.name to this.state.name
-      //if the same, send to lobby and save data
-      if (data.name === this.state.name) {
-        this.setState({ playerLeaveTable: true });
+    this.socket.on("LEAVETABLE", player => {
+      // console.log("SOCKET LEAVE TABLE");
+      // console.log(player);
+      //player contains the player object keys from the table
+      //compare player.name to this.state.name
+      //if the same, send to lobby and save player
+      if (player.name === this.state.name) {
+        this.setState({
+          playerCards: [],
+          playerInfo: [],
+          flop: [],
+          hands: [],
+          pot: 0,
+          handAction: 0,
+          position: -1,
+          dealerIndex: 0,
+          availableChips: 0,
+          playerLeaveTable: true
+        });
+        //convert the player chips back to cash
+        // console.log(player.chips, player.cash);
+        player.cash += player.chips;
+        player.chips = 0;
+        //call a function to update the player object in the db here!
+        const { user } = this.context;
+        API.getUser(user.email).then(res => {
+          API.updateUser(res.data.email, {
+            cash: res.data.cash + res.data.player.chips
+          });
+        });
+        this.leaveTable();
       }
     });
 
     this.socket.on("LEAVEQUE", data => {
-      console.log(data);
+      // console.log(data);
       //compare data.name to this.state.name
     });
 
     this.socket.on("PAYOUT", data => {
-      const { players: playerInfo, pot, hands, payouts } = data;
+      //payouts removed from data deconstruction
+      const { players: playerInfo, pot, hands } = data;
       this.setState({ playerInfo, pot, hands });
-      console.log(hands);
-      console.log(payouts);
     });
 
     this.socket.on("ERROR", data => {
-      console.log("=============ERROR=============");
-      console.log(data);
-      console.log("==============END==============");
+      // console.log("=============ERROR=============");
+      // console.log(data);
+      // console.log("==============END==============");
+    });
+
+    this.socket.on("RECEIVE_MESSAGE", data => {
+      this.addMessage(data);
     });
   }
 
   addMessage = data => {
-    console.log(data);
     this.setState({ allMessages: [...this.state.allMessages, data] });
+  };
+
+  sendMessage = event => {
+    event.preventDefault();
+    //console.log(this.state.message);
+    this.socket.emit("SEND_MESSAGE", {
+      author: this.state.name,
+      message: this.state.message
+    });
+    this.setState({
+      message: ""
+    });
+  };
+
+  handleInputChange = event => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
   };
 
   nextBetAction = () => {
@@ -180,12 +224,24 @@ class App extends Component {
   };
 
   leaveTable = () => {
-    console.log("LEAVE");
+    // console.log("leave table clicked by " + this.state.name);
     axios.get("/api/table/leave/" + this.state.name);
   };
 
   setName = name => {
     this.setState({ name: name });
+  };
+
+  resetRedirect = () => {
+    if (this.state.playerLeaveTable) {
+      this.setState({ playerLeaveTable: false });
+    }
+  };
+
+  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
+  //{Eugene Halpin} - this takes in data from the authentication loop and sets it in state so that it can be passed down into other components
+  setName = (name, email, img) => {
+    this.setState({ name, email, img });
   };
 
   render() {
@@ -194,7 +250,6 @@ class App extends Component {
         <Switch>
           <PrivateRoute path="/table">
             <TableView
-              username={this.state.name}
               actionTo={this.state.actionTo}
               leaveTable={this.leaveTable}
               pot={this.state.pot}
@@ -212,12 +267,20 @@ class App extends Component {
               hands={this.state.hands}
               currentBet={this.state.currentBet}
               playerLeaveTable={this.state.playerLeaveTable}
+              message={this.state.message}
               allMessages={this.state.allMessages}
               addMessage={this.addMessage}
+              sendMessage={this.sendMessage}
+              handleInputChange={this.handleInputChange}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
-            <ProfileView leaveTable={this.leaveTable} />
+            <ProfileView
+              leaveTable={this.leaveTable}
+              name={this.state.name}
+              img={this.state.img}
+              email={this.state.email}
+            />
           </PrivateRoute>
           <Route path="/">
             <LobbyView
@@ -225,6 +288,7 @@ class App extends Component {
               setName={this.setName}
               socketId={this.state.socketId}
               position={this.state.position}
+              resetRedirect={this.resetRedirect}
               allMessages={this.state.allMessages}
               addMessage={this.addMessage}
             />

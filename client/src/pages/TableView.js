@@ -38,7 +38,6 @@ class TableView extends Component {
     const classes = this.props.classes;
 
     const {
-      username,
       leaveTable,
       dealer,
       pot,
@@ -56,8 +55,11 @@ class TableView extends Component {
       hands,
       currentBet,
       playerLeaveTable,
+      message,
       allMessages,
-      addMessage
+      addMessage,
+      sendMessage,
+      handleInputChange
     } = this.props;
 
     if (playerLeaveTable) {
@@ -95,7 +97,13 @@ class TableView extends Component {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <Chat socket={socket} username={username} allMessages={allMessages} addMessage={addMessage} />
+              <Chat
+                message={message}
+                allMessages={allMessages}
+                addMessage={addMessage}
+                sendMessage={sendMessage}
+                handleInputChange={handleInputChange}
+              />
             </Grid>
           </Grid>
         </Grid>

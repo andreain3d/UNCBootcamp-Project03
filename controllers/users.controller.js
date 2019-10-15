@@ -15,5 +15,14 @@ module.exports = {
     db.User.create(req.body)
       .then(dbModel => res.json(dbModel))
       .catch(err => res.status(422).json(err));
+  },
+  update: function(req, res) {
+    db.User.findOneAndUpdate({ email: req.params.email }, req.body)
+      .then(dbModel => res.json(dbModel))
+      .catch(err => res.status(422).json(err));
+  },
+  uploadAvatar: (req, res) => {
+    console.log(req);
+    res.json(req);
   }
 };
