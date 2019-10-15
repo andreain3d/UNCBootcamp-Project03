@@ -32,20 +32,6 @@ const styles = {
 class Chat extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      message: "",
-      username: props.username
-    };
-
-    this.socket = this.props.socket;
-    this.socket.on("RECEIVE_MESSAGE", function(data) {
-      console.log("RECEIVING MESSAGE SOCKET");
-      props.addMessage(data);
-    });
-
-    this.socket.on("FLASH", data => {
-      //console.log(data);
-    });
   }
 
   componentDidMount() {
@@ -58,23 +44,6 @@ class Chat extends Component {
     this.el.scrollIntoView({ behavior: "smooth" });
   };
 
-  handleInputChange = event => {
-    const { name, value } = event.target;
-    this.setState({ [name]: value });
-  };
-
-  sendMessage = event => {
-    event.preventDefault();
-    //console.log(this.state.message);
-    this.socket.emit("SEND_MESSAGE", {
-      author: this.state.username,
-      message: this.state.message
-    });
-    this.setState({
-      message: ""
-    });
-  };
-
   render(props) {
     const classes = this.props.classes;
     return (
@@ -83,15 +52,12 @@ class Chat extends Component {
           Chat
         </Typography>
         <Paper className={classes.inner}>
-          <Paper className={classes.msgDisplay} ref={this.myRef}>
+          <Paper className={classes.msgDisplay}>
             {this.props.allMessages.map((message, index) => {
               if (isEmpty(message.author)) {
                 return (
                   <div key={index}>
-                    <Typography
-                      variant="body1"
-                      style={{ color: message.style }}
-                    >
+                    <Typography variant="body1" style={{ color: message.style }}>
                       {message.message}
                     </Typography>
                   </div>
@@ -116,13 +82,13 @@ class Chat extends Component {
               key="message"
               name="message"
               placeholder="message"
-              value={this.state.message}
-              onChange={this.handleInputChange}
+              value={this.props.message}
+              onChange={this.props.handleInputChange}
               label="Message"
               className={classes.textField}
               margin="normal"
             />
-            <Button onClick={this.sendMessage}>Post</Button>
+            <Button onClick={this.props.sendMessage}>Post</Button>
           </div>
         </Paper>
       </Paper>
