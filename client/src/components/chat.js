@@ -61,7 +61,10 @@ class Chat extends Component {
               if (isEmpty(message.author)) {
                 return (
                   <div key={index}>
-                    <Typography variant="body1" style={{ color: message.style }}>
+                    <Typography
+                      variant="body1"
+                      style={{ color: message.style }}
+                    >
                       {message.message}
                     </Typography>
                   </div>
@@ -81,7 +84,6 @@ class Chat extends Component {
               }}
             />
           </Paper>
-<<<<<<< HEAD
           {this.props.position >= 0 ? (
             <Grid container justify="center" alignItems="flex-end">
               <TextField
@@ -106,21 +108,6 @@ class Chat extends Component {
           ) : (
             ""
           )}
-=======
-          <div className={classes.container} noValidate autoComplete="off">
-            <TextField
-              key="message"
-              name="message"
-              placeholder="message"
-              value={this.props.message}
-              onChange={this.props.handleInputChange}
-              label="Message"
-              className={classes.textField}
-              margin="normal"
-            />
-            <Button onClick={this.props.sendMessage}>Post</Button>
-          </div>
->>>>>>> 140e71eeffcb0180abb87bd6255afc41f437d7bf
         </Paper>
       </Paper>
     );

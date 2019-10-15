@@ -82,15 +82,11 @@ class TableView extends Component {
             river={river}
             position={position}
           />
-<<<<<<< HEAD
           {hands && hands.length > 0 ? (
-            <EndDialog hands={hands} socket={socket} />
+            <EndDialog socket={socket} hands={hands} />
           ) : (
             ""
           )}
-=======
-          {hands && hands.length > 0 ? <EndDialog socket={socket} hands={hands} /> : ""}
->>>>>>> 140e71eeffcb0180abb87bd6255afc41f437d7bf
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
               <Options
