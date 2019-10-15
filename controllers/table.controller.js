@@ -25,7 +25,7 @@ module.exports = {
     //check is a function called from the server side on user disconnect
     //look on the table for a user with the given socketId. If you find them
     //force a fold, add them to the deque (if they aren't there already), and update their database entry
-    console.log(socketId);
+    console.log("check socket: ", socketId);
     if (serverTable) {
       var name = "";
       serverTable.players.forEach((player, index) => {

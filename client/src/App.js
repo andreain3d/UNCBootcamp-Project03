@@ -121,13 +121,7 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const {
-        players: playerInfo,
-        currentBet,
-        minBet,
-        position: actionTo,
-        pot
-      } = data;
+      const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -166,15 +160,20 @@ class App extends Component {
         });
         //convert the player chips back to cash
         // console.log(player.chips, player.cash);
+
         player.cash += player.chips;
         player.chips = 0;
+        console.log("chips: ", player.chips);
         //call a function to update the player object in the db here!
         const { user } = this.context;
+
         API.getUser(user.email).then(res => {
           API.updateUser(res.data.email, {
-            cash: res.data.cash + res.data.player.chips
+            cash: player.cash
           });
         });
+
+        //What does this do here?
         this.leaveTable();
       }
     });
