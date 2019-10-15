@@ -24,22 +24,27 @@ module.exports = {
   check: socketId => {
     //check is a function called from the server side on user disconnect
     //look on the table for a user with the given socketId. If you find them
+    //force a fold, add them to the deque (if they aren't there already), and update their database entry
+    console.log(socketId);
     if (serverTable) {
-      var name = "";
-      serverTable.players.forEach(player => {
+      var email;
+      var user = {
+        cash: 0
+      };
+      serverTable.players.forEach((player, index) => {
         if (player.id === socketId) {
-          name = player.name;
-        }
-      });
-      deque.forEach(playerName => {
-        if (playerName === name) {
+          email = player.email;
+          fold(index);
+          if (!deque.includes(player.name)) {
+            deque.push(player.name);
+          }
+          user.cash = player.cash + player.chips;
+          db.User.findOneAndUpdate({ email: email }, user)
+            .then(dbModel => console.log(dbModel))
+            .catch(err => console.log(err));
         }
       });
     }
-    que.forEach(player => {
-      if (player.id === socketId) {
-      }
-    });
   },
   //flash is a route that returns the entire table object, or null if init has not been performed
   flash: (req, res) => {
@@ -110,7 +115,6 @@ module.exports = {
   }
 };
 
-//private method for handling bets
 let fold = pos => {
   serverTable.players[parseInt(pos)].didFold = true;
   serverTable.checkBets();
@@ -477,11 +481,12 @@ let prime = async obj => {
     serverTable.addPlayer(player);
   }
   serverTable.dealerIndex++;
-    if (serverTable.dealerIndex === serverTable.players.length) {
-      serverTable.dealerIndex = 0;
-    } else if(serverTable.dealerIndex > serverTable.players.length){
-      serverTable.dealerIndex = serverTable.dealerIndex - serverTable.players.length;
-    }
+  if (serverTable.dealerIndex === serverTable.players.length) {
+    serverTable.dealerIndex = 0;
+  } else if (serverTable.dealerIndex > serverTable.players.length) {
+    serverTable.dealerIndex =
+      serverTable.dealerIndex - serverTable.players.length;
+  }
   if (serverTable.players.length === 1) {
     io.emit("RECEIVE_MESSAGE", {
       style: "#1a643f",
@@ -528,7 +533,7 @@ let prime = async obj => {
 
 let addPlayer = async obj => {
   return new Promise(resolve => {
-    const { name, cash, img, id } = obj;
+    const { name, cash, img, id, email } = obj;
     var player = new Player(name, parseInt(cash), img, id);
     //check to see if the player name exists on the table
     // var isAtTable = false;
@@ -559,13 +564,13 @@ let addPlayer = async obj => {
       que
     });
     if (serverTable && serverTable.players.length > 0 && !gameInProgress) {
-      console.log("THIS BLOCK")
+      console.log("THIS BLOCK");
       prime();
-      return resolve({quePos, que});
+      return resolve({ quePos, que });
     }
     if (que.length > 1 && !gameInProgress) {
       prime();
-      return resolve({quePos, que});
+      return resolve({ quePos, que });
     }
 
     resolve({ quePos, que });
@@ -605,7 +610,7 @@ let dealCards = async () => {
     if (serverTable.players.length === 2) {
       small = serverTable.dealerIndex;
     }
-    
+
     var big = small + 1;
     if (big === serverTable.players.length) {
       big = 0;

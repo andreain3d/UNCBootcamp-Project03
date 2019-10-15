@@ -34,8 +34,10 @@ const server = app.listen(PORT, () => {
 let io = socket(server);
 
 io.on("connection", socket => {
+  console.log("connection made on " + socket.id);
   require("./controllers/table.controller").init();
-  socket.on("disconnect", () => {
+  socket.on("disconnect", id => {
+    console.log("disconnect by " + id);
     const { check } = require("./controllers/table.controller");
     check(socket.id);
   });
