@@ -23,6 +23,8 @@ class App extends Component {
       handAction: 0,
       position: -1,
       name: "",
+      email: "",
+      img: "",
       index: 0,
       dealerIndex: 0,
       socketId: "",
@@ -169,7 +171,7 @@ class App extends Component {
         const { user } = this.context;
         API.getUser(user.email).then(res => {
           API.updateUser(res.data.email, {
-            cash: res.data.cash + data.player.chips
+            cash: res.data.cash + res.data.player.chips
           });
         });
       }
@@ -217,8 +219,8 @@ class App extends Component {
   };
 
   // {Nick Prather} - this is being passed to Lobby View; what's it doing?
-  setName = name => {
-    this.setState({ name: name });
+  setName = (name, email, img) => {
+    this.setState({ name, email, img });
   };
 
   render() {
@@ -250,7 +252,12 @@ class App extends Component {
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
-            <ProfileView leaveTable={this.leaveTable} />
+            <ProfileView
+              leaveTable={this.leaveTable}
+              name={this.state.name}
+              img={this.state.img}
+              email={this.state.email}
+            />
           </PrivateRoute>
           <Route path="/">
             <LobbyView

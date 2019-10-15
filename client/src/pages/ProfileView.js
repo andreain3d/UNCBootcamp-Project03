@@ -40,7 +40,7 @@ const styles = {
 class ProfileView extends Component {
   render() {
     const classes = this.props.classes;
-
+    const { email } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
         <Navbar logout="true" />
@@ -52,7 +52,7 @@ class ProfileView extends Component {
             justify="center"
           >
             <Paper className={classes.paper}>
-              <Profile />
+              <Profile toggleEdit={this.toggleEdit} email={email} />
             </Paper>
           </Grid>
           <Grid item xs={12}>
