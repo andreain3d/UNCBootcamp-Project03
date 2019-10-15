@@ -94,9 +94,16 @@ class LobbyView extends Component {
     });
   }
 
-  componentDidMount() {
+  init() {
     //when the lobbyview mounts on the dom, toggle the playerLeaveTable key in state on app.js
     this.props.resetRedirect();
+    const { user } = this.context;
+
+    API.getUser(user.email)
+      .then(res => {
+        this.props.setName(res.data.username, res.data.email, res.data.image);
+      })
+      .catch(err => console.log(err));
   }
 
   joinGame = event => {
@@ -104,14 +111,15 @@ class LobbyView extends Component {
     event.preventDefault();
     const { user } = this.context;
     API.getUser(user.email).then(res => {
-      this.props.setName(res.data.username);
       const playerEmail = res.data.email;
       const playerCash = res.data.cash;
       API.createPlayer({
         name: res.data.username,
         cash: res.data.cash,
         img: res.data.image,
-        socketId: this.props.socketId
+        socketId: this.props.socketId,
+        email: playerEmail,
+        id: this.props.socketId
       }).then(res => {
         this.setState({
           currentPos: res.data.quePos + 1,
@@ -150,7 +158,9 @@ class LobbyView extends Component {
     if (loading) {
       return <div>Loading...</div>;
     }
-
+    if (user) {
+      this.init();
+    }
     return (
       <MuiThemeProvider theme={theme}>
         {!isAuthenticated && (

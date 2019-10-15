@@ -1,6 +1,6 @@
 //as a constructor
 
-function Player(name, cash, img, id) {
+function Player(name, cash, img, id, email) {
   this.name = name;
   this.chips = 0;
   this.cash = cash;
@@ -13,6 +13,7 @@ function Player(name, cash, img, id) {
   this.position = 0;
   this.img = img;
   this.id = id;
+  this.email = email;
 
   this.bet = (chipValue, index) => {
     if (chipValue >= this.chips) {

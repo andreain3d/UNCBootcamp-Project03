@@ -66,7 +66,7 @@ class Navbar extends Component {
               color="inherit"
               className={classes.userInfo}
             >
-              {user.nickname} : ${this.state.userObj.cash}
+              {this.state.userObj.username} : ${this.state.userObj.cash}
             </Typography>
           ) : (
             ""
