@@ -8,6 +8,7 @@ import Navbar from "../components/navbar";
 import Chat from "../components/chat";
 import Options from "../components/options";
 import EndDialog from "../components/endDialog";
+import { Auth0Context } from "../react-auth0-wrapper";
 
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
@@ -34,8 +35,10 @@ const theme = createMuiTheme({
 });
 
 class TableView extends Component {
+  static contextType = Auth0Context;
   render(props) {
     const classes = this.props.classes;
+    const { user } = this.context;
 
     const {
       leaveTable,
@@ -62,7 +65,7 @@ class TableView extends Component {
       handleInputChange
     } = this.props;
 
-    if (playerLeaveTable) {
+    if (playerLeaveTable || !user) {
       return <Redirect to="/" />;
     }
 

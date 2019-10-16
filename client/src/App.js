@@ -121,13 +121,7 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const {
-        players: playerInfo,
-        currentBet,
-        minBet,
-        position: actionTo,
-        pot
-      } = data;
+      const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -172,10 +166,10 @@ class App extends Component {
         const { user } = this.context;
         API.getUser(user.email).then(res => {
           API.updateUser(res.data.email, {
-            cash: res.data.cash + res.data.player.chips
+            cash: player.cash
           });
         });
-        this.leaveTable();
+        // this.leaveTable();
       }
     });
 
@@ -232,6 +226,10 @@ class App extends Component {
   leaveTable = () => {
     // console.log("leave table clicked by " + this.state.name);
     axios.get("/api/table/leave/" + this.state.name);
+  };
+
+  setName = name => {
+    this.setState({ name: name });
   };
 
   resetRedirect = () => {
