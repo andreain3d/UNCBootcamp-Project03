@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Auth0Context } from "../react-auth0-wrapper";
 import { withStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Typography, Button } from "@material-ui/core";
@@ -24,7 +24,8 @@ class Navbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      userObj: ""
+      userObj: "",
+      refresh: false
     };
   }
 
@@ -45,10 +46,15 @@ class Navbar extends Component {
     }
   };
 
-  render(props) {
+  render() {
     const { logout, user } = this.context;
     const classes = this.props.classes;
     const { leaveTable } = this.props;
+
+    if (!user) {
+      return <Redirect to="/" />;
+    }
+
     return (
       <AppBar position="static" className={classes.grow}>
         <Toolbar>
