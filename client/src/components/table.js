@@ -101,7 +101,7 @@ class Table extends Component {
             <Grid item xs={12}>
               <Grid container justify="center">
                 <Token type={this.getToken(dealer, 1, players)} />
-                <Token type="C" />
+                <Token type="x" />
               </Grid>
             </Grid>
           </Grid>
@@ -128,7 +128,7 @@ class Table extends Component {
               </Grid>
               <Grid item xs={1}>
                 <Token type={this.getToken(dealer, 7, players)} />
-                <Token type="C" />
+                <Token type="x" />
               </Grid>
             </Grid>
             <Grid container>
@@ -139,7 +139,7 @@ class Table extends Component {
               </Grid>
               <Grid item xs={1}>
                 <Token type={this.getToken(dealer, 6, players)} />
-                <Token type="C" />
+                <Token type="x" />
               </Grid>
             </Grid>
           </Grid>
@@ -170,7 +170,7 @@ class Table extends Component {
             <Grid container className={classes.item}>
               <Grid item xs={1}>
                 <Token type={this.getToken(dealer, 2, players)} />
-                <Token type="C" />
+                <Token type="x" />
               </Grid>
               <Grid item xs={11}>
                 {players[2] ? (
