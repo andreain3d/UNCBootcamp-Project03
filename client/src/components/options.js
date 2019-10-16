@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { Grid, Button, Paper, Typography } from "@material-ui/core";
 import PlayerCard from "./playerCard";
+import Timer from "./timer";
 import axios from "axios";
 
 const styles = {
@@ -117,6 +118,11 @@ class Options extends Component {
             <PlayerCard src={cards.length > 0 ? cards[0].frontImage : ""} />
             <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
           </Grid>
+          {position === actionTo ? (
+            <Grid container justify="center" alignItems="center">
+              <Timer position={position} />
+            </Grid>
+          ) : null}
           <Grid container justify="center">
             <Button
               disabled={position !== actionTo}

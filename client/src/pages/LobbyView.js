@@ -48,6 +48,11 @@ const styles = {
     background: "#1c2022",
     flexGrow: 1,
     height: "10vh"
+  },
+  paper: {
+    flexGrow: 1,
+    height: "35vh",
+    background: "#1c2022"
   }
 };
 

@@ -15,7 +15,6 @@ class EndDialog extends React.Component {
       this.setState({ open: true });
     });
   }
-
   state = {
     open: true
   };
