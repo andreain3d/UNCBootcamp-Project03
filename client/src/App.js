@@ -147,7 +147,7 @@ class App extends Component {
 
     this.socket.on("LEAVETABLE", player => {
       // console.log("SOCKET LEAVE TABLE");
-      // console.log(player);
+      console.log(player);
       //player contains the player object keys from the table
       //compare player.name to this.state.name
       //if the same, send to lobby and save player
@@ -164,18 +164,7 @@ class App extends Component {
           availableChips: 0,
           playerLeaveTable: true
         });
-        //convert the player chips back to cash
-        // console.log(player.chips, player.cash);
-        player.cash += player.chips;
-        player.chips = 0;
-        //call a function to update the player object in the db here!
-        const { user } = this.context;
-        API.getUser(user.email).then(res => {
-          API.updateUser(res.data.email, {
-            cash: res.data.cash + res.data.player.chips
-          });
-        });
-        this.leaveTable();
+        
       }
     });
 

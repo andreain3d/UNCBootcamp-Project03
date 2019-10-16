@@ -9,7 +9,8 @@ router
 router.route("/join").post(tableController.addPlayer);
 router.route("/bet/:position/:amount").get(tableController.placeBet);
 router
-  .route("/leave/:name")
+  .route("/leave/:name?")
   .get(tableController.leaveTable)
+  .post(tableController.leaveTable)
   .delete(tableController.leaveQue);
 module.exports = router;
