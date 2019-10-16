@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { Button, Grid, TextField } from "@material-ui/core";
 import { Edit, Cancel } from "@material-ui/icons";
@@ -115,12 +115,15 @@ class Profile extends React.Component {
     return (
       <Grid container justify="center" alignItems="center">
         <Grid item xs={12}>
-          <Grid container justify="center">
+          <Grid container justify="center" alignItems="flex-end">
             <img
               src={this.state.image}
               alt="Profile"
               style={{ width: "200px", height: "200px" }}
             />
+            {this.state.editImg ? null : (
+              <Edit onClick={this.toggleImageEdit} />
+            )}
           </Grid>
           <Grid container justify="center" alignItems="center">
             {this.state.editImg ? (
@@ -135,13 +138,11 @@ class Profile extends React.Component {
                 upload={this.state.upload}
                 handleUploadChange={this.handleUploadChange}
               />
-            ) : (
-              <Edit onClick={this.toggleImageEdit} />
-            )}
+            ) : null}
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <Grid container justify="center">
+          <Grid container justify="center" alignItems="flex-end">
             {this.state.editName ? (
               <TextField
                 id="standard-name"
@@ -153,7 +154,12 @@ class Profile extends React.Component {
                 margin="normal"
               />
             ) : (
-              <h2>{this.state.username}</h2>
+              <Fragment>
+                <h2>
+                  {this.state.username}
+                  <Edit onClick={this.toggleNameEdit} />
+                </h2>
+              </Fragment>
             )}
           </Grid>
           <Grid container justify="center" alignItems="center">
@@ -168,9 +174,7 @@ class Profile extends React.Component {
                 </Button>
                 <Cancel onClick={this.cancelNameEdit} />
               </div>
-            ) : (
-              <Edit onClick={this.toggleNameEdit} />
-            )}
+            ) : null}
           </Grid>
         </Grid>
         <Grid item xs={12}>

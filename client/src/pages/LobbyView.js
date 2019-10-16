@@ -280,6 +280,7 @@ class LobbyView extends Component {
                   username={user.nickname}
                   allMessages={allMessages}
                   addMessage={addMessage}
+                  position={this.props.position}
                 />
               </Grid>
             </Grid>
