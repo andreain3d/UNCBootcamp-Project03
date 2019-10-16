@@ -228,7 +228,7 @@ class LobbyView extends Component {
                   </Grid>
                   <Grid item xs={12}>
                     <Grid container justify="center">
-                      {this.state.joined ? (
+                      {this.state.joined || this.props.cash < 200 ? (
                         <Button
                           disabled
                           onClick={this.joinGame}
