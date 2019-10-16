@@ -38,12 +38,29 @@ const styles = {
 };
 
 class ProfileView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      username: "",
+      cash: 0
+    };
+  }
+
+  setUserObj = (username, cash) => {
+    this.setState({ username, cash });
+  };
+
   render() {
     const classes = this.props.classes;
     const { email } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
-        <Navbar logout="true" />
+        {console.log(this.state)}
+        <Navbar
+          logout="true"
+          username={this.state.username}
+          cash={this.state.cash}
+        />
         <Grid container alignItems="flex-end" className={classes.background}>
           <Grid
             className={classes.landingContainer}
@@ -52,7 +69,11 @@ class ProfileView extends Component {
             justify="center"
           >
             <Paper className={classes.paper}>
-              <Profile toggleEdit={this.toggleEdit} email={email} />
+              <Profile
+                toggleEdit={this.toggleEdit}
+                email={email}
+                setUserObj={this.setUserObj}
+              />
             </Paper>
           </Grid>
           <Grid item xs={12}>

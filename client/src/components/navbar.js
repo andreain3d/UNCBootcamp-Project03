@@ -29,23 +29,6 @@ class Navbar extends Component {
     };
   }
 
-  componentDidMount() {
-    this.getUser();
-  }
-
-  componentDidUpdate() {
-    this.getUser();
-  }
-
-  getUser = () => {
-    const { isAuthenticated, user } = this.context;
-    if (isAuthenticated) {
-      API.getUser(user.email).then(res => {
-        this.setState({ userObj: res.data });
-      });
-    }
-  };
-
   render() {
     const { logout, user } = this.context;
     const classes = this.props.classes;
@@ -72,7 +55,7 @@ class Navbar extends Component {
               color="inherit"
               className={classes.userInfo}
             >
-              {this.state.userObj.username} : ${this.state.userObj.cash}
+              {this.props.username} : ${this.props.cash}
             </Typography>
           ) : (
             ""
