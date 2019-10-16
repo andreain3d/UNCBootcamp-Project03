@@ -21,14 +21,6 @@ const styles = {
 class Navbar extends Component {
   static contextType = Auth0Context;
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      userObj: "",
-      refresh: false
-    };
-  }
-
   render() {
     const { logout, user } = this.context;
     const classes = this.props.classes;
