@@ -107,6 +107,7 @@ class TableView extends Component {
                 addMessage={addMessage}
                 sendMessage={sendMessage}
                 handleInputChange={handleInputChange}
+                position={position}
               />
             </Grid>
           </Grid>

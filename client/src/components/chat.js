@@ -90,8 +90,8 @@ class Chat extends Component {
                 key="message"
                 name="message"
                 placeholder="message"
-                value={this.state.message}
-                onChange={this.handleInputChange}
+                value={this.props.message}
+                onChange={this.props.handleInputChange}
                 label="Message"
                 className={classes.textField}
                 margin="normal"
@@ -100,7 +100,7 @@ class Chat extends Component {
                 className={classes.button}
                 variant="contained"
                 color="secondary"
-                onClick={this.sendMessage}
+                onClick={this.props.sendMessage}
               >
                 Post
               </Button>
