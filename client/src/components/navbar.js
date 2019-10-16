@@ -55,7 +55,7 @@ class Navbar extends Component {
               color="inherit"
               className={classes.userInfo}
             >
-              {this.props.username} : ${this.props.cash}
+              {this.props.name} : ${this.props.cash}
             </Typography>
           ) : (
             ""

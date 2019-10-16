@@ -29,7 +29,7 @@ class Profile extends React.Component {
       .then(res => {
         const { username, image, cash } = res.data;
         this.setState({ username, image, cash, loading: false });
-        this.props.setUserObj(username, cash);
+        this.props.setUserNameAndCash(username, cash);
       })
       .catch(err => {
         console.log(err);
@@ -40,7 +40,9 @@ class Profile extends React.Component {
     API.getUser(this.props.email).then(res => {
       API.updateUser(res.data.email, {
         cash: res.data.cash + 1000
-      }).then(this.props.setUserObj(res.data.username, res.data.cash + 1000));
+      }).then(
+        this.props.setUserNameAndCash(res.data.username, res.data.cash + 1000)
+      );
     });
   };
 
@@ -97,7 +99,7 @@ class Profile extends React.Component {
     API.updateUser(this.props.email, {
       username: this.state.newName
     }).then(res => {
-      this.props.setUserObj(this.state.newName, res.data.cash);
+      this.props.setUserNameAndCash(this.state.newName, res.data.cash);
     });
     this.setState({ username: this.state.newName, editName: false });
   };
