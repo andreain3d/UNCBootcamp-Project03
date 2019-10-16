@@ -164,7 +164,6 @@ class App extends Component {
           availableChips: 0,
           playerLeaveTable: true
         });
-        
       }
     });
 
@@ -221,6 +220,10 @@ class App extends Component {
   leaveTable = () => {
     // console.log("leave table clicked by " + this.state.name);
     axios.get("/api/table/leave/" + this.state.name);
+  };
+
+  setName = name => {
+    this.setState({ name: name });
   };
 
   resetRedirect = () => {
