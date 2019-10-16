@@ -47,9 +47,11 @@ module.exports = {
 
   //leaveTable will automatically cause a player to fold their current hand and flag the player for removal at the end of the hand
   leaveTable: (req, res) => {
+    console.log("Leave Table Server")
     var name = req.params.name;
     var socketId = req.body.id;
     if (name) {
+      console.log("Name Block")
       deque.push(req.params.name);
       serverTable.players.forEach((player, index) => {
         if (player.name === req.params.name) {
@@ -67,6 +69,7 @@ module.exports = {
       return res.send();
     }
     if (socketId && serverTable) {
+      console.log("socket block")
       var name = "";
       serverTable.players.forEach((player, index) => {
         if (player.id === socketId) {
@@ -84,7 +87,8 @@ module.exports = {
       });
       return res.send();
     }
-    return res.stat(404).send(new Error("something went wrong"));
+    console.log("Error Block")
+    return res.send();
   },
 
   leaveQue: (req, res) => {
@@ -125,17 +129,7 @@ let fold = pos => {
     message: `${serverTable.players[parseInt(pos)].name} folds`,
     style: "#373c77"
   });
-  if (
-    serverTable.betsIn &&
-    serverTable.foldedPlayers === serverTable.players.length - 1
-  ) {
-    io.emit("PLACEBET", {
-      players: fetchPlayers(),
-      pot: serverTable.pot[0]
-    });
-    next(4);
-    return;
-  }
+  
   if (serverTable.foldedPlayers === serverTable.players.length - 1) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
@@ -536,31 +530,41 @@ let prime = async obj => {
 
 let addPlayer = async obj => {
   return new Promise(resolve => {
-    const { name, cash, img, id } = obj;
-    var player = new Player(name, parseInt(cash), img, id);
+    const { name, cash, img, id, email } = obj;
+    var player = new Player(name, parseInt(cash), img, id, email);
     //check to see if the player name exists on the table
-    // var isAtTable = false;
-    // var tableIndex = -1;
-    // if (serverTable) {
-    //   serverTable.players.forEach((p, index) => {
-    //     if (player.name === p.name) {
-    //       isAtTable = true;
-    //       tableIndex = index;
-    //     }
-    //   });
-    // }
-    // if (isAtTable) {
-    //   serverTable.players[tableIndex].id = player.id;
-    //   io.emit("PRIME", {
-    //     players: fetchPlayers(),
-    //     dealerIndex: serverTable.dealerIndex,
-    //     pot: serverTable.pot[0]
-    //   });
-    //   return resolve({ que });
-    // }
-    var quePos = que.length;
-    que.push(player);
-
+    var isAtTable = false;
+    var tableIndex = -1;
+    if (serverTable) {
+      serverTable.players.forEach((p, index) => {
+        if (player.name === p.name) {
+          isAtTable = true;
+          tableIndex = index;
+        }
+      });
+    }
+    if (isAtTable) {
+      serverTable.players[tableIndex].id = player.id;
+      io.emit("PRIME", {
+        players: fetchPlayers(),
+        dealerIndex: serverTable.dealerIndex,
+        pot: serverTable.pot[0]
+      });
+      return resolve({ que });
+    }
+    //check to see if a player is in the que
+    var inQueue = false;
+    var quePos;
+    que.forEach((p,index) => {
+      if (p.name === player.name){
+        inQueue = true;
+        quePos = index;
+      }
+    })
+    if(!inQueue){
+      quePos = que.length;
+      que.push(player);
+    }
     io.emit("ADDPLAYER", {
       quePos,
       player,
