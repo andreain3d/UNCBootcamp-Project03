@@ -166,7 +166,7 @@ class App extends Component {
         const { user } = this.context;
         API.getUser(user.email).then(res => {
           API.updateUser(res.data.email, {
-            cash: res.data.cash + res.data.player.chips
+            cash: player.cash
           });
         });
         // this.leaveTable();
