@@ -117,6 +117,7 @@ function Table(
       }
     });
     this.allInPlayers = allIns;
+    this.foldedPlayers - folds;
     if (count + folds + nulls === this.players.length) {
       this.betsIn = true;
     }
@@ -132,10 +133,12 @@ function Table(
     if (this.position === this.players.length) {
       this.position = 0;
     }
+    if (this.players[this.position] === null) {
+      return;
+    }
     if (
       this.players[this.position].didFold ||
-      this.players[this.position].isAllIn ||
-      this.players[this.position] === null
+      this.players[this.position].isAllIn
     ) {
       this.shift();
     }

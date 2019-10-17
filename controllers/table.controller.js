@@ -309,9 +309,10 @@ let next = async (round, force = false) => {
       break;
     case "flop":
       if (!flopOut) {
+        flopOut = true;
         console.log(">>>>>>>>calling doFlop()<<<<<<<<<<<");
         await doFlop();
-        flopOut = true;
+
         io.emit("RECEIVE_MESSAGE", {
           style: "#1a643f",
           message: `The Flop has been dealt`
@@ -320,9 +321,10 @@ let next = async (round, force = false) => {
       break;
     case "turn":
       if (!turnOut) {
+        turnOut = true;
         console.log(">>>>>>>>calling doTurn()<<<<<<<<<<<");
         await doTurn();
-        turnOut = true;
+
         io.emit("RECEIVE_MESSAGE", {
           style: "#1a643f",
           message: `The Turn has been dealt`
@@ -331,9 +333,10 @@ let next = async (round, force = false) => {
       break;
     case "river":
       if (!riverOut) {
+        riverOut = true;
         console.log(">>>>>>>>calling doRiver()<<<<<<<<<<<");
         await doRiver();
-        riverOut = true;
+
         io.emit("RECEIVE_MESSAGE", {
           style: "#1a643f",
           message: `The River has been dealt`
@@ -342,12 +345,16 @@ let next = async (round, force = false) => {
 
       break;
     case "payout":
-      console.log(`>>>>>>>>calling payout(${force})<<<<<<<<<<<`);
-      payout(force);
-      io.emit("RECEIVE_MESSAGE", {
-        style: "#1a643f",
-        message: `The hand is over`
-      });
+      if (!payoutCalled) {
+        payoutCalled = true;
+        console.log(`>>>>>>>>calling payout(${force})<<<<<<<<<<<`);
+        await payout(force);
+        io.emit("RECEIVE_MESSAGE", {
+          style: "#1a643f",
+          message: `The hand is over`
+        });
+      }
+
       break;
     default:
       console.log("NEXT DEFAULT REACHED");
@@ -358,25 +365,22 @@ let next = async (round, force = false) => {
 
 let placeBet = async (pos, amt) => {
   console.log("========== PLACE BET FUNCTION ==========");
-  const {
-    position: tablePos,
-    round,
-    currentBet,
-    players,
-    betsIn,
-    pot
-  } = serverTable;
+  const { position: tablePos, round, currentBet, players, pot } = serverTable;
   let position = parseInt(pos);
   let amount = parseInt(amt);
   if (position < 0) {
     //check to see if all bets are in
     serverTable.checkBetState();
     if (serverTable.betsIn) {
+      console.log(
+        ">>>>>>>>>>calling next(" + serverTable.round + 1 + ")<<<<<<<<<<"
+      );
       await next(serverTable.round + 1);
       return new Promise(resolve => resolve());
     }
     if (serverTable.foldedPlayers === serverTable.players.length - 1) {
-      next(4, true);
+      console.log(">>>>>>>>>>calling next(4, true)<<<<<<<<<<");
+      await next(4, true);
       return new Promise(resolve => resolve());
     }
     io.emit("PLACEBET", {
@@ -461,22 +465,25 @@ let prime = async obj => {
     next(0);
     return new Promise(resolve => resolve());
   } else {
+    console.log("else in prime");
     //the table exists and may contain null players
     //handle the null players first by replacing them with players from the que.
     //map the players array for empty seats (null)
     var emptySeats = [];
-    serverTable.players.forEach((player, index) => {
+    for (var index = 0; index < serverTable.players.length; index++) {
+      var player = serverTable.players[index];
       if (player === null) {
         emptySeats.push(index);
-        return;
+        continue;
       }
       if (player.chips === 0) {
         //send them back to the lobby
-        leaveTable(player.name);
+        io.emit("LEAVETABLE", player);
+        serverTable.players[index] = null;
         emptySeats.push(index);
-        return;
+        continue;
       }
-    });
+    }
     for (var i = 0; i < emptySeats.length; i++) {
       if (que.length === 0) break;
       serverTable.addPlayer(que.shift(), i);
@@ -694,27 +701,30 @@ let dealCards = async () => {
       big,
       small
     });
-    if (serverTable.players.length === 2) {
-      //the dealer is also the small blind
-      serverTable.players[small].chips -= serverTable.smallBlind;
-      serverTable.players[small].bets[0] += serverTable.smallBlind;
-      serverTable.players[big].chips -= serverTable.bigBlind;
-      serverTable.players[big].bets[0] += serverTable.bigBlind;
-      serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
-      nextPlayer = serverTable.players[small].name;
+
+    if (serverTable.players[small].chips < serverTable.smallBlind) {
+      serverTable.collect(serverTable.players[small].chips);
+      serverTable.players[small].bets[0] = serverTable.players[small].chips;
+      serverTable.players[small].chips = 0;
+      serverTable.players[small].isAllIn = true;
     } else {
-      //there are more than 2 players
       serverTable.players[small].chips -= serverTable.smallBlind;
       serverTable.players[small].bets[0] += serverTable.smallBlind;
+      serverTable.collect(serverTable.smallBlind);
+    }
+
+    if (serverTable.players[big].chips < serverTable.bigBlind) {
+      serverTable.collect(serverTable.players[big].chips);
+      serverTable.players[big].bets[0] = serverTable.players[big].chips;
+      serverTable.players[big].chips = 0;
+      serverTable.players[big].isAllIn = true;
+    } else {
       serverTable.players[big].chips -= serverTable.bigBlind;
       serverTable.players[big].bets[0] += serverTable.bigBlind;
-      serverTable.collect(serverTable.smallBlind + serverTable.bigBlind);
-      var nxt = big + 1;
-      if (nxt === serverTable.players.length) {
-        nxt = 0;
-      }
-      nextPlayer = serverTable.players[nxt].name;
+      serverTable.collect(serverTable.bigBlind);
     }
+
+    nextPlayer = serverTable.players[small].name;
 
     serverTable.currentBet = serverTable.bigBlind;
     io.emit("RECEIVE_MESSAGE", {
@@ -816,14 +826,11 @@ let doRiver = async () => {
 };
 
 let payout = async (force = false) => {
+  if (!serverTable) {
+    return new Promise(resolve => resolve());
+  }
   await timer(2000);
   console.log("========== PAYOUT FUNCTION ==========");
-  if (payoutCalled) {
-    console.log("*** payout has already been called ***");
-    console.log("========== END PAYOUT FUNCTION ==========");
-    return;
-  }
-  payoutCalled = true;
   return new Promise(resolve => {
     var count = 0;
     serverTable.players.forEach(player => {
