@@ -93,7 +93,11 @@ class TableView extends Component {
             position={position}
             round={round}
           />
-          {hands && hands.length > 0 ? <EndDialog socket={socket} hands={hands} /> : ""}
+          {hands && hands.length > 0 ? (
+            <EndDialog socket={socket} hands={hands} />
+          ) : (
+            ""
+          )}
           <Grid container className={classes.grow}>
             <Grid item xs={12} sm={6}>
               <Options
@@ -105,6 +109,8 @@ class TableView extends Component {
                 bigBlind={bigBlind}
                 availableChips={players[position] ? players[position].chips : 0}
                 currentBet={currentBet}
+                autoFolds={this.props.autoFolds}
+                setAutoFolds={this.props.setAutoFolds}
               />
             </Grid>
             <Grid item xs={12} sm={6}>

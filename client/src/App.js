@@ -33,7 +33,8 @@ class App extends Component {
       playerLeaveTable: false,
       message: "",
       allMessages: [],
-      round: 0
+      round: 0,
+      autoFolds: 0
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
@@ -165,7 +166,8 @@ class App extends Component {
           position: -1,
           dealerIndex: 0,
           availableChips: 0,
-          playerLeaveTable: true
+          playerLeaveTable: true,
+          autoFolds: 0
         });
       }
     });
@@ -245,6 +247,13 @@ class App extends Component {
     this.setState({ name, cash });
   };
 
+  setAutoFolds = autoFolds => {
+    this.setState({ autoFolds });
+    if (this.state.autoFolds > 2) {
+      this.leaveTable();
+    }
+  };
+
   render() {
     return (
       <BrowserRouter>
@@ -276,6 +285,8 @@ class App extends Component {
               round={this.state.round}
               name={this.state.name}
               cash={this.state.cash}
+              autoFolds={this.state.autoFolds}
+              setAutoFolds={this.setAutoFolds}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
