@@ -71,6 +71,7 @@ class Navbar extends Component {
                 color="secondary"
                 variant="contained"
                 className={classes.button}
+                onClick={leaveTable}
               >
                 <AccountBox />
                 Your Profile

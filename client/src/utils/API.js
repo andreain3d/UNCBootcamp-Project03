@@ -23,6 +23,6 @@ export default {
     return axios.delete("/api/table/leave/" + name);
   },
   leaveTable: function(name) {
-    return axios.get("/api/table/leave/" + name);
+    return axios.post("/api/table/leave", {name});
   }
 };

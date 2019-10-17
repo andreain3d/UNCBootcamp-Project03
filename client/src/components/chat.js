@@ -34,10 +34,6 @@ const styles = {
 };
 
 class Chat extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     this.scrollToBottom();
   }
@@ -61,7 +57,10 @@ class Chat extends Component {
               if (isEmpty(message.author)) {
                 return (
                   <div key={index}>
-                    <Typography variant="body1" style={{ color: message.style }}>
+                    <Typography
+                      variant="body1"
+                      style={{ color: message.style }}
+                    >
                       {message.message}
                     </Typography>
                   </div>
