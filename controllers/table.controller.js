@@ -984,7 +984,7 @@ let leaveTable = async (name, id) => {
   console.log("========== LEAVE TABLE FUNCTION ==========");
   if (name) {
     for (var i = 0; i < serverTable.players.length; i++) {
-      let player = cloneDeep(serverTable.players[i]);
+      let player = serverTable.players[i];
 
       if (player.name === name) {
         if (serverTable.players.length > 1) {
@@ -1021,7 +1021,7 @@ let leaveTable = async (name, id) => {
   }
   if (id && id !== null && serverTable) {
     for (var i = 0; i < serverTable.players.length; i++) {
-      var player = cloneDeep(serverTable.players[i]);
+      var player = serverTable.players[i];
       if (player === null) continue;
       if (player.id === id) {
         if (serverTable.players.length > 1) {
