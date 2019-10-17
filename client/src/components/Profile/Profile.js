@@ -134,10 +134,8 @@ class Profile extends React.Component {
             />
             {this.state.editImg ? null : (
               <Fragment>
-                <Tooltip title="Edit Image">
-                  <IconButton color="secondary" onClick={this.toggleImageEdit}>
-                    <Edit />
-                  </IconButton>
+                <Tooltip title="Edit Image" placement="right">
+                  <Edit color="secondary" onClick={this.toggleImageEdit} />
                 </Tooltip>
               </Fragment>
             )}
@@ -174,10 +172,8 @@ class Profile extends React.Component {
               <Fragment>
                 <h2>
                   {this.state.username}
-                  <Tooltip title="Edit Name">
-                    <IconButton color="secondary" onClick={this.toggleNameEdit}>
-                      <Edit />
-                    </IconButton>
+                  <Tooltip title="Edit Name" placement="right">
+                    <Edit color="secondary" onClick={this.toggleNameEdit} />
                   </Tooltip>
                 </h2>
               </Fragment>
