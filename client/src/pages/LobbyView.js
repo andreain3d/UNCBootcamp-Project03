@@ -101,7 +101,12 @@ class LobbyView extends Component {
 
     API.getUser(user.email)
       .then(res => {
-        this.props.setName(res.data.username, res.data.email, res.data.image);
+        this.props.setName(
+          res.data.username,
+          res.data.email,
+          res.data.image,
+          res.data.cash
+        );
       })
       .catch(err => console.log(err));
   }
@@ -198,7 +203,12 @@ class LobbyView extends Component {
 
         {isAuthenticated && (
           <Fragment>
-            <Navbar profile="true" logout="true" />
+            <Navbar
+              profile="true"
+              logout="true"
+              name={this.props.name}
+              cash={this.props.cash}
+            />
             <Grid
               className={classes.background}
               container
@@ -223,7 +233,7 @@ class LobbyView extends Component {
                   </Grid>
                   <Grid item xs={12}>
                     <Grid container justify="center">
-                      {this.state.joined ? (
+                      {this.state.joined || this.props.cash < 200 ? (
                         <Button
                           disabled
                           onClick={this.joinGame}
