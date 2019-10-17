@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Auth0Context } from "../react-auth0-wrapper";
 import { withStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Typography, Button } from "@material-ui/core";
@@ -21,34 +21,15 @@ const styles = {
 class Navbar extends Component {
   static contextType = Auth0Context;
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      userObj: ""
-    };
-  }
-
-  componentDidMount() {
-    this.getUser();
-  }
-
-  componentDidUpdate() {
-    this.getUser();
-  }
-
-  getUser = () => {
-    const { isAuthenticated, user } = this.context;
-    if (isAuthenticated) {
-      API.getUser(user.email).then(res => {
-        this.setState({ userObj: res.data });
-      });
-    }
-  };
-
-  render(props) {
+  render() {
     const { logout, user } = this.context;
     const classes = this.props.classes;
     const { leaveTable } = this.props;
+
+    if (!user) {
+      return <Redirect to="/" />;
+    }
+
     return (
       <AppBar position="static" className={classes.grow}>
         <Toolbar>
@@ -66,7 +47,7 @@ class Navbar extends Component {
               color="inherit"
               className={classes.userInfo}
             >
-              {this.state.userObj.username} : ${this.state.userObj.cash}
+              {this.props.name} : ${this.props.cash}
             </Typography>
           ) : (
             ""

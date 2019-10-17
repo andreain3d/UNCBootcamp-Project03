@@ -73,7 +73,13 @@ class TableView extends Component {
     return (
       <MuiThemeProvider theme={theme}>
         <Grid container className={classes.background}>
-          <Navbar return="true" logout="true" leaveTable={leaveTable} />
+          <Navbar
+            return="true"
+            logout="true"
+            name={this.props.name}
+            cash={this.props.cash}
+            leaveTable={leaveTable}
+          />
           <Table
             actionTo={actionTo}
             dealer={dealer}

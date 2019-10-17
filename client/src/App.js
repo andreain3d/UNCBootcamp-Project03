@@ -25,6 +25,7 @@ class App extends Component {
       name: "",
       email: "",
       img: "",
+      cash: 0,
       index: 0,
       dealerIndex: 0,
       socketId: "",
@@ -239,8 +240,19 @@ class App extends Component {
     }
   };
 
+<<<<<<< HEAD
   setName = (name, email, img) => {
     this.setState({ name, email, img });
+=======
+  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
+  //{Eugene Halpin} - this takes in data from the authentication loop and sets it in state so that it can be passed down into other components
+  setName = (name, email, img, cash) => {
+    this.setState({ name, email, img, cash });
+  };
+
+  setUserNameAndCash = (name, cash) => {
+    this.setState({ name, cash });
+>>>>>>> master
   };
 
   render() {
@@ -271,7 +283,12 @@ class App extends Component {
               addMessage={this.addMessage}
               sendMessage={this.sendMessage}
               handleInputChange={this.handleInputChange}
+<<<<<<< HEAD
               round={this.state.round}
+=======
+              name={this.state.name}
+              cash={this.state.cash}
+>>>>>>> master
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
@@ -280,6 +297,8 @@ class App extends Component {
               name={this.state.name}
               img={this.state.img}
               email={this.state.email}
+              cash={this.state.cash}
+              setUserNameAndCash={this.setUserNameAndCash}
             />
           </PrivateRoute>
           <Route path="/">
@@ -291,6 +310,9 @@ class App extends Component {
               resetRedirect={this.resetRedirect}
               allMessages={this.state.allMessages}
               addMessage={this.addMessage}
+              name={this.state.name}
+              cash={this.state.cash}
+              setUserNameAndCash={this.setUserNameAndCash}
             />
           </Route>
         </Switch>
