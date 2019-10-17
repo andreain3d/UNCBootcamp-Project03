@@ -91,7 +91,7 @@ class TableView extends Component {
             ""
           )}
           <Grid container className={classes.grow}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} sm={6}>
               <Options
                 socket={socket}
                 cards={playerCards}
@@ -103,7 +103,7 @@ class TableView extends Component {
                 currentBet={currentBet}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} sm={6}>
               <Chat
                 message={message}
                 allMessages={allMessages}
