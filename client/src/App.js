@@ -31,7 +31,8 @@ class App extends Component {
       availableChips: 0,
       playerLeaveTable: false,
       message: "",
-      allMessages: []
+      allMessages: [],
+      round: 0
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
@@ -121,14 +122,14 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const { players: playerInfo, currentBet, minBet, position: actionTo, pot } = data;
+      const { players: playerInfo, currentBet, minBet, position: actionTo, pot, round } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
       //if minBet === 0, the buttons should read check, bet, fold
       //else the buttons should read call, raise, fold
       //actionTo is the position value of the next player to bet. At the start of a round of betting, this value will be that of the small blind
-      this.setState({ playerInfo, currentBet, minBet, actionTo, pot });
+      this.setState({ playerInfo, currentBet, minBet, actionTo, pot, round });
       //if actionTo === this.state.position
       // Start the timer, activate the buttons in options
       // console.log(
@@ -238,8 +239,6 @@ class App extends Component {
     }
   };
 
-  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
-  //{Eugene Halpin} - this takes in data from the authentication loop and sets it in state so that it can be passed down into other components
   setName = (name, email, img) => {
     this.setState({ name, email, img });
   };
@@ -272,6 +271,7 @@ class App extends Component {
               addMessage={this.addMessage}
               sendMessage={this.sendMessage}
               handleInputChange={this.handleInputChange}
+              round={this.state.round}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">

@@ -62,7 +62,8 @@ class TableView extends Component {
       allMessages,
       addMessage,
       sendMessage,
-      handleInputChange
+      handleInputChange,
+      round
     } = this.props;
 
     if (playerLeaveTable || !user) {
@@ -84,12 +85,9 @@ class TableView extends Component {
             turn={turn}
             river={river}
             position={position}
+            round={round}
           />
-          {hands && hands.length > 0 ? (
-            <EndDialog socket={socket} hands={hands} />
-          ) : (
-            ""
-          )}
+          {hands && hands.length > 0 ? <EndDialog socket={socket} hands={hands} /> : ""}
           <Grid container className={classes.grow}>
             <Grid item xs={12} md={6}>
               <Options
