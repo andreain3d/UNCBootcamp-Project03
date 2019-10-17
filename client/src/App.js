@@ -123,7 +123,14 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const { players: playerInfo, currentBet, minBet, position: actionTo, pot, round } = data;
+      const {
+        players: playerInfo,
+        currentBet,
+        minBet,
+        position: actionTo,
+        pot,
+        round
+      } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -240,10 +247,6 @@ class App extends Component {
     }
   };
 
-<<<<<<< HEAD
-  setName = (name, email, img) => {
-    this.setState({ name, email, img });
-=======
   // {Nick Prather} - this is being passed to Lobby View; what's it doing?
   //{Eugene Halpin} - this takes in data from the authentication loop and sets it in state so that it can be passed down into other components
   setName = (name, email, img, cash) => {
@@ -252,7 +255,6 @@ class App extends Component {
 
   setUserNameAndCash = (name, cash) => {
     this.setState({ name, cash });
->>>>>>> master
   };
 
   render() {
@@ -283,12 +285,9 @@ class App extends Component {
               addMessage={this.addMessage}
               sendMessage={this.sendMessage}
               handleInputChange={this.handleInputChange}
-<<<<<<< HEAD
               round={this.state.round}
-=======
               name={this.state.name}
               cash={this.state.cash}
->>>>>>> master
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
