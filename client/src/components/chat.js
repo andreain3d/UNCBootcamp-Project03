@@ -45,7 +45,7 @@ class Chat extends Component {
     this.scrollToBottom();
   }
   scrollToBottom = () => {
-    this.el.scrollIntoView({ behavior: "smooth" });
+    this.el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
   };
 
   render(props) {
@@ -61,10 +61,7 @@ class Chat extends Component {
               if (isEmpty(message.author)) {
                 return (
                   <div key={index}>
-                    <Typography
-                      variant="body1"
-                      style={{ color: message.style }}
-                    >
+                    <Typography variant="body1" style={{ color: message.style }}>
                       {message.message}
                     </Typography>
                   </div>
@@ -96,12 +93,7 @@ class Chat extends Component {
                 className={classes.textField}
                 margin="normal"
               />
-              <Button
-                className={classes.button}
-                variant="contained"
-                color="secondary"
-                onClick={this.props.sendMessage}
-              >
+              <Button className={classes.button} variant="contained" color="secondary" onClick={this.props.sendMessage}>
                 Post
               </Button>
             </Grid>
