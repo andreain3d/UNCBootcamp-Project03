@@ -38,7 +38,7 @@ class App extends Component {
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
     this.socket.on("connect", () => {
-      // console.log("connected");
+      console.log("connected");
       this.setState({ socketId: this.socket.id });
       //update the user object
     });
@@ -123,7 +123,14 @@ class App extends Component {
     });
 
     this.socket.on("PLACEBET", data => {
-      const { players: playerInfo, currentBet, minBet, position: actionTo, pot, round } = data;
+      const {
+        players: playerInfo,
+        currentBet,
+        minBet,
+        position: actionTo,
+        pot,
+        round
+      } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
       //minBet is the amount a player needs to bet in order to "call"
@@ -143,7 +150,7 @@ class App extends Component {
 
     this.socket.on("LEAVETABLE", player => {
       // console.log("SOCKET LEAVE TABLE");
-      // console.log(player);
+      console.log(player);
       //player contains the player object keys from the table
       //compare player.name to this.state.name
       //if the same, send to lobby and save player
@@ -160,18 +167,6 @@ class App extends Component {
           availableChips: 0,
           playerLeaveTable: true
         });
-        //convert the player chips back to cash
-        // console.log(player.chips, player.cash);
-        player.cash += player.chips;
-        player.chips = 0;
-        //call a function to update the player object in the db here!
-        const { user } = this.context;
-        API.getUser(user.email).then(res => {
-          API.updateUser(res.data.email, {
-            cash: player.cash
-          });
-        });
-        // this.leaveTable();
       }
     });
 
@@ -188,7 +183,7 @@ class App extends Component {
 
     this.socket.on("ERROR", data => {
       // console.log("=============ERROR=============");
-      // console.log(data);
+      console.log(data);
       // console.log("==============END==============");
     });
 
@@ -227,7 +222,7 @@ class App extends Component {
 
   leaveTable = () => {
     // console.log("leave table clicked by " + this.state.name);
-    axios.get("/api/table/leave/" + this.state.name);
+    API.leaveTable(this.state.name);
   };
 
   setName = name => {
@@ -276,13 +271,11 @@ class App extends Component {
               addMessage={this.addMessage}
               sendMessage={this.sendMessage}
               handleInputChange={this.handleInputChange}
-<<<<<<< HEAD
               round={this.state.round}
-=======
               name={this.state.name}
               cash={this.state.cash}
->>>>>>> master
-            />
+              />
+
           </PrivateRoute>
           <PrivateRoute path="/profile">
             <ProfileView

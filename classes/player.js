@@ -16,17 +16,20 @@ function Player(name, cash, img, id, email) {
   this.email = email;
 
   this.bet = (chipValue, index) => {
+    console.log("PLAYER BET: ", chipValue);
     if (chipValue >= this.chips) {
       var amount = this.chips;
       this.bets[index] += amount;
       this.isAllIn = true;
       this.didBet = true;
       this.chips = 0;
+      console.log("AFTER: ", this.chips);
       return amount;
     }
     this.bets[index] += chipValue;
     this.chips -= chipValue;
     this.didBet = true;
+    console.log("AFTER: ", this.chips);
     return chipValue;
   };
 }

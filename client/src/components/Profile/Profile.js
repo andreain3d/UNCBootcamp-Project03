@@ -1,6 +1,12 @@
 import React, { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { Button, Grid, TextField } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  TextField,
+  IconButton,
+  Tooltip
+} from "@material-ui/core";
 import { Edit, Cancel } from "@material-ui/icons";
 import API from "../../utils/API";
 import axios from "axios";
@@ -127,7 +133,11 @@ class Profile extends React.Component {
               style={{ width: "200px", height: "200px" }}
             />
             {this.state.editImg ? null : (
-              <Edit onClick={this.toggleImageEdit} />
+              <Fragment>
+                <Tooltip title="Edit Image" placement="right">
+                  <Edit color="secondary" onClick={this.toggleImageEdit} />
+                </Tooltip>
+              </Fragment>
             )}
           </Grid>
           <Grid container justify="center" alignItems="center">
@@ -162,7 +172,9 @@ class Profile extends React.Component {
               <Fragment>
                 <h2>
                   {this.state.username}
-                  <Edit onClick={this.toggleNameEdit} />
+                  <Tooltip title="Edit Name" placement="right">
+                    <Edit color="secondary" onClick={this.toggleNameEdit} />
+                  </Tooltip>
                 </h2>
               </Fragment>
             )}
