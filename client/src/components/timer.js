@@ -42,6 +42,7 @@ class Timer extends Component {
     const { completed, timeLeft } = this.state;
     if (completed === 0) {
       this.setState({ timeLeft: 0 });
+      this.props.setAutoFolds(this.props.autoFolds + 1);
       this.BETTING(-1);
     } else {
       const diff = 2.3;
