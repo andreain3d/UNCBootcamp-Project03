@@ -23,6 +23,12 @@ const styles = {
     margin: 5,
     padding: 10,
     background: "#D5D5D5"
+  },
+  green: {
+    color: "green"
+  },
+  red: {
+    color: "red"
   }
 };
 
@@ -115,12 +121,26 @@ class Options extends Component {
         </Typography>
         <Paper className={classes.inner}>
           <Grid container justify="center">
+            <Grid xs={12}>
+              <Typography variant="h6" align="center">
+                Auto Folds:{" "}
+                {this.props.autoFolds < 2 ? (
+                  <span className={classes.green}>{this.props.autoFolds}</span>
+                ) : (
+                  <span className={classes.red}>{this.props.autoFolds}</span>
+                )}
+              </Typography>
+            </Grid>
             <PlayerCard src={cards.length > 0 ? cards[0].frontImage : ""} />
             <PlayerCard src={cards.length > 0 ? cards[1].frontImage : ""} />
           </Grid>
           {position === actionTo ? (
             <Grid container justify="center" alignItems="center">
-              <Timer position={position} />
+              <Timer
+                position={position}
+                autoFolds={this.props.autoFolds}
+                setAutoFolds={this.props.setAutoFolds}
+              />
             </Grid>
           ) : null}
           <Grid container justify="center">
