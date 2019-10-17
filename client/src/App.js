@@ -25,13 +25,15 @@ class App extends Component {
       name: "",
       email: "",
       img: "",
+      cash: 0,
       index: 0,
       dealerIndex: 0,
       socketId: "",
       availableChips: 0,
       playerLeaveTable: false,
       message: "",
-      allMessages: []
+      allMessages: [],
+      round: 0
     };
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
@@ -126,7 +128,8 @@ class App extends Component {
         currentBet,
         minBet,
         position: actionTo,
-        pot
+        pot,
+        round
       } = data;
       //playerInfo just updates the player info in the array. I removed any reference to player cards.
       //currentBet is the amount of the current bet for the round
@@ -134,7 +137,7 @@ class App extends Component {
       //if minBet === 0, the buttons should read check, bet, fold
       //else the buttons should read call, raise, fold
       //actionTo is the position value of the next player to bet. At the start of a round of betting, this value will be that of the small blind
-      this.setState({ playerInfo, currentBet, minBet, actionTo, pot });
+      this.setState({ playerInfo, currentBet, minBet, actionTo, pot, round });
       //if actionTo === this.state.position
       // Start the timer, activate the buttons in options
       // console.log(
@@ -234,8 +237,12 @@ class App extends Component {
 
   // {Nick Prather} - this is being passed to Lobby View; what's it doing?
   //{Eugene Halpin} - this takes in data from the authentication loop and sets it in state so that it can be passed down into other components
-  setName = (name, email, img) => {
-    this.setState({ name, email, img });
+  setName = (name, email, img, cash) => {
+    this.setState({ name, email, img, cash });
+  };
+
+  setUserNameAndCash = (name, cash) => {
+    this.setState({ name, cash });
   };
 
   render() {
@@ -266,6 +273,9 @@ class App extends Component {
               addMessage={this.addMessage}
               sendMessage={this.sendMessage}
               handleInputChange={this.handleInputChange}
+              round={this.state.round}
+              name={this.state.name}
+              cash={this.state.cash}
             />
           </PrivateRoute>
           <PrivateRoute path="/profile">
@@ -274,6 +284,8 @@ class App extends Component {
               name={this.state.name}
               img={this.state.img}
               email={this.state.email}
+              cash={this.state.cash}
+              setUserNameAndCash={this.setUserNameAndCash}
             />
           </PrivateRoute>
           <Route path="/">
@@ -285,6 +297,9 @@ class App extends Component {
               resetRedirect={this.resetRedirect}
               allMessages={this.state.allMessages}
               addMessage={this.addMessage}
+              name={this.state.name}
+              cash={this.state.cash}
+              setUserNameAndCash={this.setUserNameAndCash}
             />
           </Route>
         </Switch>

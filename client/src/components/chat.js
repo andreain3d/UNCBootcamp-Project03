@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
-import { Paper, Typography, Button, TextField } from "@material-ui/core";
+import { Grid, Paper, Typography, Button, TextField } from "@material-ui/core";
 import { isEmpty } from "lodash";
 
 const styles = {
@@ -24,8 +24,12 @@ const styles = {
     height: "25vh"
   },
   msgDisplay: {
+    padding: 5,
     overflowY: "scroll",
     height: "6rem"
+  },
+  button: {
+    marginLeft: 10
   }
 };
 
@@ -37,7 +41,7 @@ class Chat extends Component {
     this.scrollToBottom();
   }
   scrollToBottom = () => {
-    this.el.scrollIntoView({ behavior: "smooth" });
+    this.el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
   };
 
   render(props) {
@@ -76,19 +80,25 @@ class Chat extends Component {
               }}
             />
           </Paper>
-          <div className={classes.container} noValidate autoComplete="off">
-            <TextField
-              key="message"
-              name="message"
-              placeholder="message"
-              value={this.props.message}
-              onChange={this.props.handleInputChange}
-              label="Message"
-              className={classes.textField}
-              margin="normal"
-            />
-            <Button onClick={this.props.sendMessage}>Post</Button>
-          </div>
+          {this.props.position >= 0 ? (
+            <Grid container justify="center" alignItems="flex-end">
+              <TextField
+                key="message"
+                name="message"
+                placeholder="message"
+                value={this.props.message}
+                onChange={this.props.handleInputChange}
+                label="Message"
+                className={classes.textField}
+                margin="normal"
+              />
+              <Button className={classes.button} variant="contained" color="secondary" onClick={this.props.sendMessage}>
+                Post
+              </Button>
+            </Grid>
+          ) : (
+            ""
+          )}
         </Paper>
       </Paper>
     );

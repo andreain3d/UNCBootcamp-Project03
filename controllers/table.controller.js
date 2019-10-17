@@ -83,11 +83,11 @@ let fold = pos => {
     message: `${serverTable.players[parseInt(pos)].name} folds`,
     style: "#373c77"
   });
-
   if (serverTable.foldedPlayers === serverTable.players.length - 1) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
     console.log(">>>>>>>>calling next(4,true)<<<<<<<<<<<");
     next(4, true);
@@ -99,7 +99,8 @@ let fold = pos => {
   if (betsIn) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
     console.log(`>>>>>>>>calling next(${serverTable.round + 1})<<<<<<<<<<<`);
     next(serverTable.round + 1);
@@ -109,7 +110,8 @@ let fold = pos => {
       minBet: currentBet - players[position].bets[round],
       currentBet,
       position,
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
   }
   console.log("========== END FOLD FUNCTION ==========");
@@ -130,7 +132,8 @@ let call = (amount, pos) => {
   if (betsIn) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
     console.log(`>>>>>>>>calling next(${serverTable.round + 1})<<<<<<<<<<<`);
     next(serverTable.round + 1);
@@ -140,7 +143,8 @@ let call = (amount, pos) => {
       minBet: currentBet - players[position].bets[round],
       currentBet,
       position,
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
   }
   console.log("========== END CALL FUNCTION ==========");
@@ -160,7 +164,8 @@ let bet = (amount, pos) => {
   if (betsIn) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
     console.log(`>>>>>>>>calling next(${serverTable.round + 1})<<<<<<<<<<<`);
     next(serverTable.round + 1);
@@ -170,7 +175,8 @@ let bet = (amount, pos) => {
       minBet: currentBet - players[position].bets[round],
       currentBet,
       position,
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
   }
   console.log("========== END BET FUNCTION ==========");
@@ -195,7 +201,8 @@ let raise = (amount, pos) => {
     minBet: currentBet - players[position].bets[round],
     currentBet,
     position,
-    pot: serverTable.pot[0]
+    pot: serverTable.pot[0],
+    round: serverTable.round
   });
   console.log("========== END RAISE FUNCTION ==========");
 };
@@ -212,7 +219,8 @@ let check = pos => {
   if (betsIn) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
     console.log(`>>>>>>>>calling next(${serverTable.round + 1})<<<<<<<<<<<`);
     next(serverTable.round + 1);
@@ -222,7 +230,8 @@ let check = pos => {
       minBet: currentBet - players[position].bets[round],
       currentBet,
       position,
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
   }
   console.log("========== END CHECK FUNCTION ==========");
@@ -248,7 +257,8 @@ let allIn = pos => {
   if (betsIn) {
     io.emit("PLACEBET", {
       players: fetchPlayers(),
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
     console.log(`>>>>>>>>calling next(${serverTable.round + 1})<<<<<<<<<<<`);
     next(serverTable.round + 1);
@@ -258,7 +268,8 @@ let allIn = pos => {
       minBet: currentBet - players[position].bets[round],
       currentBet,
       position,
-      pot: serverTable.pot[0]
+      pot: serverTable.pot[0],
+      round: serverTable.round
     });
   }
   console.log("========== END ALL IN FUNCTION ==========");
@@ -373,7 +384,8 @@ let placeBet = async (pos, amt) => {
       minBet: currentBet - players[tablePos].bets[round],
       currentBet,
       position: tablePos,
-      pot: pot[0]
+      pot: pot[0],
+      round: serverTable.round
     });
     return new Promise(resolve => resolve());
   }
@@ -1003,7 +1015,7 @@ let leaveTable = async (name, id) => {
   if (id && id !== null && serverTable) {
     for (var i = 0; i < serverTable.players.length; i++) {
       var player = cloneDeep(serverTable.players[i]);
-      if(player === null) continue;
+      if (player === null) continue;
       if (player.id === id) {
         if (serverTable.players.length > 1) {
           placeBet(i, -1);

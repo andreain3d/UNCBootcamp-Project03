@@ -1,6 +1,12 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { Button, Grid, TextField } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  TextField,
+  IconButton,
+  Tooltip
+} from "@material-ui/core";
 import { Edit, Cancel } from "@material-ui/icons";
 import API from "../../utils/API";
 import axios from "axios";
@@ -29,6 +35,7 @@ class Profile extends React.Component {
       .then(res => {
         const { username, image, cash } = res.data;
         this.setState({ username, image, cash, loading: false });
+        this.props.setUserNameAndCash(username, cash);
       })
       .catch(err => {
         console.log(err);
@@ -39,7 +46,9 @@ class Profile extends React.Component {
     API.getUser(this.props.email).then(res => {
       API.updateUser(res.data.email, {
         cash: res.data.cash + 1000
-      });
+      }).then(
+        this.props.setUserNameAndCash(res.data.username, res.data.cash + 1000)
+      );
     });
   };
 
@@ -95,6 +104,8 @@ class Profile extends React.Component {
   handleNameUpdate = () => {
     API.updateUser(this.props.email, {
       username: this.state.newName
+    }).then(res => {
+      this.props.setUserNameAndCash(this.state.newName, res.data.cash);
     });
     this.setState({ username: this.state.newName, editName: false });
   };
@@ -115,12 +126,19 @@ class Profile extends React.Component {
     return (
       <Grid container justify="center" alignItems="center">
         <Grid item xs={12}>
-          <Grid container justify="center">
+          <Grid container justify="center" alignItems="flex-end">
             <img
               src={this.state.image}
               alt="Profile"
               style={{ width: "200px", height: "200px" }}
             />
+            {this.state.editImg ? null : (
+              <Fragment>
+                <Tooltip title="Edit Image" placement="right">
+                  <Edit color="secondary" onClick={this.toggleImageEdit} />
+                </Tooltip>
+              </Fragment>
+            )}
           </Grid>
           <Grid container justify="center" alignItems="center">
             {this.state.editImg ? (
@@ -135,13 +153,11 @@ class Profile extends React.Component {
                 upload={this.state.upload}
                 handleUploadChange={this.handleUploadChange}
               />
-            ) : (
-              <Edit onClick={this.toggleImageEdit} />
-            )}
+            ) : null}
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <Grid container justify="center">
+          <Grid container justify="center" alignItems="flex-end">
             {this.state.editName ? (
               <TextField
                 id="standard-name"
@@ -153,7 +169,14 @@ class Profile extends React.Component {
                 margin="normal"
               />
             ) : (
-              <h2>{this.state.username}</h2>
+              <Fragment>
+                <h2>
+                  {this.state.username}
+                  <Tooltip title="Edit Name" placement="right">
+                    <Edit color="secondary" onClick={this.toggleNameEdit} />
+                  </Tooltip>
+                </h2>
+              </Fragment>
             )}
           </Grid>
           <Grid container justify="center" alignItems="center">
@@ -168,9 +191,7 @@ class Profile extends React.Component {
                 </Button>
                 <Cancel onClick={this.cancelNameEdit} />
               </div>
-            ) : (
-              <Edit onClick={this.toggleNameEdit} />
-            )}
+            ) : null}
           </Grid>
         </Grid>
         <Grid item xs={12}>

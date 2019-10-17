@@ -62,7 +62,8 @@ class TableView extends Component {
       allMessages,
       addMessage,
       sendMessage,
-      handleInputChange
+      handleInputChange,
+      round
     } = this.props;
 
     if (playerLeaveTable || !user) {
@@ -72,7 +73,13 @@ class TableView extends Component {
     return (
       <MuiThemeProvider theme={theme}>
         <Grid container className={classes.background}>
-          <Navbar return="true" logout="true" leaveTable={leaveTable} />
+          <Navbar
+            return="true"
+            logout="true"
+            name={this.props.name}
+            cash={this.props.cash}
+            leaveTable={leaveTable}
+          />
           <Table
             actionTo={actionTo}
             dealer={dealer}
@@ -84,10 +91,11 @@ class TableView extends Component {
             turn={turn}
             river={river}
             position={position}
+            round={round}
           />
           {hands && hands.length > 0 ? <EndDialog socket={socket} hands={hands} /> : ""}
           <Grid container className={classes.grow}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} sm={6}>
               <Options
                 socket={socket}
                 cards={playerCards}
@@ -99,13 +107,14 @@ class TableView extends Component {
                 currentBet={currentBet}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} sm={6}>
               <Chat
                 message={message}
                 allMessages={allMessages}
                 addMessage={addMessage}
                 sendMessage={sendMessage}
                 handleInputChange={handleInputChange}
+                position={position}
               />
             </Grid>
           </Grid>
