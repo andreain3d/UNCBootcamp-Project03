@@ -133,21 +133,22 @@ class LobbyView extends Component {
           joined: true
         });
         API.updateUser(playerEmail, { cash: playerCash - 200 });
+        this.props.setUserNameAndCash(this.props.name, playerCash - 200);
       });
     });
   };
 
   leaveQueue = event => {
     event.preventDefault();
-    const { user } = this.context;
-    API.leaveQueue(user.nickname).then(() => {
+    API.leaveQueue(this.props.name).then(() => {
       this.setState({
         currentPos: 999999,
         queueLength: 999999,
         joined: false
       });
-      API.getUser(user.email).then(res => {
+      API.getUser(this.props.email).then(res => {
         API.updateUser(res.data.email, { cash: res.data.cash + 200 });
+        this.props.setUserNameAndCash(this.props.name, res.data.cash + 200);
       });
     });
   };
