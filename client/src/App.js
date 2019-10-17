@@ -240,19 +240,12 @@ class App extends Component {
     }
   };
 
-<<<<<<< HEAD
-  setName = (name, email, img) => {
-    this.setState({ name, email, img });
-=======
-  // {Nick Prather} - this is being passed to Lobby View; what's it doing?
-  //{Eugene Halpin} - this takes in data from the authentication loop and sets it in state so that it can be passed down into other components
   setName = (name, email, img, cash) => {
     this.setState({ name, email, img, cash });
   };
 
   setUserNameAndCash = (name, cash) => {
     this.setState({ name, cash });
->>>>>>> master
   };
 
   render() {
