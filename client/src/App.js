@@ -309,6 +309,7 @@ class App extends Component {
               allMessages={this.state.allMessages}
               addMessage={this.addMessage}
               name={this.state.name}
+              email={this.state.email}
               cash={this.state.cash}
               setUserNameAndCash={this.setUserNameAndCash}
             />

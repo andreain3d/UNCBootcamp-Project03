@@ -4,7 +4,6 @@ import { Auth0Context } from "../react-auth0-wrapper";
 import { withStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Typography, Button } from "@material-ui/core";
 import { ExitToApp, MeetingRoom, AccountBox } from "@material-ui/icons";
-import API from "../utils/API";
 
 const styles = {
   grow: {
