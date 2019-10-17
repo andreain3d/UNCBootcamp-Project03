@@ -36,11 +36,11 @@ let io = socket(server);
 io.on("connection", socket => {
   console.log("connection made on " + socket.id);
   require("./controllers/table.controller").init();
-  socket.on("disconnect", id => {
-    var axios = require("axios");
-    console.log("disconnect by " + id);
-    //const { check } = require("./controllers/table.controller");
-    axios.post("/api/table/leave", { id }).then(res => console.log(res));
+  socket.on("disconnect", () => {
+    // var axios = require("axios");
+    console.log("disconnect by " + socket.id);
+    const { handleDisconnect } = require("./controllers/table.controller");
+    handleDisconnect(socket.id);
   });
 
   socket.on("SEND_MESSAGE", data => {

@@ -60,7 +60,8 @@ class LobbyView extends Component {
       currentPos: 999999,
       queueLength: 999999,
       joined: false,
-      prime: false
+      prime: false,
+      initialized: false
     };
     this.socket = this.props.socket;
     this.socket.on("ADDPLAYER", data => {
@@ -153,8 +154,9 @@ class LobbyView extends Component {
     if (loading) {
       return <div>Loading...</div>;
     }
-    if (user) {
+    if (user && !this.state.initialized) {
       this.init();
+      this.setState({ initialized: true });
     }
     return (
       <MuiThemeProvider theme={theme}>

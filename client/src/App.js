@@ -36,7 +36,7 @@ class App extends Component {
     //socket should be defined at the top level and passed through to the chat, table, and options components
     this.socket = io.connect();
     this.socket.on("connect", () => {
-      // console.log("connected");
+      console.log("connected");
       this.setState({ socketId: this.socket.id });
       //update the user object
     });
@@ -180,7 +180,7 @@ class App extends Component {
 
     this.socket.on("ERROR", data => {
       // console.log("=============ERROR=============");
-      // console.log(data);
+      console.log(data);
       // console.log("==============END==============");
     });
 
@@ -219,7 +219,7 @@ class App extends Component {
 
   leaveTable = () => {
     // console.log("leave table clicked by " + this.state.name);
-    axios.get("/api/table/leave/" + this.state.name);
+    API.leaveTable(this.state.name);
   };
 
   setName = name => {

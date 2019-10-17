@@ -45,7 +45,12 @@ function Table(
     var count = 0;
     var folds = 0;
     var allIns = 0;
+    var nulls = 0;
     this.players.forEach(player => {
+      if (player === null) {
+        nulls++;
+        return;
+      }
       if (player.didFold) {
         return folds++;
       }
@@ -64,7 +69,7 @@ function Table(
     });
     this.allInPlayers = allIns;
     this.foldedPlayers = folds;
-    if (count + folds === this.players.length) {
+    if (count + folds + nulls === this.players.length) {
       this.betsIn = true;
       //reset the betting position to the small blind
       if (this.players.length === 2) {
@@ -87,9 +92,14 @@ function Table(
     var count = 0;
     var folds = 0;
     var allIns = 0;
+    var nulls = 0;
     this.players.forEach(player => {
       // console.log(...player.bets);
       // console.log(player.didBet);
+      if (player === null) {
+        nulls++;
+        return;
+      }
       if (player.didFold) {
         return folds++;
       }
@@ -107,10 +117,10 @@ function Table(
       }
     });
     this.allInPlayers = allIns;
-    if (count + folds === this.players.length) {
+    if (count + folds + nulls === this.players.length) {
       this.betsIn = true;
     }
-    if (this.allInPlayers >= this.players.length - 1) {
+    if (this.allInPlayers + nulls >= this.players.length - 1) {
       this.betsIn = true;
     }
     return;
@@ -124,7 +134,8 @@ function Table(
     }
     if (
       this.players[this.position].didFold ||
-      this.players[this.position].isAllIn
+      this.players[this.position].isAllIn ||
+      this.players[this.position] === null
     ) {
       this.shift();
     }
@@ -200,10 +211,11 @@ function Table(
     //this method will throw an error if cards have not been dealt and the turn, flop, and river methods have not run.
     //loop over every player and make the best possible hand
     this.players.forEach((player, index) => {
-      if (player.didFold) {
+      if (player.didFold || player === null) {
         return;
       }
       var cards = [...player.cards, ...this.flop, this.turn, this.river];
+      console.log(cards);
       // console.log(
       //   `FINDBESTHAND CARDS ARRAY FOR ${player.name} IN POSITION ${index}: `,
       //   cards.length
