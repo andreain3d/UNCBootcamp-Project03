@@ -38,6 +38,6 @@
     "passport-auth0": "^1.2.1",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.4.0"
   }
 }
