@@ -18,7 +18,7 @@ app.use(routes);
 
 mongoose.connect(
   process.env.MONGODB_URI ||
-    "mongodb://admin-user:password1@ds333248.mlab.com:33248/heroku_n82s3tgn",
+    "mongodb+srv://andrea:YayB00ks@cluster0.r511r.mongodb.net/React-Poker?retryWrites=true&w=majority",
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
